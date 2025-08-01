@@ -31,6 +31,16 @@ const nextConfig = {
   },
   // Add webpack configuration for performance
   webpack: (config, { isServer, dev }) => {
+    // Add path aliases for webpack
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': require('path').resolve(__dirname, 'src'),
+      '@/components': require('path').resolve(__dirname, 'src/components'),
+      '@/lib': require('path').resolve(__dirname, 'src/lib'),
+      '@/hooks': require('path').resolve(__dirname, 'src/hooks'),
+      '@/types': require('path').resolve(__dirname, 'src/types'),
+    };
+
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
