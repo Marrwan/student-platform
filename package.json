@@ -33,8 +33,13 @@
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.10",
     "@tinymce/tinymce-react": "^6.3.0",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^20.10.5",
+    "@types/prismjs": "^1.26.3",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
     "@types/react-select": "^5.0.0",
+    "@types/react-window": "^1.8.8",
     "@uiw/react-md-editor": "^4.0.8",
     "autoprefixer": "^10.4.16",
     "axios": "^1.6.2",
@@ -66,11 +71,6 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@types/js-cookie": "^3.0.6",
-    "@types/prismjs": "^1.26.3",
-    "@types/react": "^18.2.45",
-    "@types/react-dom": "^18.2.18",
-    "@types/react-window": "^1.8.8",
     "eslint": "^8.56.0",
     "eslint-config-next": "^14.0.4",
     "webpack-bundle-analyzer": "^4.10.1"
