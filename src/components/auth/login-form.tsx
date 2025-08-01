@@ -1,0 +1,180 @@
+'use client';
+
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useAuth } from '@/components/providers/auth-provider';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
+import toast from 'react-hot-toast';
+
+const loginSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(1, 'Password is required'),
+  verificationOtp: z.string().optional(),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
+
+export function LoginForm() {
+  const { login } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [email, setEmail] = useState('');
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const watchedEmail = watch('email');
+
+  const onSubmit = async (data: LoginFormData) => {
+    setIsLoading(true);
+    try {
+      await login(data.email, data.password, data.verificationOtp);
+    } catch (error: any) {
+      console.error('Login error:', error);
+      
+      if (error.response?.data?.needsVerification) {
+        setNeedsVerification(true);
+        setEmail(data.email);
+        toast.error('Please verify your email address. Enter the 6-digit verification code below.');
+      } else {
+        toast.error(error.response?.data?.message || 'Login failed');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!email) {
+      toast.error('Please enter your email address first');
+      return;
+    }
+    
+    try {
+      const { resendVerification } = useAuth();
+      await resendVerification(email);
+      toast.success('Verification code sent successfully!');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to send verification code');
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
+          type="email"
+          placeholder="Enter your email"
+          {...register('email')}
+          className={errors.email ? 'border-red-500' : ''}
+        />
+        {errors.email && (
+          <p className="text-sm text-red-500">{errors.email.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="password">Password</Label>
+        <div className="relative">
+          <Input
+            id="password"
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Enter your password"
+            {...register('password')}
+            className={errors.password ? 'border-red-500' : ''}
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+        {errors.password && (
+          <p className="text-sm text-red-500">{errors.password.message}</p>
+        )}
+      </div>
+
+      {needsVerification && (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <AlertCircle className="h-4 w-4 text-yellow-600" />
+            <p className="text-sm text-yellow-800">
+              Please verify your email address to continue
+            </p>
+          </div>
+          
+          <Label htmlFor="verificationOtp">6-Digit Verification Code</Label>
+          <Input
+            id="verificationOtp"
+            type="text"
+            placeholder="Enter 6-digit code from email"
+            maxLength={6}
+            {...register('verificationOtp')}
+            className={errors.verificationOtp ? 'border-red-500' : ''}
+          />
+          {errors.verificationOtp && (
+            <p className="text-sm text-red-500">{errors.verificationOtp.message}</p>
+          )}
+          
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleResendVerification}
+              className="flex-1"
+            >
+              Resend Verification Code
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setNeedsVerification(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            {needsVerification ? 'Verifying...' : 'Signing in...'}
+          </>
+        ) : (
+          needsVerification ? 'Verify & Sign In' : 'Sign In'
+        )}
+      </Button>
+    </form>
+  );
+} 
