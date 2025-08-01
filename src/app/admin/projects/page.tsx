@@ -27,20 +27,7 @@ import {
 import { api } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  day: number;
-  difficulty: string;
-  deadline: string;
-  isLocked: boolean;
-  isActive: boolean;
-  requirements: string[];
-  createdAt: string;
-  updatedAt: string;
-}
+import type { Project } from '@/types';
 
 export default function AdminProjectsPage() {
   return (
@@ -275,7 +262,7 @@ function AdminProjectsList() {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => handleToggleLock(project.id, project.isLocked)}
+                      onClick={() => handleToggleLock(project.id, !!project.isLocked)}
                     >
                       {project.isLocked ? <Lock className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>

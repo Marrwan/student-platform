@@ -497,6 +497,8 @@ export interface ProjectFormData {
   hints?: string;
   tags: string[];
   estimatedTime: number;
+  isUnlocked?: boolean;
+  isActive?: boolean;
 }
 
 export interface ClassFormData {

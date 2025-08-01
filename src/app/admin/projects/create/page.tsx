@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Save, Plus } from 'lucide-react';
 import { api } from '@/lib/api';
 import toast from 'react-hot-toast';
+import type { ProjectFormData } from '@/types';
 
 export default function CreateProjectPage() {
   return (
@@ -26,15 +27,17 @@ function CreateProjectForm() {
   const router = useRouter();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ProjectFormData>({
     title: '',
     description: '',
-    day: '',
+    day: 1,
     difficulty: 'easy',
     maxScore: 100,
     deadline: '',
     requirements: '',
-    sampleOutput: ''
+    sampleOutput: '',
+    tags: [],
+    estimatedTime: 60
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,7 +55,7 @@ function CreateProjectForm() {
     }
   };
 
-  const handleChange = (field: string, value: string | number) => {
+  const handleChange = (field: keyof ProjectFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -112,7 +115,7 @@ function CreateProjectForm() {
                       min="1"
                       max="365"
                       value={formData.day}
-                      onChange={(e) => handleChange('day', parseInt(e.target.value))}
+                      onChange={(e) => handleChange('day', parseInt(e.target.value) || 1)}
                       placeholder="1-365"
                       required
                     />
@@ -132,15 +135,15 @@ function CreateProjectForm() {
                 </div>
 
                 {/* Project Settings */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="difficulty">Difficulty Level</Label>
+                    <Label htmlFor="difficulty">Difficulty *</Label>
                     <Select
                       value={formData.difficulty}
-                      onValueChange={(value) => handleChange('difficulty', value)}
+                      onValueChange={(value) => handleChange('difficulty', value as ProjectFormData['difficulty'])}
                     >
-                      <SelectTrigger>
-                        <SelectValue />
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select difficulty" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="easy">Easy</SelectItem>
@@ -152,25 +155,15 @@ function CreateProjectForm() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="maxScore">Maximum Score</Label>
+                    <Label htmlFor="maxScore">Max Score *</Label>
                     <Input
                       id="maxScore"
                       type="number"
                       min="1"
                       max="1000"
                       value={formData.maxScore}
-                      onChange={(e) => handleChange('maxScore', parseInt(e.target.value))}
+                      onChange={(e) => handleChange('maxScore', parseInt(e.target.value) || 100)}
                       placeholder="100"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="deadline">Deadline *</Label>
-                    <Input
-                      id="deadline"
-                      type="datetime-local"
-                      value={formData.deadline}
-                      onChange={(e) => handleChange('deadline', e.target.value)}
                       required
                     />
                   </div>

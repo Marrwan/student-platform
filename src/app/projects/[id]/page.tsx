@@ -240,24 +240,34 @@ function ProjectViewer() {
                 <div className="space-y-2">
                   <h4 className="font-medium">Requirements</h4>
                   <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
-                    {project.requirements.map((req, index) => (
+                    {Array.isArray(project.requirements) ? project.requirements.map((req, index) => (
                       <li key={index} className="flex items-start gap-2">
                         <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                         {req}
                       </li>
-                    ))}
+                    )) : (
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        {project.requirements || 'No requirements specified'}
+                      </li>
+                    )}
                   </ul>
                 </div>
 
                 <div className="space-y-2">
                   <h4 className="font-medium">Learning Objectives</h4>
                   <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
-                    {project.learningObjectives.map((obj, index) => (
+                    {Array.isArray(project.learningObjectives) ? project.learningObjectives.map((obj, index) => (
                       <li key={index} className="flex items-start gap-2">
                         <Target className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
                         {obj}
                       </li>
-                    ))}
+                    )) : (
+                      <li className="flex items-start gap-2">
+                        <Target className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                        {project.learningObjectives || 'No learning objectives specified'}
+                      </li>
+                    )}
                   </ul>
                 </div>
               </CardContent>

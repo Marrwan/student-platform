@@ -485,12 +485,17 @@ function SubmissionsReview() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
-                        {selectedProject.requirements.map((req, index) => (
+                        {Array.isArray(selectedProject.requirements) ? selectedProject.requirements.map((req, index) => (
                           <div key={index} className="flex items-start gap-2">
                             <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                             <span className="text-sm">{req}</span>
                           </div>
-                        ))}
+                        )) : (
+                          <div className="flex items-start gap-2">
+                            <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                            <span className="text-sm">{selectedProject.requirements || 'No requirements specified'}</span>
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>

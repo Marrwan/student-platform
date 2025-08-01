@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useAuth } from '@/components/providers/auth-provider';
 import { ProtectedRoute } from '@/components/auth/protected-route';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,10 +28,16 @@ import {
   FileText,
   Bell,
   Settings,
+  Info,
 } from 'lucide-react';
-import { api } from '@/lib/api';
-import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import { 
+  useTodayProject, 
+  useRecentSubmissions, 
+  useProgressStats, 
+  useNotifications, 
+  usePaymentHistory 
+} from '@/lib/hooks';
 
 interface TodayProject {
   id: string;
@@ -83,9 +89,18 @@ export default function DashboardPage() {
 function StudentDashboard() {
   const { user } = useAuth();
   const router = useRouter();
-  const [todayProject, setTodayProject] = useState<TodayProject | null>(null);
-  const [recentSubmissions, setRecentSubmissions] = useState<RecentSubmission[]>([]);
-  const [progressStats, setProgressStats] = useState<ProgressStats>({
+  
+  // Use optimized hooks for data fetching
+  const { data: todayProjectData, isLoading: todayProjectLoading } = useTodayProject();
+  const { data: recentSubmissionsData, isLoading: submissionsLoading } = useRecentSubmissions();
+  const { data: progressStatsData, isLoading: statsLoading } = useProgressStats();
+  const { data: notificationsData } = useNotifications();
+  const { data: paymentsData } = usePaymentHistory({ limit: 3 });
+
+  // Memoize data to prevent unnecessary re-renders
+  const todayProject = useMemo(() => todayProjectData?.project || null, [todayProjectData]);
+  const recentSubmissions = useMemo(() => recentSubmissionsData?.submissions || [], [recentSubmissionsData]);
+  const progressStats = useMemo(() => progressStatsData?.stats || {
     totalProjects: 0,
     completedProjects: 0,
     missedProjects: 0,
@@ -95,71 +110,25 @@ function StudentDashboard() {
     totalScore: 0,
     rank: 0,
     totalStudents: 0
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [recentNotifications, setRecentNotifications] = useState<any[]>([]);
-  const [recentPayments, setRecentPayments] = useState<any[]>([]);
+  }, [progressStatsData]);
+  const recentNotifications = useMemo(() => notificationsData?.notifications?.slice(0, 5) || [], [notificationsData]);
+  const recentPayments = useMemo(() => paymentsData?.data?.slice(0, 3) || [], [paymentsData]);
 
-  useEffect(() => {
-    if (user) {
-      loadDashboardData();
-      api.getNotifications().then(res => setRecentNotifications(res.notifications?.slice(0, 5) || []));
-      api.getPaymentHistory().then(res => setRecentPayments(res.data?.slice(0, 3) || []));
-    }
-  }, [user]);
+  // Memoize computed values
+  const completionRate = useMemo(() => {
+    return progressStats.totalProjects > 0 
+      ? Math.round((progressStats.completedProjects / progressStats.totalProjects) * 100)
+      : 0;
+  }, [progressStats]);
 
-  const loadDashboardData = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      // Load today's project
-      const projectResponse = await api.getTodayProject();
-      setTodayProject(projectResponse.project || null);
+  const overallProgress = useMemo(() => {
+    return progressStats.totalProjects > 0 
+      ? (progressStats.completedProjects / progressStats.totalProjects) * 100
+      : 0;
+  }, [progressStats]);
 
-      // Load recent submissions
-      const submissionsResponse = await api.getRecentSubmissions();
-      setRecentSubmissions(submissionsResponse.submissions || []);
-
-      // Load progress stats
-      const statsResponse = await api.getProgressStats();
-      setProgressStats(statsResponse.stats || {
-        totalProjects: 0,
-        completedProjects: 0,
-        missedProjects: 0,
-        pendingProjects: 0,
-        averageScore: 0,
-        currentStreak: 0,
-        totalScore: 0,
-        rank: 0,
-        totalStudents: 0
-      });
-    } catch (err: any) {
-      console.error('Dashboard load error:', err);
-      // Don't set error for 200 responses with empty data
-      if (err.response?.status === 200) {
-        setTodayProject(null);
-        setRecentSubmissions([]);
-        setProgressStats({
-          totalProjects: 0,
-          completedProjects: 0,
-          missedProjects: 0,
-          pendingProjects: 0,
-          averageScore: 0,
-          currentStreak: 0,
-          totalScore: 0,
-          rank: 0,
-          totalStudents: 0
-        });
-      } else {
-        setError(err.message || 'Failed to load dashboard');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getStatusColor = (status: string) => {
+  // Memoize status color functions
+  const getStatusColor = useCallback((status: string) => {
     switch (status) {
       case 'pending':
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-200';
@@ -172,9 +141,9 @@ function StudentDashboard() {
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-200';
     }
-  };
+  }, []);
 
-  const getDifficultyColor = (difficulty: string) => {
+  const getDifficultyColor = useCallback((difficulty: string) => {
     switch (difficulty) {
       case 'beginner':
         return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200';
@@ -185,22 +154,26 @@ function StudentDashboard() {
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-200';
     }
-  };
+  }, []);
 
-  const formatDate = (dateString: string) => {
+  const formatDate = useCallback((dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     });
-  };
+  }, []);
 
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div></div>;
-  }
-  if (error) {
-    return <div className="min-h-screen flex flex-col items-center justify-center bg-red-50 text-red-800"><h1 className="text-2xl font-bold mb-4">Dashboard Error</h1><p>{error}</p><button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded" onClick={loadDashboardData}>Retry</button></div>;
+  // Loading state
+  const isLoading = todayProjectLoading || submissionsLoading || statsLoading;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   return (
@@ -221,6 +194,10 @@ function StudentDashboard() {
               </p>
             </div>
             <div className="flex items-center space-x-4">
+              <Button variant="outline" onClick={() => router.push('/classes')}>
+                <BookOpen className="h-4 w-4 mr-2" />
+                Join Class
+              </Button>
               <Button variant="outline">
                 <Bell className="h-4 w-4 mr-2" />
                 Notifications
@@ -270,9 +247,7 @@ function StudentDashboard() {
               <Target className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {Math.round((progressStats.completedProjects / progressStats.totalProjects) * 100)}%
-              </div>
+              <div className="text-2xl font-bold">{completionRate}%</div>
               <p className="text-xs text-muted-foreground">
                 {progressStats.completedProjects} of {progressStats.totalProjects} projects
               </p>
@@ -289,6 +264,66 @@ function StudentDashboard() {
               <p className="text-xs text-muted-foreground">
                 Excellent performance!
               </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Access Section */}
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold mb-4">Quick Access</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push('/projects')}>
+              <CardContent className="p-6 text-center">
+                <Code className="h-8 w-8 mx-auto mb-3 text-blue-600" />
+                <h3 className="font-semibold mb-2">Programming Projects</h3>
+                <p className="text-sm text-gray-600 mb-3">Complete daily coding challenges and improve your skills</p>
+                <Button size="sm" className="w-full">View Projects</Button>
+              </CardContent>
+            </Card>
+            
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push('/classes')}>
+              <CardContent className="p-6 text-center">
+                <BookOpen className="h-8 w-8 mx-auto mb-3 text-green-600" />
+                <h3 className="font-semibold mb-2">Join Classes</h3>
+                <p className="text-sm text-gray-600 mb-3">Enroll in classes and participate in structured learning</p>
+                <Button size="sm" className="w-full">Join Classes</Button>
+              </CardContent>
+            </Card>
+            
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push('/assignments')}>
+              <CardContent className="p-6 text-center">
+                <FileText className="h-8 w-8 mx-auto mb-3 text-purple-600" />
+                <h3 className="font-semibold mb-2">Class Assignments</h3>
+                <p className="text-sm text-gray-600 mb-3">Submit assignments and track your academic progress</p>
+                <Button size="sm" className="w-full">View Assignments</Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Join Class Call-to-Action */}
+        <div className="mb-6">
+          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-blue-900 mb-2">Ready to Learn?</h3>
+                  <p className="text-blue-700 mb-4">Join a class to get structured learning, assignments, and instructor guidance.</p>
+                  <div className="flex gap-2">
+                    <Button onClick={() => router.push('/classes')} className="bg-blue-600 hover:bg-blue-700">
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      Browse Classes
+                    </Button>
+                    <Button variant="outline" onClick={() => router.push('/student-guide')}>
+                      <Info className="h-4 w-4 mr-2" />
+                      Learn How
+                    </Button>
+                  </div>
+                </div>
+                <div className="hidden md:block">
+                  <BookOpen className="h-16 w-16 text-blue-400" />
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -314,7 +349,7 @@ function StudentDashboard() {
           <div className="space-y-2">
             {recentPayments.length === 0 && <div className="text-gray-500">No recent payments</div>}
             {recentPayments.map(p => (
-              <div key={p.id} className={`p-3 rounded border ${p.status === 'success' ? 'bg-green-50 border-green-200' : p.status === 'pending' ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200'}`}>
+              <div key={p.id} className={`p-3 rounded border ${p.status === 'successful' ? 'bg-green-50 border-green-200' : p.status === 'pending' ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200'}`}>
                 <div className="font-medium">{p.type === 'late_fee' ? 'Late Fee' : p.type}</div>
                 <div className="text-sm text-gray-600">Amount: ₦{p.amount}</div>
                 <div className="text-xs text-gray-400 mt-1">{new Date(p.createdAt).toLocaleString()} - {p.status}</div>
@@ -383,12 +418,17 @@ function StudentDashboard() {
                     <div className="space-y-3">
                       <h4 className="font-medium">Requirements:</h4>
                       <ul className="space-y-2">
-                        {todayProject.requirements.map((req, index) => (
+                        {Array.isArray(todayProject.requirements) ? todayProject.requirements.map((req: string, index: number) => (
                           <li key={index} className="flex items-start gap-2 text-sm">
                             <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                             {req}
                           </li>
-                        ))}
+                        )) : (
+                          <li className="flex items-start gap-2 text-sm">
+                            <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                            {todayProject.requirements || 'No requirements specified'}
+                          </li>
+                        )}
                       </ul>
                     </div>
 
@@ -430,6 +470,14 @@ function StudentDashboard() {
                   <Code className="h-4 w-4 mr-2" />
                   View All Projects
                 </Button>
+                <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/classes')}>
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  View Classes
+                </Button>
+                <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/assignments')}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  View Assignments
+                </Button>
                 <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/leaderboard')}>
                   <Trophy className="h-4 w-4 mr-2" />
                   View Leaderboard
@@ -438,9 +486,9 @@ function StudentDashboard() {
                   <Activity className="h-4 w-4 mr-2" />
                   Track Progress
                 </Button>
-                <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/rules')}>
-                  <FileText className="h-4 w-4 mr-2" />
-                  View Rules
+                <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/student-guide')}>
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Student Guide
                 </Button>
               </CardContent>
             </Card>
@@ -454,9 +502,9 @@ function StudentDashboard() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Overall Progress</span>
-                    <span>{Math.round((progressStats.completedProjects / progressStats.totalProjects) * 100)}%</span>
+                    <span>{completionRate}%</span>
                   </div>
-                  <Progress value={(progressStats.completedProjects / progressStats.totalProjects) * 100} className="h-2" />
+                  <Progress value={overallProgress} className="h-2" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 text-sm">

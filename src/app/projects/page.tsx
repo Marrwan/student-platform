@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useAuth } from '@/components/providers/auth-provider';
 import { ProtectedRoute } from '@/components/auth/protected-route';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,13 +22,11 @@ import {
   Target,
   Bell
 } from 'lucide-react';
-import { api } from '@/lib/api';
 import { useRouter } from 'next/navigation';
-import { NotificationCenter } from '@/components/notifications/notification-center';
-import Header from '@/components/layout/header';
+import { useProjects, useDebounce } from '@/lib/hooks';
 import type { Project } from '@/types';
 
-type ProjectWithStatus = Project & { status: 'completed' | 'missed' | 'pending' | 'locked' };
+type ProjectWithStatus = Project & { status: 'missed' | 'pending' | 'locked' };
 
 export default function ProjectsPage() {
   return (
@@ -41,47 +39,43 @@ export default function ProjectsPage() {
 function ProjectsList() {
   const { user } = useAuth();
   const router = useRouter();
-  const [projects, setProjects] = useState<ProjectWithStatus[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  useEffect(() => {
-    loadProjects();
-  }, []);
+  // Debounce search term to avoid excessive API calls
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  const loadProjects = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await api.getProjects();
-      const projectsWithStatus = (response.data || []).map((project: Project) => {
-        let status: 'completed' | 'missed' | 'pending' | 'locked' = 'pending';
-        if (!!project.isLocked) status = 'locked';
-        else if (!!project.isOverdue) status = 'missed';
-        // You can add more logic here for 'completed' if you have submission info
-        return { ...project, status };
-      });
-      setProjects(projectsWithStatus);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load projects');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filteredProjects = projects.filter(project => {
-    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDifficulty = difficultyFilter === 'all' || project.difficulty === difficultyFilter;
-    const matchesStatus = statusFilter === 'all' || project.status === statusFilter;
-    
-    return matchesSearch && matchesDifficulty && matchesStatus;
+  // Use optimized hook for projects data
+  const { data: projectsData, isLoading, error } = useProjects({
+    difficulty: difficultyFilter !== 'all' ? difficultyFilter : undefined,
+    status: statusFilter !== 'all' ? statusFilter : undefined,
   });
 
-  const getStatusIcon = (status?: string) => {
+  // Memoize projects with status
+  const projects = useMemo(() => {
+    if (!projectsData?.data) return [];
+    
+    return projectsData.data.map((project: Project) => {
+      let status: 'completed' | 'missed' | 'pending' | 'locked' = 'pending';
+      if (!!project.isLocked) status = 'locked';
+      else if (!!project.isOverdue) status = 'missed';
+      // You can add more logic here for 'completed' if you have submission info
+      return { ...project, status };
+    });
+  }, [projectsData]);
+
+  // Memoize filtered projects
+  const filteredProjects = useMemo(() => {
+    return projects.filter(project => {
+      const matchesSearch = project.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+                           project.description.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
+      return matchesSearch;
+    });
+  }, [projects, debouncedSearchTerm]);
+
+  // Memoize status icon function
+  const getStatusIcon = useCallback((status?: string) => {
     switch (status) {
       case 'completed':
         return <CheckCircle className="h-4 w-4 text-green-600" />;
@@ -92,9 +86,10 @@ function ProjectsList() {
       default:
         return <Lock className="h-4 w-4 text-gray-400" />;
     }
-  };
+  }, []);
 
-  const getStatusColor = (status?: string) => {
+  // Memoize status color function
+  const getStatusColor = useCallback((status?: string) => {
     switch (status) {
       case 'completed':
         return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200';
@@ -105,9 +100,10 @@ function ProjectsList() {
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-200';
     }
-  };
+  }, []);
 
-  const getDifficultyColor = (difficulty: string) => {
+  // Memoize difficulty color function
+  const getDifficultyColor = useCallback((difficulty: string) => {
     switch (difficulty) {
       case 'beginner':
         return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200';
@@ -118,13 +114,41 @@ function ProjectsList() {
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-200';
     }
-  };
+  }, []);
 
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div></div>;
+  // Memoize project statistics
+  const projectStats = useMemo(() => {
+    // const completed = projects.filter(p => p.status === 'completed').length;
+    const pending = projects.filter(p => p.status === 'pending').length;
+    const missed = projects.filter(p => p.status === 'missed').length;
+    const locked = projects.filter(p => p.status === 'locked').length;
+    // const progress = projects.length > 0 ? Math.round((completed / projects.length) * 100) : 0;
+    // For now, progress is based on non-locked and non-missed
+    const progress = projects.length > 0 ? Math.round(((projects.length - missed - locked) / projects.length) * 100) : 0;
+    return { pending, missed, locked, progress };
+  }, [projects]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
+      </div>
+    );
   }
+
   if (error) {
-    return <div className="min-h-screen flex flex-col items-center justify-center bg-red-50 text-red-800"><h1 className="text-2xl font-bold mb-4">Projects Error</h1><p>{error}</p><button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded" onClick={loadProjects}>Retry</button></div>;
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-red-50 text-red-800">
+        <h1 className="text-2xl font-bold mb-4">Projects Error</h1>
+        <p>{error.message || 'Failed to load projects'}</p>
+        <button 
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          onClick={() => window.location.reload()}
+        >
+          Retry
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -191,6 +215,7 @@ function ProjectsList() {
             </Button>
           )}
         </div>
+        
         {filteredProjects.length === 0 ? (
           <div className="text-center py-12">
             <Code className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -276,7 +301,7 @@ function ProjectsList() {
                       View Project
                     </Button>
                     
-                    {!project.isLocked && project.status !== 'completed' && (
+                    {!project.isLocked && (
                       <Button 
                         size="sm" 
                         className="flex-1"
@@ -309,25 +334,25 @@ function ProjectsList() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-green-600">
-                    {projects.filter(p => p.status === 'completed').length}
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">Completed</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-yellow-600">
-                    {projects.filter(p => p.status === 'pending').length}
+                    {projectStats.pending}
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-300">Pending</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-red-600">
-                    {projects.filter(p => p.status === 'missed').length}
+                    {projectStats.missed}
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-300">Missed</div>
                 </div>
                 <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-600">
+                    {projectStats.locked}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-300">Locked</div>
+                </div>
+                <div className="text-center">
                   <div className="text-2xl font-bold text-blue-600">
-                    {Math.round((projects.filter(p => p.status === 'completed').length / projects.length) * 100)}%
+                    {projectStats.progress}%
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-300">Progress</div>
                 </div>
