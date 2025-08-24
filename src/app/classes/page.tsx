@@ -50,6 +50,7 @@ interface JoinClassData {
 interface InviteData {
   emails: string[];
   message: string;
+  createAccounts: boolean;
 }
 
 export default function ClassesPage() {
@@ -77,7 +78,8 @@ export default function ClassesPage() {
   });
   const [inviteData, setInviteData] = useState<InviteData>({
     emails: [''],
-    message: ''
+    message: '',
+    createAccounts: false
   });
 
   const isAdmin = user?.role === 'admin' || user?.role === 'partial_admin';
@@ -173,7 +175,7 @@ export default function ClassesPage() {
       await api.inviteStudents(selectedClass.id, inviteData);
       toast.success('Invitations sent successfully');
       setShowInviteDialog(false);
-      setInviteData({ emails: [''], message: '' });
+      setInviteData({ emails: [''], message: '', createAccounts: false });
       setSelectedClass(null);
     } catch (error) {
       console.error('Error sending invitations:', error);
@@ -553,6 +555,47 @@ export default function ClassesPage() {
                 placeholder="Add a personal message to the invitation"
                 rows={3}
               />
+            </div>
+
+            <div className="space-y-3">
+              <Label>Invitation Options</Label>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    id="sendRegistrationLink"
+                    name="invitationType"
+                    checked={!inviteData.createAccounts}
+                    onChange={() => setInviteData(prev => ({ ...prev, createAccounts: false }))}
+                    className="text-blue-600"
+                  />
+                  <Label htmlFor="sendRegistrationLink" className="text-sm font-normal">
+                    Send registration link (recommended for new users)
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    id="createAccounts"
+                    name="invitationType"
+                    checked={inviteData.createAccounts}
+                    onChange={() => setInviteData(prev => ({ ...prev, createAccounts: true }))}
+                    className="text-blue-600"
+                  />
+                  <Label htmlFor="createAccounts" className="text-sm font-normal">
+                    Create accounts automatically (sends login credentials)
+                  </Label>
+                </div>
+              </div>
+              
+              {inviteData.createAccounts && (
+                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-sm text-yellow-800">
+                    <strong>Note:</strong> Accounts will be created with temporary passwords. 
+                    Users will need to change their password on first login.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
           

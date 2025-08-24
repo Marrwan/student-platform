@@ -554,7 +554,7 @@ class ApiClient {
     );
   }
 
-  async inviteStudents(classId: string, data: { emails: string[]; message?: string }) {
+  async inviteStudents(classId: string, data: { emails: string[]; message?: string; createAccounts?: boolean }) {
     const response = await this.client.post(`/classes/${classId}/invite`, data);
     return response.data;
   }

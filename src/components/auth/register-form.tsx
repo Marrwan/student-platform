@@ -32,7 +32,16 @@ type OtpFormData = z.infer<typeof otpSchema>;
 
 const OTP_LOCAL_KEY = 'pending_registration_otp';
 
-export function RegisterForm() {
+interface RegisterFormProps {
+  invitationData?: {
+    token: string;
+    classId: string;
+    email?: string;
+    message?: string;
+  } | null;
+}
+
+export function RegisterForm({ invitationData }: RegisterFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -60,10 +69,18 @@ export function RegisterForm() {
     register,
     handleSubmit,
     formState: { errors },
-    reset
+    reset,
+    setValue
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   });
+
+  // Pre-fill email if provided in invitation
+  useEffect(() => {
+    if (invitationData?.email) {
+      setValue('email', invitationData.email);
+    }
+  }, [invitationData, setValue]);
 
   const {
     register: registerOtp,
