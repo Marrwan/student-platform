@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/auth-provider';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -54,6 +55,7 @@ interface InviteData {
 }
 
 export default function ClassesPage() {
+  const router = useRouter();
   const { user } = useAuth();
   const [classes, setClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
@@ -158,7 +160,7 @@ export default function ClassesPage() {
     setLoadingDetails(true);
     try {
       const classData = await api.getClass(classId);
-      setSelectedClassDetails(classData.class);
+      setSelectedClassDetails(classData);
       setShowDetailsDialog(true);
     } catch (error) {
       console.error('Error fetching class details:', error);
@@ -349,17 +351,9 @@ export default function ClassesPage() {
                     variant="outline" 
                     size="sm" 
                     className="flex-1"
-                    onClick={() => handleViewDetails(cls.id)}
-                    disabled={loadingDetails}
+                    onClick={() => router.push(`/classes/${cls.id}`)}
                   >
-                    {loadingDetails && selectedClassDetails?.id === cls.id ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Loading...
-                      </>
-                    ) : (
-                      'View Details'
-                    )}
+                    View Details
                   </Button>
                   
                   {isAdmin && (
@@ -730,11 +724,11 @@ export default function ClassesPage() {
                   <Button
                     variant="outline"
                     onClick={() => {
-                      // Navigate to assignments page for this class
-                      window.location.href = `/assignments?classId=${selectedClassDetails.id}`;
+                      setShowDetailsDialog(false);
+                      router.push(`/classes/${selectedClassDetails.id}`);
                     }}
                   >
-                    View Assignments
+                    View Full Details
                   </Button>
                 </div>
               </div>

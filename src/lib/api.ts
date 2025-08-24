@@ -559,6 +559,31 @@ class ApiClient {
     return response.data;
   }
 
+  async createClassSchedule(data: {
+    classId: string;
+    dayOfWeek: string;
+    startTime: string;
+    endTime: string;
+    type: 'virtual' | 'physical';
+    location?: string;
+    meetingLink?: string;
+  }) {
+    const response = await this.client.post(`/classes/${data.classId}/schedule`, data);
+    // Clear class cache
+    this.clearCache(`class:${data.classId}`);
+    return response.data;
+  }
+
+  async updateClassSchedule(scheduleId: string, data: any) {
+    const response = await this.client.put(`/classes/schedule/${scheduleId}`, data);
+    return response.data;
+  }
+
+  async deleteClassSchedule(scheduleId: string) {
+    const response = await this.client.delete(`/classes/schedule/${scheduleId}`);
+    return response.data;
+  }
+
   // Assignment Management
   async getAssignments(params?: { page?: number; limit?: number; status?: string; classId?: string }) {
     const cacheKey = `assignments:${JSON.stringify(params)}`;

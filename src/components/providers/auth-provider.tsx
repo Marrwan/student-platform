@@ -149,11 +149,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const resendVerification = async (email: string) => {
     try {
-      await api.resendVerification(email);
-      toast.success('Verification email sent successfully!');
+      const response = await api.resendVerification(email);
+      return response; // Return the response so the component can handle it
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to send verification email');
-      throw error;
+      console.error('Resend verification error:', error);
+      throw error; // Re-throw to let the component handle the error
     }
   };
 
