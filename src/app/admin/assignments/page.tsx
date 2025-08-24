@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 interface Assignment {
   id: string;
@@ -73,12 +74,14 @@ export default function AssignmentsPage() {
 
 function AssignmentsManagement() {
   const { user } = useAuth();
+  const router = useRouter();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [classes, setClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
+  const [deletingAssignment, setDeletingAssignment] = useState<string | null>(null);
 
   // Form states
   const [formData, setFormData] = useState({
@@ -111,6 +114,24 @@ function AssignmentsManagement() {
       setError(err.message || 'Failed to load assignments');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteAssignment = async (assignmentId: string) => {
+    if (!confirm('Are you sure you want to delete this assignment? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      setDeletingAssignment(assignmentId);
+      await api.deleteAssignment(assignmentId);
+      toast.success('Assignment deleted successfully!');
+      loadAssignments(); // Reload the list
+    } catch (error: any) {
+      console.error('Error deleting assignment:', error);
+      toast.error(error.response?.data?.message || 'Failed to delete assignment');
+    } finally {
+      setDeletingAssignment(null);
     }
   };
 
@@ -387,16 +408,29 @@ function AssignmentsManagement() {
                         size="sm" 
                         variant="outline" 
                         className="flex-1"
-                        onClick={() => setSelectedAssignment(assignment)}
+                        onClick={() => router.push(`/assignments/${assignment.id}`)}
                       >
                         <Eye className="h-4 w-4 mr-1" />
                         View
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => router.push(`/admin/assignments/${assignment.id}/edit`)}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button size="sm" variant="outline">
-                        <Trash2 className="h-4 w-4" />
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleDeleteAssignment(assignment.id)}
+                        disabled={deletingAssignment === assignment.id}
+                      >
+                        {deletingAssignment === assignment.id ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
                       </Button>
                     </div>
                   </CardContent>

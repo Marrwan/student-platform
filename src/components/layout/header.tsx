@@ -15,7 +15,13 @@ import {
   Users, 
   BarChart3,
   Menu,
-  X
+  X,
+  FileText,
+  GraduationCap,
+  ClipboardList,
+  Award,
+  Cog,
+  Shield
 } from 'lucide-react';
 
 export default function Header() {
@@ -50,37 +56,80 @@ export default function Header() {
           <nav className="hidden md:flex items-center space-x-8">
             {user ? (
               <>
-                <Link 
-                  href="/dashboard" 
-                  className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  Dashboard
-                </Link>
-                <Link 
-                  href="/projects" 
-                  className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  Projects
-                </Link>
-                <Link 
-                  href="/leaderboard" 
-                  className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  Leaderboard
-                </Link>
-                <Link 
-                  href="/progress" 
-                  className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  Progress
-                </Link>
-                {isAdmin && (
-                  <Link 
-                    href="/admin" 
-                    className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                  >
-                    Admin
-                  </Link>
+                {isAdmin ? (
+                  // Admin Navigation
+                  <>
+                    <Link 
+                      href="/admin" 
+                      className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
+                    >
+                      <Shield className="w-4 h-4" />
+                      <span>Admin Dashboard</span>
+                    </Link>
+                    <Link 
+                      href="/admin/classes" 
+                      className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
+                    >
+                      <GraduationCap className="w-4 h-4" />
+                      <span>Classes</span>
+                    </Link>
+                    <Link 
+                      href="/admin/assignments" 
+                      className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
+                    >
+                      <FileText className="w-4 h-4" />
+                      <span>Assignments</span>
+                    </Link>
+                    <Link 
+                      href="/admin/submissions" 
+                      className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
+                    >
+                      <ClipboardList className="w-4 h-4" />
+                      <span>Submissions</span>
+                    </Link>
+                    <Link 
+                      href="/admin/users" 
+                      className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
+                    >
+                      <Users className="w-4 h-4" />
+                      <span>Users</span>
+                    </Link>
+                    <Link 
+                      href="/admin/analytics" 
+                      className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
+                    >
+                      <BarChart3 className="w-4 h-4" />
+                      <span>Analytics</span>
+                    </Link>
+                  </>
+                ) : (
+                  // Student Navigation
+                  <>
+                    <Link 
+                      href="/dashboard" 
+                      className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                      Dashboard
+                    </Link>
+                    <Link 
+                      href="/projects" 
+                      className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                      Projects
+                    </Link>
+                    <Link 
+                      href="/leaderboard" 
+                      className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                      Leaderboard
+                    </Link>
+                    <Link 
+                      href="/progress" 
+                      className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                      Progress
+                    </Link>
+                  </>
                 )}
               </>
             ) : (
@@ -111,9 +160,16 @@ export default function Header() {
                       {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
                     </span>
                   </div>
-                  <span className="text-sm text-gray-700">
-                    {user.firstName} {user.lastName}
-                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-700 font-medium">
+                      {user.firstName} {user.lastName}
+                    </span>
+                    {isAdmin && (
+                      <span className="text-xs text-blue-600 font-medium">
+                        Administrator
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <Button
                   onClick={handleLogout}
@@ -165,47 +221,94 @@ export default function Header() {
           <div className="px-2 pt-2 pb-3 space-y-1">
             {user ? (
               <>
-                <Link 
-                  href="/dashboard" 
-                  className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <Home className="w-5 h-5" />
-                  <span>Dashboard</span>
-                </Link>
-                <Link 
-                  href="/projects" 
-                  className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <BookOpen className="w-5 h-5" />
-                  <span>Projects</span>
-                </Link>
-                <Link 
-                  href="/leaderboard" 
-                  className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <Trophy className="w-5 h-5" />
-                  <span>Leaderboard</span>
-                </Link>
-                <Link 
-                  href="/progress" 
-                  className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <Calendar className="w-5 h-5" />
-                  <span>Progress</span>
-                </Link>
-                {isAdmin && (
-                  <Link 
-                    href="/admin" 
-                    className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <BarChart3 className="w-5 h-5" />
-                    <span>Admin</span>
-                  </Link>
+                {isAdmin ? (
+                  // Admin Mobile Navigation
+                  <>
+                    <Link 
+                      href="/admin" 
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Shield className="w-5 h-5" />
+                      <span>Admin Dashboard</span>
+                    </Link>
+                    <Link 
+                      href="/admin/classes" 
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <GraduationCap className="w-5 h-5" />
+                      <span>Classes</span>
+                    </Link>
+                    <Link 
+                      href="/admin/assignments" 
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <FileText className="w-5 h-5" />
+                      <span>Assignments</span>
+                    </Link>
+                    <Link 
+                      href="/admin/submissions" 
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <ClipboardList className="w-5 h-5" />
+                      <span>Submissions</span>
+                    </Link>
+                    <Link 
+                      href="/admin/users" 
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Users className="w-5 h-5" />
+                      <span>Users</span>
+                    </Link>
+                    <Link 
+                      href="/admin/analytics" 
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <BarChart3 className="w-5 h-5" />
+                      <span>Analytics</span>
+                    </Link>
+                  </>
+                ) : (
+                  // Student Mobile Navigation
+                  <>
+                    <Link 
+                      href="/dashboard" 
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Home className="w-5 h-5" />
+                      <span>Dashboard</span>
+                    </Link>
+                    <Link 
+                      href="/projects" 
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <BookOpen className="w-5 h-5" />
+                      <span>Projects</span>
+                    </Link>
+                    <Link 
+                      href="/leaderboard" 
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Trophy className="w-5 h-5" />
+                      <span>Leaderboard</span>
+                    </Link>
+                    <Link 
+                      href="/progress" 
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Calendar className="w-5 h-5" />
+                      <span>Progress</span>
+                    </Link>
+                  </>
                 )}
                 <div className="border-t border-gray-200 pt-4 mt-4">
                   <div className="flex items-center space-x-3 px-3 py-2">
