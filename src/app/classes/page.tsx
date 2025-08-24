@@ -117,11 +117,21 @@ export default function ClassesPage() {
 
   const handleJoinClass = async () => {
     try {
-      await api.joinClass(joinData.enrollmentCode);
-      toast.success('Successfully joined class');
-      setShowJoinDialog(false);
-      setJoinData({ enrollmentCode: '' });
-      fetchClasses();
+      const result = await api.joinClass(joinData.enrollmentCode);
+      
+      if (result.alreadyEnrolled) {
+        toast.success(`You are already enrolled in ${result.className}`);
+        setShowJoinDialog(false);
+        setJoinData({ enrollmentCode: '' });
+        fetchClasses();
+        // Optionally redirect to the class page
+        // router.push(`/classes/${result.classId}`);
+      } else {
+        toast.success('Successfully joined class');
+        setShowJoinDialog(false);
+        setJoinData({ enrollmentCode: '' });
+        fetchClasses();
+      }
     } catch (error) {
       console.error('Error joining class:', error);
       toast.error('Failed to join class');
