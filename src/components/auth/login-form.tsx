@@ -50,7 +50,8 @@ export function LoginForm() {
         setNeedsVerification(true);
         setEmail(data.email);
         toast.success('Account found! Please verify your email address to continue.');
-      } else if (error.response?.data?.message?.includes('verification')) {
+      } else if (error.response?.data?.message?.includes('verify your email') || 
+                 error.response?.data?.message?.includes('verification')) {
         setNeedsVerification(true);
         setEmail(data.email);
         toast.error('Please verify your email address. Enter the 6-digit verification code below.');
@@ -138,7 +139,21 @@ export function LoginForm() {
 
       {needsVerification && (
         <div className="space-y-4">
-          <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-green-900 mb-1">
+                Account Found! Email Verification Required
+              </h3>
+              <p className="text-sm text-green-800 mb-2">
+                We found your account! A 6-digit verification code has been sent to <strong>{email}</strong>. 
+                Please check your email and enter the code below to continue.
+              </p>
+              <p className="text-xs text-green-700">
+                Can't find the email? Check your spam folder or request a new code below.
+              </p>
+            </div>
+          </div>
             <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="flex-1">
               <h3 className="text-sm font-medium text-blue-900 mb-1">
@@ -200,10 +215,22 @@ export function LoginForm() {
             </Button>
           </div>
           
-          <div className="text-center">
+          <div className="text-center space-y-2">
             <p className="text-xs text-gray-500">
               Having trouble? Contact support or try a different email address.
             </p>
+            <div className="flex justify-center gap-2">
+              <Button
+                type="button"
+                variant="link"
+                size="sm"
+                onClick={handleResendVerification}
+                disabled={resendLoading}
+                className="text-xs"
+              >
+                Didn't receive the email? Resend
+              </Button>
+            </div>
           </div>
         </div>
       )}
