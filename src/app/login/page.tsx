@@ -91,23 +91,7 @@ export default function LoginPage() {
           </CardContent>
         </Card>
 
-        {/* Demo Credentials */}
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle className="text-lg">Demo Credentials</CardTitle>
-            <CardDescription>
-              Try the platform with these demo accounts
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <div className="text-left">
-              <strong>Admin:</strong> admin@javascriptchallenge.com / admin123
-            </div>
-            <div className="text-left">
-              <strong>Student:</strong> Register a new account to get started
-            </div>
-          </CardContent>
-        </Card>
+
       </div>
     </div>
   );
