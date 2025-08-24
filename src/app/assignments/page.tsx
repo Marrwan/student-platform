@@ -121,11 +121,28 @@ function AssignmentsList() {
     }
   };
 
+  const isValidDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return !isNaN(date.getTime());
+  };
+
+  const formatDate = (dateString: string) => {
+    if (!dateString || !isValidDate(dateString)) {
+      return 'No deadline set';
+    }
+    return new Date(dateString).toLocaleDateString();
+  };
+
   const isOverdue = (deadline: string) => {
+    if (!deadline || !isValidDate(deadline)) return false;
     return new Date() > new Date(deadline);
   };
 
   const getTimeRemaining = (deadline: string) => {
+    if (!deadline || !isValidDate(deadline)) {
+      return 'No deadline';
+    }
+    
     const now = new Date();
     const deadlineDate = new Date(deadline);
     const diff = deadlineDate.getTime() - now.getTime();
@@ -262,7 +279,7 @@ function AssignmentsList() {
                     <span className="text-gray-600 dark:text-gray-300">Deadline</span>
                     <div className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      <span>{new Date(assignment.deadline).toLocaleDateString()}</span>
+                      <span>{formatDate(assignment.deadline)}</span>
                     </div>
                   </div>
 

@@ -263,18 +263,18 @@ export default function AssignmentDetailPage() {
                     <CardTitle>Assignment Info</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gray-500" />
-                      <span className="text-sm text-gray-600">
-                        Start: {new Date(assignment.startDate).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-gray-500" />
-                      <span className="text-sm text-gray-600">
-                        Deadline: {new Date(assignment.deadline).toLocaleDateString()}
-                      </span>
-                    </div>
+                                          <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm text-gray-600">
+                          Start: {assignment.startDate ? new Date(assignment.startDate).toLocaleDateString() : 'Not set'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm text-gray-600">
+                          Deadline: {assignment.deadline ? new Date(assignment.deadline).toLocaleDateString() : 'Not set'}
+                        </span>
+                      </div>
                     <div className="flex items-center gap-2">
                       <FileText className="w-4 h-4 text-gray-500" />
                       <span className="text-sm text-gray-600">

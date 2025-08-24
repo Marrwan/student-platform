@@ -82,7 +82,7 @@ interface Assignment {
   title: string;
   description: string;
   startDate: string;
-  dueDate: string;
+  deadline: string;
   isUnlocked: boolean;
   submissionCount?: number;
   totalStudents?: number;
@@ -406,7 +406,7 @@ export default function ClassDetailPage() {
                     <CardContent className="space-y-3">
                       <div className="flex items-center text-sm text-gray-600">
                         <Calendar className="w-4 h-4 mr-2 shrink-0" />
-                        <span>Due: {new Date(assignment.dueDate).toLocaleDateString()}</span>
+                        <span>Due: {assignment.deadline ? new Date(assignment.deadline).toLocaleDateString() : 'No deadline set'}</span>
                       </div>
                       
                       {assignment.submissionCount !== undefined && canManageClass && (
