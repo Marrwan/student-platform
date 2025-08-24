@@ -15,6 +15,7 @@ import {
   Target
 } from 'lucide-react';
 import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 interface LeaderboardEntry {
   id: string;
@@ -119,10 +120,28 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
           <h3 className="text-lg font-medium">Class Leaderboard</h3>
           <p className="text-sm text-gray-600">Student rankings based on assignments and attendance</p>
         </div>
-        <Badge variant="outline" className="flex items-center gap-1">
-          <Users className="w-4 h-4" />
-          {leaderboard?.length || 0} Students
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={async () => {
+              try {
+                await api.refreshClassLeaderboard(classId);
+                toast.success('Leaderboard refreshed successfully!');
+                loadLeaderboard();
+              } catch (error) {
+                toast.error('Failed to refresh leaderboard');
+              }
+            }}
+          >
+            <TrendingUp className="w-4 h-4 mr-1" />
+            Refresh
+          </Button>
+          <Badge variant="outline" className="flex items-center gap-1">
+            <Users className="w-4 h-4" />
+            {leaderboard?.length || 0} Students
+          </Badge>
+        </div>
       </div>
 
       <div className="space-y-4">

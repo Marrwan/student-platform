@@ -730,12 +730,14 @@ class ApiClient {
     return response.data;
   }
 
-  async awardAttendanceScore(assignmentId: string, data: {
+  async awardAttendanceScore(classId: string, data: {
     userId: string;
     score: number;
     notes?: string;
   }) {
-    const response = await this.client.post(`/assignments/${assignmentId}/attendance`, data);
+    const response = await this.client.post(`/assignments/${classId}/attendance`, data);
+    // Clear leaderboard cache when attendance is updated
+    this.clearCache(`class-leaderboard:${classId}`);
     return response.data;
   }
 
@@ -937,6 +939,13 @@ class ApiClient {
       },
       1 * 60 * 1000 // 1 minute cache
     );
+  }
+
+  async refreshClassLeaderboard(classId: string) {
+    const response = await this.client.post(`/assignments/${classId}/leaderboard/refresh`);
+    // Clear leaderboard cache
+    this.clearCache(`class-leaderboard:${classId}`);
+    return response.data;
   }
 
   async getProjectLeaderboard(projectId: string, params?: {
