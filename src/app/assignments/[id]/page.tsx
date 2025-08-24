@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { User } from '@/types';
+import { DeleteAssignmentModal } from '@/components/assignments/delete-assignment-modal';
 
 interface Assignment {
   id: string;
@@ -83,6 +84,8 @@ export default function AssignmentDetailPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState('details');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [submissionCount, setSubmissionCount] = useState(0);
 
   // Submission form data
   const [submissionData, setSubmissionData] = useState({
@@ -109,6 +112,11 @@ export default function AssignmentDetailPage() {
       const data = await api.getAssignment(assignmentId);
       console.log('Assignment data:', data); // Debug log
       setAssignment(data);
+      
+      // Load submission count for admin
+      if (isAdmin()) {
+        await loadSubmissionCount();
+      }
     } catch (error) {
       console.error('Error loading assignment:', error);
       toast.error('Failed to load assignment');
@@ -133,6 +141,15 @@ export default function AssignmentDetailPage() {
       setCurrentUser(user);
     } catch (error) {
       console.error('Error loading current user:', error);
+    }
+  };
+
+  const loadSubmissionCount = async () => {
+    try {
+      const submissions = await api.getAssignmentSubmissions(assignmentId);
+      setSubmissionCount(submissions.data?.length || 0);
+    } catch (error) {
+      console.error('Error loading submission count:', error);
     }
   };
 
@@ -631,11 +648,7 @@ export default function AssignmentDetailPage() {
                         Permanently delete this assignment and all related data.
                       </p>
                       <Button 
-                        onClick={() => {
-                          if (confirm('Are you sure you want to delete this assignment? This action cannot be undone and will delete all submissions and related data.')) {
-                            handleDeleteAssignment();
-                          }
-                        }}
+                        onClick={() => setShowDeleteModal(true)}
                         variant="destructive"
                       >
                         Delete Assignment
@@ -648,6 +661,15 @@ export default function AssignmentDetailPage() {
           )}
         </Tabs>
       </div>
+
+      {/* Delete Assignment Modal */}
+      <DeleteAssignmentModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteAssignment}
+        assignmentTitle={assignment?.title || ''}
+        submissionCount={submissionCount}
+      />
     </div>
   );
 }
