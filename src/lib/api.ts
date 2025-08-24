@@ -654,6 +654,21 @@ class ApiClient {
     return response.data;
   }
 
+  async markSubmission(assignmentId: string, submissionId: string, data: {
+    score?: number;
+    feedback?: string;
+    status?: string;
+  }): Promise<{ message: string; submission: any }> {
+    const response: AxiosResponse<{ message: string; submission: any }> = await this.client.put(
+      `/assignments/${assignmentId}/submissions/${submissionId}/mark`,
+      data
+    );
+    // Clear submission caches
+    this.clearCache(`assignment-submissions:${assignmentId}`);
+    this.clearCache('assignments');
+    return response.data;
+  }
+
   async submitAssignment(assignmentId: string, data: {
     submissionType: 'github' | 'code' | 'link' | 'zip';
     githubLink?: string;

@@ -25,6 +25,7 @@ import {
   Eye
 } from 'lucide-react';
 import { api } from '@/lib/api';
+import { User } from '@/types';
 
 interface Assignment {
   id: string;
@@ -78,6 +79,7 @@ export default function AssignmentDetailPage() {
 
   const [assignment, setAssignment] = useState<Assignment | null>(null);
   const [submission, setSubmission] = useState<Submission | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState('details');
@@ -98,12 +100,14 @@ export default function AssignmentDetailPage() {
     if (assignmentId) {
       loadAssignment();
       loadSubmission();
+      loadCurrentUser();
     }
   }, [assignmentId]);
 
   const loadAssignment = async () => {
     try {
       const data = await api.getAssignment(assignmentId);
+      console.log('Assignment data:', data); // Debug log
       setAssignment(data);
     } catch (error) {
       console.error('Error loading assignment:', error);
@@ -120,6 +124,25 @@ export default function AssignmentDetailPage() {
       // setSubmission(data);
     } catch (error) {
       console.error('Error loading submission:', error);
+    }
+  };
+
+  const loadCurrentUser = async () => {
+    try {
+      const { user } = await api.getProfile();
+      setCurrentUser(user);
+    } catch (error) {
+      console.error('Error loading current user:', error);
+    }
+  };
+
+  const handleDeleteAssignment = async () => {
+    try {
+      await api.deleteAssignment(assignmentId);
+      toast.success('Assignment deleted successfully');
+      router.push('/admin/assignments');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to delete assignment');
     }
   };
 
@@ -151,6 +174,10 @@ export default function AssignmentDetailPage() {
     if (!assignment) return false;
     if (isDeadlinePassed() && !assignment.allowLateSubmission) return false;
     return true;
+  };
+
+  const isAdmin = () => {
+    return currentUser?.role === 'admin' || currentUser?.role === 'partial_admin';
   };
 
   const getStatusBadge = (status: string) => {
@@ -228,10 +255,15 @@ export default function AssignmentDetailPage() {
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 h-auto lg:h-10">
+          <TabsList className={`grid w-full h-auto lg:h-10 ${isAdmin() ? 'grid-cols-4' : 'grid-cols-3'}`}>
             <TabsTrigger value="details" className="text-xs lg:text-sm">Details</TabsTrigger>
             <TabsTrigger value="sample" className="text-xs lg:text-sm">Sample Output</TabsTrigger>
-            <TabsTrigger value="submit" className="text-xs lg:text-sm">Submit</TabsTrigger>
+            {!isAdmin() && (
+              <TabsTrigger value="submit" className="text-xs lg:text-sm">Submit</TabsTrigger>
+            )}
+            {isAdmin() && (
+              <TabsTrigger value="submissions" className="text-xs lg:text-sm">Submissions</TabsTrigger>
+            )}
           </TabsList>
 
           {/* Details Tab */}
@@ -309,7 +341,7 @@ export default function AssignmentDetailPage() {
 
           {/* Sample Output Tab */}
           <TabsContent value="sample" className="space-y-6">
-            {assignment.sampleOutputUrl ? (
+            {assignment.sampleOutputUrl && assignment.sampleOutputUrl.trim() !== '' ? (
               <Card>
                 <CardHeader>
                   <CardTitle>Sample Output</CardTitle>
@@ -329,7 +361,11 @@ export default function AssignmentDetailPage() {
                   </a>
                 </CardContent>
               </Card>
-            ) : assignment.sampleOutputCode ? (
+            ) : assignment.sampleOutputCode && (
+              assignment.sampleOutputCode.html || 
+              assignment.sampleOutputCode.css || 
+              assignment.sampleOutputCode.javascript
+            ) ? (
               <Card>
                 <CardHeader>
                   <CardTitle>Sample Output Preview</CardTitle>
@@ -341,11 +377,11 @@ export default function AssignmentDetailPage() {
                         <!DOCTYPE html>
                         <html>
                         <head>
-                          <style>${assignment.sampleOutputCode.css}</style>
+                          <style>${assignment.sampleOutputCode.css || ''}</style>
                         </head>
                         <body>
-                          ${assignment.sampleOutputCode.html}
-                          <script>${assignment.sampleOutputCode.javascript}</script>
+                          ${assignment.sampleOutputCode.html || ''}
+                          <script>${assignment.sampleOutputCode.javascript || ''}</script>
                         </body>
                         </html>
                       `}
@@ -363,6 +399,16 @@ export default function AssignmentDetailPage() {
                   <p className="text-gray-600 text-center">
                     No sample output has been provided for this assignment.
                   </p>
+                  {isAdmin() && (
+                    <div className="mt-4">
+                      <Button 
+                        onClick={() => router.push(`/admin/assignments/${assignmentId}/edit`)}
+                        variant="outline"
+                      >
+                        Edit Assignment
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
@@ -539,6 +585,67 @@ export default function AssignmentDetailPage() {
               </Card>
             )}
           </TabsContent>
+
+          {/* Submissions Tab (Admin Only) */}
+          {isAdmin() && (
+            <TabsContent value="submissions" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Assignment Management</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="text-center p-6 border rounded-lg">
+                      <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">Submissions</h3>
+                      <p className="text-gray-600 mb-4">
+                        View and manage all student submissions for this assignment.
+                      </p>
+                      <Button 
+                        onClick={() => router.push(`/admin/assignments/${assignmentId}/submissions`)}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        View Submissions
+                      </Button>
+                    </div>
+                    
+                    <div className="text-center p-6 border rounded-lg">
+                      <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">Edit Assignment</h3>
+                      <p className="text-gray-600 mb-4">
+                        Modify assignment details, requirements, and settings.
+                      </p>
+                      <Button 
+                        onClick={() => router.push(`/admin/assignments/${assignmentId}/edit`)}
+                        variant="outline"
+                      >
+                        Edit Assignment
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-6 pt-6 border-t">
+                    <div className="text-center">
+                      <h3 className="text-lg font-medium text-red-900 mb-2">Danger Zone</h3>
+                      <p className="text-gray-600 mb-4">
+                        Permanently delete this assignment and all related data.
+                      </p>
+                      <Button 
+                        onClick={() => {
+                          if (confirm('Are you sure you want to delete this assignment? This action cannot be undone and will delete all submissions and related data.')) {
+                            handleDeleteAssignment();
+                          }
+                        }}
+                        variant="destructive"
+                      >
+                        Delete Assignment
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </div>
