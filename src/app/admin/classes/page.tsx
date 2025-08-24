@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Plus,
   Users,
@@ -28,7 +29,10 @@ import {
   TrendingUp,
   AlertCircle,
   CheckCircle,
-  XCircle
+  XCircle,
+  Search,
+  Filter,
+  ExternalLink
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import toast from 'react-hot-toast';
@@ -61,6 +65,15 @@ interface Student {
   averageScore: number;
 }
 
+interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  isActive: boolean;
+}
+
 export default function ClassesPage() {
   return (
     <ProtectedRoute requiredRole="admin">
@@ -74,10 +87,12 @@ function ClassesManagement() {
   const [classes, setClasses] = useState<Class[]>([]);
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showClassDetailsModal, setShowClassDetailsModal] = useState(false);
 
   // Form states
   const [formData, setFormData] = useState({
@@ -92,11 +107,14 @@ function ClassesManagement() {
 
   const [inviteData, setInviteData] = useState({
     emails: '',
-    message: ''
+    message: '',
+    selectedUsers: [] as string[],
+    outsiderEmails: [] as string[]
   });
 
   useEffect(() => {
     loadClasses();
+    loadAllUsers();
   }, []);
 
   const loadClasses = async () => {
@@ -112,13 +130,22 @@ function ClassesManagement() {
     }
   };
 
+  const loadAllUsers = async () => {
+    try {
+      const response = await api.getAdminUsers();
+      setAllUsers(response.users.filter((u: User) => u.role === 'student' && u.isActive));
+    } catch (error) {
+      console.error('Error loading users:', error);
+    }
+  };
+
   const loadClassStudents = async (classId: string) => {
     try {
       const response = await api.getAdminClassStudents(classId);
       setStudents(response.students);
     } catch (error) {
       console.error('Error loading students:', error);
-      setStudents([]); // Set empty array instead of mock data
+      setStudents([]);
     }
   };
 
@@ -146,18 +173,67 @@ function ClassesManagement() {
   const handleInviteStudents = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const emails = inviteData.emails.split(',').map(email => email.trim());
       if (!selectedClass?.id) {
         toast.error('No class selected');
         return;
       }
-      await api.inviteAdminClassStudents(selectedClass.id, { emails, message: inviteData.message });
+
+      // Combine selected users and outsider emails
+      const allEmails = [
+        ...inviteData.selectedUsers.map(userId => {
+          const user = allUsers.find(u => u.id === userId);
+          return user?.email;
+        }).filter(Boolean),
+        ...inviteData.outsiderEmails
+      ];
+
+      if (allEmails.length === 0) {
+        toast.error('Please select users or enter email addresses');
+        return;
+      }
+
+      await api.inviteAdminClassStudents(selectedClass.id, { 
+        emails: allEmails, 
+        message: inviteData.message 
+      });
+      
       toast.success('Invitations sent successfully!');
       setShowInviteModal(false);
-      setInviteData({ emails: '', message: '' });
+      setInviteData({ 
+        emails: '', 
+        message: '', 
+        selectedUsers: [], 
+        outsiderEmails: [] 
+      });
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to send invitations');
     }
+  };
+
+  const handleAddOutsiderEmail = () => {
+    if (inviteData.emails.trim()) {
+      setInviteData({
+        ...inviteData,
+        outsiderEmails: [...inviteData.outsiderEmails, inviteData.emails.trim()],
+        emails: ''
+      });
+    }
+  };
+
+  const handleRemoveOutsiderEmail = (index: number) => {
+    setInviteData({
+      ...inviteData,
+      outsiderEmails: inviteData.outsiderEmails.filter((_, i) => i !== index)
+    });
+  };
+
+  const handleUserSelection = (userId: string, checked: boolean) => {
+    setInviteData({
+      ...inviteData,
+      selectedUsers: checked 
+        ? [...inviteData.selectedUsers, userId]
+        : inviteData.selectedUsers.filter(id => id !== userId)
+    });
   };
 
   const getLevelColor = (level: string) => {
@@ -259,7 +335,7 @@ function ClassesManagement() {
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <CardTitle className="text-lg">{classItem.name}</CardTitle>
-                        <CardDescription className="mt-2">
+                        <CardDescription className="mt-2 line-clamp-3">
                           {classItem.description}
                         </CardDescription>
                       </div>
@@ -303,28 +379,28 @@ function ClassesManagement() {
 
                     <div className="flex gap-2">
                       <Button 
-                        size="sm" 
                         variant="outline" 
+                        size="sm" 
                         className="flex-1"
                         onClick={() => {
                           setSelectedClass(classItem);
-                          loadClassStudents(classItem.id);
+                          setShowClassDetailsModal(true);
                         }}
                       >
-                        <Eye className="h-4 w-4 mr-1" />
-                        View
+                        <Eye className="h-4 w-4 mr-2" />
+                        View Details
                       </Button>
+                      
                       <Button 
                         size="sm" 
-                        variant="outline" 
                         className="flex-1"
-                        onClick={() => setShowInviteModal(true)}
+                        onClick={() => {
+                          setSelectedClass(classItem);
+                          setShowInviteModal(true);
+                        }}
                       >
-                        <UserPlus className="h-4 w-4 mr-1" />
+                        <UserPlus className="h-4 w-4 mr-2" />
                         Invite
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        <Edit className="h-4 w-4" />
                       </Button>
                     </div>
                   </CardContent>
@@ -334,72 +410,54 @@ function ClassesManagement() {
           </TabsContent>
 
           <TabsContent value="students" className="space-y-6">
-            {selectedClass ? (
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h2 className="text-2xl font-bold">{selectedClass.name} - Students</h2>
-                    <p className="text-muted-foreground">
-                      {students.length} students enrolled
+            <Card>
+              <CardHeader>
+                <CardTitle>Class Students</CardTitle>
+                <CardDescription>
+                  Manage students across all classes
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {students.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                      No students found
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      Select a class to view its students
                     </p>
                   </div>
-                  <Button onClick={() => setShowInviteModal(true)}>
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Invite Students
-                  </Button>
-                </div>
-
-                <div className="space-y-4">
-                  {students.map((student) => (
-                    <Card key={student.id}>
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                              <Users className="h-5 w-5 text-blue-600" />
-                            </div>
-                            <div>
-                              <h4 className="font-medium">
-                                {student.firstName} {student.lastName}
-                              </h4>
-                              <p className="text-sm text-muted-foreground">
-                                {student.email}
-                              </p>
-                            </div>
+                ) : (
+                  <div className="space-y-4">
+                    {students.map((student) => (
+                      <div key={student.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span className="text-blue-600 font-medium">
+                              {student.firstName.charAt(0)}{student.lastName.charAt(0)}
+                            </span>
                           </div>
-                          <div className="flex items-center gap-4">
-                            <div className="text-right">
-                              <div className="text-sm font-medium">{student.progress || 0}%</div>
-                              <div className="text-xs text-muted-foreground">Progress</div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-sm font-medium">{student.averageScore || 0}%</div>
-                              <div className="text-xs text-muted-foreground">Avg Score</div>
-                            </div>
-                            <Badge className={getStatusColor(student.status || 'active')}>
-                              {(student.status || 'active').charAt(0).toUpperCase() + (student.status || 'active').slice(1)}
-                            </Badge>
-                            <Button size="sm" variant="outline">
-                              <Eye className="h-4 w-4" />
-                            </Button>
+                          <div>
+                            <h4 className="font-medium">{student.firstName} {student.lastName}</h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">{student.email}</p>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                  Select a Class
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Choose a class from the Classes tab to view its students
-                </p>
-              </div>
-            )}
+                        <div className="flex items-center space-x-4">
+                          <Badge className={getStatusColor(student.status)}>
+                            {student.status}
+                          </Badge>
+                          <div className="text-right">
+                            <p className="text-sm font-medium">{student.progress}%</p>
+                            <p className="text-xs text-gray-600 dark:text-gray-300">Progress</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
@@ -494,6 +552,8 @@ function ClassesManagement() {
                     id="description"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Describe the class content, objectives, and what students will learn..."
+                    rows={4}
                     required
                   />
                 </div>
@@ -570,42 +630,112 @@ function ClassesManagement() {
         </div>
       )}
 
-      {/* Invite Students Modal */}
+      {/* Enhanced Invite Students Modal */}
       {showInviteModal && selectedClass && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-md mx-4">
+          <Card className="w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
             <CardHeader>
-              <CardTitle>Invite Students</CardTitle>
+              <CardTitle>Invite Students to {selectedClass.name}</CardTitle>
               <CardDescription>
-                Send invitations to join {selectedClass.name}
+                Invite existing users or send invitations to new users
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleInviteStudents} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="emails">Email Addresses</Label>
-                  <Textarea
-                    id="emails"
-                    placeholder="Enter email addresses separated by commas"
-                    value={inviteData.emails}
-                    onChange={(e) => setInviteData({ ...inviteData, emails: e.target.value })}
-                    required
-                  />
+              <form onSubmit={handleInviteStudents} className="space-y-6">
+                {/* Existing Users Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    <h3 className="text-lg font-medium">Invite Existing Users</h3>
+                  </div>
+                  
+                  <div className="border rounded-lg p-4 max-h-60 overflow-y-auto">
+                    {allUsers.length === 0 ? (
+                      <p className="text-gray-500 text-center py-4">No available users found</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {allUsers.map((user) => (
+                          <div key={user.id} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
+                            <Checkbox
+                              id={user.id}
+                              checked={inviteData.selectedUsers.includes(user.id)}
+                              onCheckedChange={(checked) => handleUserSelection(user.id, checked as boolean)}
+                            />
+                            <div className="flex-1">
+                              <Label htmlFor={user.id} className="font-medium cursor-pointer">
+                                {user.firstName} {user.lastName}
+                              </Label>
+                              <p className="text-sm text-gray-600">{user.email}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
+                {/* Outsider Invitations Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <ExternalLink className="h-5 w-5" />
+                    <h3 className="text-lg font-medium">Invite New Users</h3>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Enter email address"
+                        value={inviteData.emails}
+                        onChange={(e) => setInviteData({ ...inviteData, emails: e.target.value })}
+                        className="flex-1"
+                      />
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={handleAddOutsiderEmail}
+                        disabled={!inviteData.emails.trim()}
+                      >
+                        Add
+                      </Button>
+                    </div>
+                    
+                    {inviteData.outsiderEmails.length > 0 && (
+                      <div className="space-y-2">
+                        <Label>Emails to invite:</Label>
+                        <div className="space-y-1">
+                          {inviteData.outsiderEmails.map((email, index) => (
+                            <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                              <span className="text-sm">{email}</span>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleRemoveOutsiderEmail(index)}
+                              >
+                                <XCircle className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Personal Message */}
                 <div className="space-y-2">
                   <Label htmlFor="message">Personal Message (Optional)</Label>
                   <Textarea
                     id="message"
-                    placeholder="Add a personal message to the invitation"
+                    placeholder="Add a personal message to the invitation..."
                     value={inviteData.message}
                     onChange={(e) => setInviteData({ ...inviteData, message: e.target.value })}
+                    rows={3}
                   />
                 </div>
 
                 <div className="flex gap-2">
                   <Button type="submit" className="flex-1">
-                    <Mail className="h-4 w-4 mr-2" />
                     Send Invitations
                   </Button>
                   <Button 
@@ -617,6 +747,114 @@ function ClassesManagement() {
                   </Button>
                 </div>
               </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Class Details Modal */}
+      {showClassDetailsModal && selectedClass && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <Card className="w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <CardHeader>
+              <CardTitle>{selectedClass.name}</CardTitle>
+              <CardDescription>
+                Class details and information
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Class Description */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Description</Label>
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <p className="text-gray-700 whitespace-pre-wrap">{selectedClass.description}</p>
+                </div>
+              </div>
+
+              {/* Class Stats */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Level</Label>
+                  <Badge className={getLevelColor(selectedClass.level)}>
+                    {selectedClass.level}
+                  </Badge>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Status</Label>
+                  <Badge className={selectedClass.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                    {selectedClass.isActive ? 'Active' : 'Inactive'}
+                  </Badge>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Students</Label>
+                  <p className="text-lg font-medium">{selectedClass.currentStudents}/{selectedClass.maxStudents}</p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Assignments</Label>
+                  <p className="text-lg font-medium">{selectedClass.assignments}</p>
+                </div>
+              </div>
+
+              {/* Progress and Scores */}
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <Label>Completion Rate</Label>
+                    <span>{selectedClass.completionRate}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full" 
+                      style={{ width: `${selectedClass.completionRate}%` }}
+                    ></div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <Label>Average Score</Label>
+                    <span>{selectedClass.averageScore}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-green-600 h-2 rounded-full" 
+                      style={{ width: `${selectedClass.averageScore}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dates */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Start Date</Label>
+                  <p className="text-sm">{new Date(selectedClass.startDate).toLocaleDateString()}</p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">End Date</Label>
+                  <p className="text-sm">{new Date(selectedClass.endDate).toLocaleDateString()}</p>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Button 
+                  className="flex-1"
+                  onClick={() => {
+                    setShowClassDetailsModal(false);
+                    setShowInviteModal(true);
+                  }}
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Invite Students
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => setShowClassDetailsModal(false)}
+                >
+                  Close
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
