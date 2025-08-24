@@ -8,7 +8,7 @@ import { useAuth } from '@/components/providers/auth-provider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Loader2, AlertCircle, Mail } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const loginSchema = z.object({
@@ -23,6 +23,7 @@ export function LoginForm() {
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const [needsVerification, setNeedsVerification] = useState(false);
   const [email, setEmail] = useState('');
 
@@ -48,6 +49,10 @@ export function LoginForm() {
       if (error.response?.data?.needsVerification) {
         setNeedsVerification(true);
         setEmail(data.email);
+        toast.success('Account found! Please verify your email address to continue.');
+      } else if (error.response?.data?.message?.includes('verification')) {
+        setNeedsVerification(true);
+        setEmail(data.email);
         toast.error('Please verify your email address. Enter the 6-digit verification code below.');
       } else {
         toast.error(error.response?.data?.message || 'Login failed');
@@ -63,12 +68,15 @@ export function LoginForm() {
       return;
     }
     
+    setResendLoading(true);
     try {
       const { resendVerification } = useAuth();
       await resendVerification(email);
-      toast.success('Verification code sent successfully!');
+      toast.success('Verification code sent successfully! Check your email for the new code.');
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to send verification code');
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -129,26 +137,37 @@ export function LoginForm() {
       </div>
 
       {needsVerification && (
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <AlertCircle className="h-4 w-4 text-yellow-600" />
-            <p className="text-sm text-yellow-800">
-              Please verify your email address to continue
-            </p>
+        <div className="space-y-4">
+          <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-blue-900 mb-1">
+                Email Verification Required
+              </h3>
+              <p className="text-sm text-blue-800 mb-2">
+                We've sent a 6-digit verification code to <strong>{email}</strong>. 
+                Please check your email and enter the code below to continue.
+              </p>
+              <p className="text-xs text-blue-700">
+                Can't find the email? Check your spam folder or request a new code.
+              </p>
+            </div>
           </div>
           
-          <Label htmlFor="verificationOtp">6-Digit Verification Code</Label>
-          <Input
-            id="verificationOtp"
-            type="text"
-            placeholder="Enter 6-digit code from email"
-            maxLength={6}
-            {...register('verificationOtp')}
-            className={errors.verificationOtp ? 'border-red-500' : ''}
-          />
-          {errors.verificationOtp && (
-            <p className="text-sm text-red-500">{errors.verificationOtp.message}</p>
-          )}
+          <div className="space-y-2">
+            <Label htmlFor="verificationOtp">6-Digit Verification Code</Label>
+            <Input
+              id="verificationOtp"
+              type="text"
+              placeholder="Enter 6-digit code from email"
+              maxLength={6}
+              className={`text-center text-lg font-mono tracking-widest ${errors.verificationOtp ? 'border-red-500' : ''}`}
+              {...register('verificationOtp')}
+            />
+            {errors.verificationOtp && (
+              <p className="text-sm text-red-500">{errors.verificationOtp.message}</p>
+            )}
+          </div>
           
           <div className="flex gap-2">
             <Button
@@ -156,9 +175,20 @@ export function LoginForm() {
               variant="outline"
               size="sm"
               onClick={handleResendVerification}
+              disabled={resendLoading}
               className="flex-1"
             >
-              Resend Verification Code
+              {resendLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Mail className="w-4 h-4 mr-2" />
+                  Resend Verification Code
+                </>
+              )}
             </Button>
             <Button
               type="button"
@@ -166,8 +196,14 @@ export function LoginForm() {
               size="sm"
               onClick={() => setNeedsVerification(false)}
             >
-              Cancel
+              Back to Login
             </Button>
+          </div>
+          
+          <div className="text-center">
+            <p className="text-xs text-gray-500">
+              Having trouble? Contact support or try a different email address.
+            </p>
           </div>
         </div>
       )}
