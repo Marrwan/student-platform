@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, Clock, Users, BookOpen, Plus, Search, Filter, UserPlus, Mail } from 'lucide-react';
+import { Calendar, Clock, Users, BookOpen, Plus, Search, Filter, UserPlus, Mail, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface Class {
@@ -61,6 +61,9 @@ export default function ClassesPage() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showJoinDialog, setShowJoinDialog] = useState(false);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [selectedClassDetails, setSelectedClassDetails] = useState<any>(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const [createData, setCreateData] = useState<CreateClassData>({
     name: '',
@@ -146,6 +149,20 @@ export default function ClassesPage() {
     } catch (error) {
       console.error('Error leaving class:', error);
       toast.error('Failed to leave class');
+    }
+  };
+
+  const handleViewDetails = async (classId: string) => {
+    setLoadingDetails(true);
+    try {
+      const classData = await api.getClass(classId);
+      setSelectedClassDetails(classData.class);
+      setShowDetailsDialog(true);
+    } catch (error) {
+      console.error('Error fetching class details:', error);
+      toast.error('Failed to load class details');
+    } finally {
+      setLoadingDetails(false);
     }
   };
 
@@ -326,8 +343,21 @@ export default function ClassesPage() {
                 </div>
                 
                 <div className="flex gap-2 mt-4">
-                  <Button variant="outline" size="sm" className="flex-1">
-                    View Details
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={() => handleViewDetails(cls.id)}
+                    disabled={loadingDetails}
+                  >
+                    {loadingDetails && selectedClassDetails?.id === cls.id ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Loading...
+                      </>
+                    ) : (
+                      'View Details'
+                    )}
                   </Button>
                   
                   {isAdmin && (
@@ -532,6 +562,145 @@ export default function ClassesPage() {
             </Button>
             <Button onClick={handleInviteStudents}>
               Send Invitations
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Class Details Dialog */}
+      <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Class Details</DialogTitle>
+            <DialogDescription>
+              Detailed information about {selectedClassDetails?.name}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedClassDetails && (
+            <div className="space-y-6">
+              {/* Basic Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Basic Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">Class Name</Label>
+                    <p className="text-lg font-medium">{selectedClassDetails.name}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">Status</Label>
+                    <Badge variant={selectedClassDetails.isActive ? "default" : "secondary"}>
+                      {selectedClassDetails.isActive ? 'Active' : 'Inactive'}
+                    </Badge>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">Instructor</Label>
+                    <p>{selectedClassDetails.instructor?.firstName} {selectedClassDetails.instructor?.lastName}</p>
+                    <p className="text-sm text-gray-600">{selectedClassDetails.instructor?.email}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">Enrollment</Label>
+                    <p>{selectedClassDetails.studentCount || 0} / {selectedClassDetails.maxStudents} students</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">Start Date</Label>
+                    <p>{selectedClassDetails.startDate ? new Date(selectedClassDetails.startDate).toLocaleDateString() : 'Not set'}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">End Date</Label>
+                    <p>{selectedClassDetails.endDate ? new Date(selectedClassDetails.endDate).toLocaleDateString() : 'Not set'}</p>
+                  </div>
+                  {isAdmin && (
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">Enrollment Code</Label>
+                      <p className="font-mono bg-gray-100 p-2 rounded">{selectedClassDetails.enrollmentCode}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-600">Description</Label>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="whitespace-pre-wrap">{selectedClassDetails.description || 'No description provided'}</p>
+                </div>
+              </div>
+
+              {/* Class Statistics */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Class Statistics</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-blue-50 p-4 rounded-lg text-center">
+                    <div className="text-2xl font-bold text-blue-600">{selectedClassDetails.studentCount || 0}</div>
+                    <div className="text-sm text-gray-600">Students</div>
+                  </div>
+                  <div className="bg-green-50 p-4 rounded-lg text-center">
+                    <div className="text-2xl font-bold text-green-600">
+                      {selectedClassDetails.assignments?.length || 0}
+                    </div>
+                    <div className="text-sm text-gray-600">Assignments</div>
+                  </div>
+                  <div className="bg-purple-50 p-4 rounded-lg text-center">
+                    <div className="text-2xl font-bold text-purple-600">
+                      {selectedClassDetails.completionRate || 0}%
+                    </div>
+                    <div className="text-sm text-gray-600">Completion Rate</div>
+                  </div>
+                  <div className="bg-orange-50 p-4 rounded-lg text-center">
+                    <div className="text-2xl font-bold text-orange-600">
+                      {selectedClassDetails.averageScore || 0}%
+                    </div>
+                    <div className="text-sm text-gray-600">Average Score</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Quick Actions</h3>
+                <div className="flex flex-wrap gap-2">
+                  {isAdmin && (
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowDetailsDialog(false);
+                        setSelectedClass(selectedClassDetails);
+                        setShowInviteDialog(true);
+                      }}
+                    >
+                      <Mail className="w-4 h-4 mr-2" />
+                      Invite Students
+                    </Button>
+                  )}
+                  {selectedClassDetails.isEnrolled && !isAdmin && (
+                    <Button
+                      variant="destructive"
+                      onClick={() => {
+                        setShowDetailsDialog(false);
+                        handleLeaveClass(selectedClassDetails.id);
+                      }}
+                    >
+                      Leave Class
+                    </Button>
+                  )}
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      // Navigate to assignments page for this class
+                      window.location.href = `/assignments?classId=${selectedClassDetails.id}`;
+                    }}
+                  >
+                    View Assignments
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDetailsDialog(false)}>
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
