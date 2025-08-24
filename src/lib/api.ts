@@ -213,8 +213,8 @@ class ApiClient {
     return response.data;
   }
 
-  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
-    const response: AxiosResponse<{ message: string }> = await this.client.post('/auth/reset-password', { token, newPassword });
+  async resetPassword(token: string, password: string): Promise<{ message: string }> {
+    const response: AxiosResponse<{ message: string }> = await this.client.post('/auth/reset-password', { token, password });
     return response.data;
   }
 
