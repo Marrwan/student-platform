@@ -18,22 +18,20 @@ import { api } from '@/lib/api';
 
 interface LeaderboardEntry {
   id: string;
-  userId: string;
-  totalScore: number;
-  assignmentScore: number;
-  attendanceScore: number;
-  assignmentsCompleted: number;
-  totalAssignments: number;
-  attendanceCount: number;
-  totalSessions: number;
   rank: number;
-  lastUpdated: string;
-  user: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  attendanceScore: number;
+  assignmentScore: number;
+  finalScore: number;
+  completedProjects: number;
+  totalSubmissions: number;
+  completionRate: number;
+  lateSubmissions: number;
+  enrolledAt: string;
+  isCurrentUser: boolean;
 }
 
 interface ClassLeaderboardProps {
@@ -54,7 +52,7 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
     try {
       setLoading(true);
       const response = await api.getClassLeaderboard(classId, { page: currentPage, limit: 20 });
-      setLeaderboard(response.leaderboard);
+      setLeaderboard(response.data);
       setTotalPages(response.totalPages);
     } catch (error) {
       console.error('Error loading leaderboard:', error);
@@ -140,19 +138,19 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <h4 className="font-medium">
-                        {entry.user.firstName} {entry.user.lastName}
+                        {entry.firstName} {entry.lastName}
                       </h4>
                       <Badge className={getRankBadge(entry.rank)}>
                         #{entry.rank}
                       </Badge>
                     </div>
-                    <p className="text-sm text-gray-600">{entry.user.email}</p>
+                    <p className="text-sm text-gray-600">{entry.email}</p>
                   </div>
                 </div>
 
                 <div className="text-right">
                   <div className="text-2xl font-bold text-blue-600">
-                    {entry.totalScore.toFixed(1)}
+                    {entry.finalScore.toFixed(1)}
                   </div>
                   <div className="text-sm text-gray-600">Total Points</div>
                 </div>
@@ -168,12 +166,12 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
                     {entry.assignmentScore.toFixed(1)}
                   </div>
                   <div className="text-xs text-gray-500">
-                    {entry.assignmentsCompleted}/{entry.totalAssignments} completed
+                    {entry.completedProjects} projects completed
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
                     <div 
                       className="bg-blue-500 h-1 rounded-full"
-                      style={{ width: `${getCompletionRate(entry.assignmentsCompleted, entry.totalAssignments)}%` }}
+                      style={{ width: `${entry.completionRate}%` }}
                     />
                   </div>
                 </div>
@@ -187,12 +185,12 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
                     {entry.attendanceScore.toFixed(1)}
                   </div>
                   <div className="text-xs text-gray-500">
-                    {entry.attendanceCount}/{entry.totalSessions} sessions
+                    {entry.attendanceScore}% attendance
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
                     <div 
                       className="bg-green-500 h-1 rounded-full"
-                      style={{ width: `${getAttendanceRate(entry.attendanceCount, entry.totalSessions)}%` }}
+                      style={{ width: `${entry.attendanceScore}%` }}
                     />
                   </div>
                 </div>
@@ -203,7 +201,7 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
                     <span className="text-sm font-medium text-gray-700">Progress</span>
                   </div>
                   <div className="text-lg font-bold text-purple-600">
-                    {getCompletionRate(entry.assignmentsCompleted, entry.totalAssignments)}%
+                    {entry.completionRate}%
                   </div>
                   <div className="text-xs text-gray-500">
                     Overall completion
@@ -211,7 +209,7 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
                   <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
                     <div 
                       className="bg-purple-500 h-1 rounded-full"
-                      style={{ width: `${getCompletionRate(entry.assignmentsCompleted, entry.totalAssignments)}%` }}
+                      style={{ width: `${entry.completionRate}%` }}
                     />
                   </div>
                 </div>
@@ -220,7 +218,7 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
               <div className="flex items-center justify-between mt-4 pt-4 border-t">
                 <div className="flex items-center gap-1 text-xs text-gray-500">
                   <Calendar className="w-3 h-3" />
-                  <span>Last updated: {new Date(entry.lastUpdated).toLocaleDateString()}</span>
+                  <span>Enrolled: {new Date(entry.enrolledAt).toLocaleDateString()}</span>
                 </div>
                 
                 <div className="flex gap-2">
@@ -229,7 +227,7 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
                       Top Performer
                     </Badge>
                   )}
-                  {getCompletionRate(entry.assignmentsCompleted, entry.totalAssignments) === 100 && (
+                  {entry.completionRate === 100 && (
                     <Badge className="bg-green-100 text-green-800">
                       All Assignments Complete
                     </Badge>
