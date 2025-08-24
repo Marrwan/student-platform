@@ -4,23 +4,8 @@ import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from '@/components/providers/auth-provider'
 import ErrorBoundaryClient from '@/components/ErrorBoundaryClient';
-import dynamic from 'next/dynamic';
 import { PerformanceMonitor } from '@/components/performance/performance-monitor';
-
-// Lazy load header to reduce initial bundle size
-const Header = dynamic(() => import('@/components/layout/header'), {
-  ssr: true,
-  loading: () => (
-    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="animate-pulse bg-gray-200 h-8 w-32 rounded"></div>
-          <div className="animate-pulse bg-gray-200 h-8 w-24 rounded"></div>
-        </div>
-      </div>
-    </header>
-  ),
-});
+import ConditionalHeader from '@/components/layout/conditional-header';
 
 // Optimize font loading
 const inter = Inter({ 
@@ -160,7 +145,7 @@ export default function RootLayout({
         <ErrorBoundaryClient>
           <AuthProvider>
             <div className="min-h-screen flex flex-col">
-              <Header />
+              <ConditionalHeader />
               <main className="flex-1">
                 {children}
               </main>
