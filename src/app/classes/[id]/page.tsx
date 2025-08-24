@@ -14,6 +14,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { CreateAssignmentModal } from '@/components/assignments/create-assignment-modal';
+import { AttendanceManager } from '@/components/assignments/attendance-manager';
+import { ClassLeaderboard } from '@/components/assignments/class-leaderboard';
+import { PaymentBlockModal } from '@/components/payments/payment-block-modal';
+import { CreateScheduleModal } from '@/components/classes/create-schedule-modal';
 import { 
   Calendar, 
   Clock, 
@@ -95,6 +100,7 @@ interface Enrollment {
   enrolledAt: string;
   progress?: number;
   averageScore?: number;
+  attendanceScore?: number;
 }
 
 interface ClassSchedule {
@@ -116,6 +122,9 @@ export default function ClassDetailPage() {
   const [classDetails, setClassDetails] = useState<ClassDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
+  const [showCreateAssignment, setShowCreateAssignment] = useState(false);
+  const [showPaymentBlock, setShowPaymentBlock] = useState(false);
+  const [showCreateSchedule, setShowCreateSchedule] = useState(false);
 
   const isAdmin = user?.role === 'admin' || user?.role === 'partial_admin';
   const isInstructor = classDetails?.instructor?.id === user?.id;
@@ -139,6 +148,23 @@ export default function ClassDetailPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAssignmentCreated = () => {
+    fetchClassDetails();
+  };
+
+  const handleAttendanceUpdated = () => {
+    fetchClassDetails();
+  };
+
+  const handlePaymentSuccess = () => {
+    // Refresh the page or update user status
+    window.location.reload();
+  };
+
+  const handleScheduleCreated = () => {
+    fetchClassDetails();
   };
 
   if (loading) {
@@ -219,14 +245,13 @@ export default function ClassDetailPage() {
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 h-auto lg:h-10">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 h-auto lg:h-10">
             <TabsTrigger value="overview" className="text-xs lg:text-sm">Overview</TabsTrigger>
             <TabsTrigger value="assignments" className="text-xs lg:text-sm">Assignments</TabsTrigger>
             <TabsTrigger value="students" className="text-xs lg:text-sm">Students</TabsTrigger>
+            <TabsTrigger value="attendance" className="text-xs lg:text-sm">Attendance</TabsTrigger>
+            <TabsTrigger value="leaderboard" className="text-xs lg:text-sm">Leaderboard</TabsTrigger>
             <TabsTrigger value="schedule" className="text-xs lg:text-sm">Schedule</TabsTrigger>
-            {canManageClass && (
-              <TabsTrigger value="analytics" className="text-xs lg:text-sm">Analytics</TabsTrigger>
-            )}
           </TabsList>
 
           {/* Overview Tab */}
@@ -349,7 +374,11 @@ export default function ClassDetailPage() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="text-xl lg:text-2xl font-bold">Assignments</h2>
               {canManageClass && (
-                <Button size="sm" className="w-full sm:w-auto">
+                <Button 
+                  size="sm" 
+                  className="w-full sm:w-auto"
+                  onClick={() => setShowCreateAssignment(true)}
+                >
                   <Plus className="w-4 h-4 mr-2" />
                   Create Assignment
                 </Button>
@@ -513,12 +542,50 @@ export default function ClassDetailPage() {
             )}
           </TabsContent>
 
+          {/* Attendance Tab */}
+          <TabsContent value="attendance" className="space-y-6">
+            {canManageClass ? (
+              <AttendanceManager 
+                classId={classId}
+                students={classDetails?.enrollments?.map(enrollment => ({
+                  id: enrollment.student.id,
+                  firstName: enrollment.student.firstName,
+                  lastName: enrollment.student.lastName,
+                  email: enrollment.student.email || '',
+                  enrollmentId: enrollment.id,
+                  attendanceScore: enrollment.attendanceScore,
+                  totalAttendance: 0, // This would come from attendance records
+                  lastAttendance: enrollment.enrolledAt
+                })) || []}
+                onAttendanceUpdated={handleAttendanceUpdated}
+              />
+            ) : (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <div className="text-center">
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Attendance Management</h3>
+                    <p className="text-gray-600">Only instructors and administrators can manage attendance.</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Leaderboard Tab */}
+          <TabsContent value="leaderboard" className="space-y-6">
+            <ClassLeaderboard classId={classId} />
+          </TabsContent>
+
           {/* Schedule Tab */}
           <TabsContent value="schedule" className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="text-xl lg:text-2xl font-bold">Class Schedule</h2>
               {canManageClass && (
-                <Button size="sm" className="w-full sm:w-auto">
+                <Button 
+                  size="sm" 
+                  className="w-full sm:w-auto"
+                  onClick={() => setShowCreateSchedule(true)}
+                >
                   <Plus className="w-4 h-4 mr-2" />
                   Add Schedule
                 </Button>
@@ -580,7 +647,7 @@ export default function ClassDetailPage() {
                     }
                   </p>
                   {canManageClass && (
-                    <Button>
+                    <Button onClick={() => setShowCreateSchedule(true)}>
                       <Plus className="w-4 h-4 mr-2" />
                       Add Schedule
                     </Button>
@@ -651,6 +718,34 @@ export default function ClassDetailPage() {
           )}
         </Tabs>
       </div>
+
+      {/* Create Assignment Modal */}
+      {canManageClass && (
+        <CreateAssignmentModal
+          open={showCreateAssignment}
+          onOpenChange={setShowCreateAssignment}
+          classId={classId}
+          onSuccess={handleAssignmentCreated}
+        />
+      )}
+
+      {/* Create Schedule Modal */}
+      {canManageClass && (
+        <CreateScheduleModal
+          open={showCreateSchedule}
+          onOpenChange={setShowCreateSchedule}
+          classId={classId}
+          className={classDetails.name}
+          onScheduleCreated={handleScheduleCreated}
+        />
+      )}
+
+      {/* Payment Block Modal */}
+      <PaymentBlockModal
+        open={showPaymentBlock}
+        onOpenChange={setShowPaymentBlock}
+        onPaymentSuccess={handlePaymentSuccess}
+      />
     </div>
   );
 }

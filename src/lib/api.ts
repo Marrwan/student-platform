@@ -717,6 +717,38 @@ class ApiClient {
     return response.data;
   }
 
+  async awardAttendanceScore(assignmentId: string, data: {
+    userId: string;
+    score: number;
+    notes?: string;
+  }) {
+    const response = await this.client.post(`/assignments/${assignmentId}/attendance`, data);
+    return response.data;
+  }
+
+
+
+  async checkUserBlockStatus() {
+    return this.cachedRequest(
+      'user-block-status',
+      async () => {
+        const response = await this.client.get('/assignments/user/block-status');
+        return response.data;
+      },
+      30 * 1000 // 30 seconds cache
+    );
+  }
+
+  async processOverduePayment(data: {
+    paymentReference: string;
+    amount: number;
+  }) {
+    const response = await this.client.post('/assignments/user/process-payment', data);
+    // Clear block status cache
+    this.clearCache('user-block-status');
+    return response.data;
+  }
+
   // Challenge Management
   async getChallenges(params?: { page?: number; limit?: number; status?: string }) {
     const cacheKey = `challenges:${JSON.stringify(params)}`;
@@ -883,7 +915,11 @@ class ApiClient {
     return this.cachedRequest(
       cacheKey,
       async () => {
-        const response: AxiosResponse<PaginatedResponse<ClassLeaderboardEntry>> = await this.client.get(`/leaderboard/class/${classId}`, { params });
+        const queryParams = new URLSearchParams();
+        if (params?.page) queryParams.append('page', params.page.toString());
+        if (params?.limit) queryParams.append('limit', params.limit.toString());
+
+        const response: AxiosResponse<PaginatedResponse<ClassLeaderboardEntry>> = await this.client.get(`/assignments/${classId}/leaderboard?${queryParams.toString()}`);
         return response.data;
       },
       1 * 60 * 1000 // 1 minute cache

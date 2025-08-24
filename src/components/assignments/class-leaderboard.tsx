@@ -1,0 +1,271 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { 
+  Trophy, 
+  Medal, 
+  Award, 
+  TrendingUp, 
+  Users, 
+  Star,
+  Calendar,
+  Target
+} from 'lucide-react';
+import { api } from '@/lib/api';
+
+interface LeaderboardEntry {
+  id: string;
+  userId: string;
+  totalScore: number;
+  assignmentScore: number;
+  attendanceScore: number;
+  assignmentsCompleted: number;
+  totalAssignments: number;
+  attendanceCount: number;
+  totalSessions: number;
+  rank: number;
+  lastUpdated: string;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+}
+
+interface ClassLeaderboardProps {
+  classId: string;
+}
+
+export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    loadLeaderboard();
+  }, [classId, currentPage]);
+
+  const loadLeaderboard = async () => {
+    try {
+      setLoading(true);
+      const response = await api.getClassLeaderboard(classId, { page: currentPage, limit: 20 });
+      setLeaderboard(response.leaderboard);
+      setTotalPages(response.totalPages);
+    } catch (error) {
+      console.error('Error loading leaderboard:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getRankIcon = (rank: number) => {
+    if (rank === 1) return <Trophy className="w-5 h-5 text-yellow-500" />;
+    if (rank === 2) return <Medal className="w-5 h-5 text-gray-400" />;
+    if (rank === 3) return <Award className="w-5 h-5 text-amber-600" />;
+    return <span className="text-lg font-bold text-gray-600">{rank}</span>;
+  };
+
+  const getRankBadge = (rank: number) => {
+    if (rank === 1) return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    if (rank === 2) return 'bg-gray-100 text-gray-800 border-gray-200';
+    if (rank === 3) return 'bg-amber-100 text-amber-800 border-amber-200';
+    return 'bg-blue-100 text-blue-800 border-blue-200';
+  };
+
+  const getCompletionRate = (completed: number, total: number) => {
+    if (total === 0) return 0;
+    return Math.round((completed / total) * 100);
+  };
+
+  const getAttendanceRate = (attended: number, total: number) => {
+    if (total === 0) return 0;
+    return Math.round((attended / total) * 100);
+  };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading leaderboard...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (leaderboard.length === 0) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-12">
+          <Trophy className="w-12 h-12 text-gray-400 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No Leaderboard Data</h3>
+          <p className="text-gray-600 text-center max-w-md">
+            No students have completed assignments or received attendance scores yet.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-medium">Class Leaderboard</h3>
+          <p className="text-sm text-gray-600">Student rankings based on assignments and attendance</p>
+        </div>
+        <Badge variant="outline" className="flex items-center gap-1">
+          <Users className="w-4 h-4" />
+          {leaderboard.length} Students
+        </Badge>
+      </div>
+
+      <div className="space-y-4">
+        {leaderboard.map((entry, index) => (
+          <Card key={entry.id} className="hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100">
+                    {getRankIcon(entry.rank)}
+                  </div>
+                  
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="font-medium">
+                        {entry.user.firstName} {entry.user.lastName}
+                      </h4>
+                      <Badge className={getRankBadge(entry.rank)}>
+                        #{entry.rank}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-gray-600">{entry.user.email}</p>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {entry.totalScore.toFixed(1)}
+                  </div>
+                  <div className="text-sm text-gray-600">Total Points</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <Target className="w-4 h-4 text-blue-500" />
+                    <span className="text-sm font-medium text-gray-700">Assignments</span>
+                  </div>
+                  <div className="text-lg font-bold text-blue-600">
+                    {entry.assignmentScore.toFixed(1)}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {entry.assignmentsCompleted}/{entry.totalAssignments} completed
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
+                    <div 
+                      className="bg-blue-500 h-1 rounded-full"
+                      style={{ width: `${getCompletionRate(entry.assignmentsCompleted, entry.totalAssignments)}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <Star className="w-4 h-4 text-green-500" />
+                    <span className="text-sm font-medium text-gray-700">Attendance</span>
+                  </div>
+                  <div className="text-lg font-bold text-green-600">
+                    {entry.attendanceScore.toFixed(1)}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {entry.attendanceCount}/{entry.totalSessions} sessions
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
+                    <div 
+                      className="bg-green-500 h-1 rounded-full"
+                      style={{ width: `${getAttendanceRate(entry.attendanceCount, entry.totalSessions)}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <TrendingUp className="w-4 h-4 text-purple-500" />
+                    <span className="text-sm font-medium text-gray-700">Progress</span>
+                  </div>
+                  <div className="text-lg font-bold text-purple-600">
+                    {getCompletionRate(entry.assignmentsCompleted, entry.totalAssignments)}%
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    Overall completion
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
+                    <div 
+                      className="bg-purple-500 h-1 rounded-full"
+                      style={{ width: `${getCompletionRate(entry.assignmentsCompleted, entry.totalAssignments)}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <Calendar className="w-3 h-3" />
+                  <span>Last updated: {new Date(entry.lastUpdated).toLocaleDateString()}</span>
+                </div>
+                
+                <div className="flex gap-2">
+                  {entry.rank <= 3 && (
+                    <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white">
+                      Top Performer
+                    </Badge>
+                  )}
+                  {getCompletionRate(entry.assignmentsCompleted, entry.totalAssignments) === 100 && (
+                    <Badge className="bg-green-100 text-green-800">
+                      All Assignments Complete
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+          
+          <span className="text-sm text-gray-600">
+            Page {currentPage} of {totalPages}
+          </span>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
