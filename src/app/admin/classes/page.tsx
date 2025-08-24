@@ -429,33 +429,33 @@ function ClassesManagement() {
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    {students.map((student) => (
+                <div className="space-y-4">
+                  {students.map((student) => (
                       <div key={student.id} className="flex items-center justify-between p-4 border rounded-lg">
                         <div className="flex items-center space-x-4">
-                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                             <span className="text-blue-600 font-medium">
                               {student.firstName.charAt(0)}{student.lastName.charAt(0)}
                             </span>
-                          </div>
-                          <div>
+                            </div>
+                            <div>
                             <h4 className="font-medium">{student.firstName} {student.lastName}</h4>
                             <p className="text-sm text-gray-600 dark:text-gray-300">{student.email}</p>
                           </div>
-                        </div>
+                            </div>
                         <div className="flex items-center space-x-4">
                           <Badge className={getStatusColor(student.status)}>
                             {student.status}
                           </Badge>
-                          <div className="text-right">
+                            <div className="text-right">
                             <p className="text-sm font-medium">{student.progress}%</p>
                             <p className="text-xs text-gray-600 dark:text-gray-300">Progress</p>
                           </div>
                         </div>
                       </div>
                     ))}
-                  </div>
-                )}
+              </div>
+            )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -653,7 +653,7 @@ function ClassesManagement() {
                     {allUsers.length === 0 ? (
                       <p className="text-gray-500 text-center py-4">No available users found</p>
                     ) : (
-                      <div className="space-y-2">
+                <div className="space-y-2">
                         {allUsers.map((user) => (
                           <div key={user.id} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
                             <Checkbox
@@ -685,8 +685,8 @@ function ClassesManagement() {
                     <div className="flex gap-2">
                       <Input
                         placeholder="Enter email address"
-                        value={inviteData.emails}
-                        onChange={(e) => setInviteData({ ...inviteData, emails: e.target.value })}
+                    value={inviteData.emails}
+                    onChange={(e) => setInviteData({ ...inviteData, emails: e.target.value })}
                         className="flex-1"
                       />
                       <Button 

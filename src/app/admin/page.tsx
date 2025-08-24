@@ -155,6 +155,7 @@ function AdminDashboard() {
   const [notifTargetClasses, setNotifTargetClasses] = useState<MultiValue<{ value: string; label: string }>>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [allClasses, setAllClasses] = useState<any[]>([]);
+  const [allProjects, setAllProjects] = useState<any[]>([]);
   const [notifContentMd, setNotifContentMd] = useState('');
   const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 
@@ -165,9 +166,10 @@ function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    // Fetch all users and classes for notification modal
-            api.getAdminUsers({ limit: 1000 }).then(res => setAllUsers(res.users || []));
+    // Fetch all users, classes, and projects for notification modal
+    api.getAdminUsers({ limit: 1000 }).then(res => setAllUsers(res.users || []));
     api.getAdminClasses().then(res => setAllClasses(res.classes || []));
+    api.getAdminProjects().then(res => setAllProjects(res.projects || []));
   }, []);
 
   const loadDashboardData = async () => {
@@ -592,34 +594,62 @@ function AdminDashboard() {
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {/* Mock class cards */}
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="text-lg">JavaScript Fundamentals</CardTitle>
-                          <CardDescription>25 students • 12 projects</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                              <span>Progress</span>
-                              <span>78%</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2">
-                              <div className="bg-blue-600 h-2 rounded-full" style={{ width: '78%' }}></div>
-                            </div>
-                            <div className="flex gap-2 mt-4">
-                              <Button size="sm" variant="outline" className="flex-1">
-                                <Users className="h-4 w-4 mr-1" />
-                                Students
-                              </Button>
-                              <Button size="sm" variant="outline" className="flex-1">
-                                <Edit className="h-4 w-4 mr-1" />
-                                Edit
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                      {allClasses.length === 0 ? (
+                        <div className="col-span-3 text-center py-8">
+                          <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                            No classes found
+                          </h3>
+                          <p className="text-gray-600 dark:text-gray-300">
+                            Create your first class to get started
+                          </p>
+                        </div>
+                      ) : (
+                        allClasses.slice(0, 6).map((classItem) => (
+                          <Card key={classItem.id} className="hover:shadow-lg transition-shadow">
+                            <CardHeader>
+                              <CardTitle className="text-lg">{classItem.name}</CardTitle>
+                              <CardDescription>
+                                {classItem.currentStudents || 0} students • {classItem.assignments || 0} projects
+                              </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-2">
+                                <div className="flex justify-between text-sm">
+                                  <span>Progress</span>
+                                  <span>{classItem.completionRate || 0}%</span>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-2">
+                                  <div 
+                                    className="bg-blue-600 h-2 rounded-full" 
+                                    style={{ width: `${classItem.completionRate || 0}%` }}
+                                  ></div>
+                                </div>
+                                <div className="flex gap-2 mt-4">
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="flex-1"
+                                    onClick={() => router.push('/admin/classes')}
+                                  >
+                                    <Users className="h-4 w-4 mr-1" />
+                                    Students
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="flex-1"
+                                    onClick={() => router.push('/admin/classes')}
+                                  >
+                                    <Edit className="h-4 w-4 mr-1" />
+                                    Edit
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -660,35 +690,60 @@ function AdminDashboard() {
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {/* Mock project cards */}
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="text-lg">Day 1: Calculator</CardTitle>
-                          <CardDescription>JavaScript Fundamentals</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                              <span>Submissions</span>
-                              <span>45/50</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span>Avg Score</span>
-                              <span>82%</span>
-                            </div>
-                            <div className="flex gap-2 mt-4">
-                              <Button size="sm" variant="outline" className="flex-1">
-                                <Eye className="h-4 w-4 mr-1" />
-                                View
-                              </Button>
-                              <Button size="sm" variant="outline" className="flex-1">
-                                <Edit className="h-4 w-4 mr-1" />
-                                Edit
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                      {allProjects.length === 0 ? (
+                        <div className="col-span-3 text-center py-8">
+                          <Code className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                            No projects found
+                          </h3>
+                          <p className="text-gray-600 dark:text-gray-300">
+                            Create your first project to get started
+                          </p>
+                        </div>
+                      ) : (
+                        allProjects.slice(0, 6).map((project) => (
+                          <Card key={project.id} className="hover:shadow-lg transition-shadow">
+                            <CardHeader>
+                              <CardTitle className="text-lg">Day {project.day}: {project.title}</CardTitle>
+                              <CardDescription>{project.difficulty} • {project.submissionType}</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-2">
+                                <div className="flex justify-between text-sm">
+                                  <span>Status</span>
+                                  <Badge className={project.isUnlocked ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                                    {project.isUnlocked ? 'Unlocked' : 'Locked'}
+                                  </Badge>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                  <span>Max Score</span>
+                                  <span>{project.maxScore} points</span>
+                                </div>
+                                <div className="flex gap-2 mt-4">
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="flex-1"
+                                    onClick={() => router.push(`/admin/projects/${project.id}`)}
+                                  >
+                                    <Eye className="h-4 w-4 mr-1" />
+                                    View
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="flex-1"
+                                    onClick={() => router.push(`/admin/projects/${project.id}/edit`)}
+                                  >
+                                    <Edit className="h-4 w-4 mr-1" />
+                                    Edit
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))
+                      )}
                     </div>
                   </div>
                 </CardContent>

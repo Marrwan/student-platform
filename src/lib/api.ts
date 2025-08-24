@@ -848,6 +848,21 @@ class ApiClient {
     );
   }
 
+  async getClassLeaderboard(classId: string, params?: {
+    page?: number;
+    limit?: number;
+  }): Promise<PaginatedResponse<LeaderboardEntry>> {
+    const cacheKey = `class-leaderboard:${classId}:${JSON.stringify(params)}`;
+    return this.cachedRequest(
+      cacheKey,
+      async () => {
+        const response: AxiosResponse<PaginatedResponse<LeaderboardEntry>> = await this.client.get(`/leaderboard/class/${classId}`, { params });
+        return response.data;
+      },
+      1 * 60 * 1000 // 1 minute cache
+    );
+  }
+
   async getProjectLeaderboard(projectId: string, params?: {
     page?: number;
     limit?: number;
@@ -1013,6 +1028,17 @@ class ApiClient {
       'admin-classes',
       async () => {
         const response: AxiosResponse<{ classes: any[] }> = await this.client.get('/admin/classes');
+        return response.data;
+      },
+      2 * 60 * 1000 // 2 minutes cache
+    );
+  }
+
+  async getAdminProjects(): Promise<{ projects: any[] }> {
+    return this.cachedRequest(
+      'admin-projects',
+      async () => {
+        const response: AxiosResponse<{ projects: any[] }> = await this.client.get('/admin/projects');
         return response.data;
       },
       2 * 60 * 1000 // 2 minutes cache
