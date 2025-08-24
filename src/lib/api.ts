@@ -613,16 +613,13 @@ class ApiClient {
     startDate: string;
     deadline: string;
     requirements: string;
-    sampleOutput?: string;
-    starterCode?: any;
-    hints?: string;
-    resources?: any[];
-    submissionTypes?: string[];
-    latePenalty?: number;
+    sampleOutputUrl?: string;
+    sampleOutputCode?: any;
+    submissionMode?: string;
+    paymentRequired?: boolean;
+    paymentAmount?: number;
     allowLateSubmission?: boolean;
-    maxLateHours?: number;
-    requirePayment?: boolean;
-    lateFeeAmount?: number;
+    latePenalty?: number;
   }) {
     const response = await this.client.post('/assignments', data);
     // Clear assignments cache
@@ -658,8 +655,9 @@ class ApiClient {
   }
 
   async submitAssignment(assignmentId: string, data: {
-    submissionType: 'github' | 'code' | 'zip';
+    submissionType: 'github' | 'code' | 'link' | 'zip';
     githubLink?: string;
+    submissionLink?: string;
     codeSubmission?: {
       html: string;
       css: string;

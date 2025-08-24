@@ -98,7 +98,7 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
     );
   }
 
-  if (leaderboard.length === 0) {
+  if (!leaderboard || leaderboard.length === 0) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
@@ -121,12 +121,12 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
         </div>
         <Badge variant="outline" className="flex items-center gap-1">
           <Users className="w-4 h-4" />
-          {leaderboard.length} Students
+          {leaderboard?.length || 0} Students
         </Badge>
       </div>
 
       <div className="space-y-4">
-        {leaderboard.map((entry, index) => (
+        {leaderboard?.map((entry, index) => (
           <Card key={entry.id} className="hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
