@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   Plus,
   Users,
@@ -32,10 +33,19 @@ import {
   XCircle,
   Search,
   Filter,
-  ExternalLink
+  ExternalLink,
+  BarChart3,
+  CalendarDays,
+  Video,
+  MapPin,
+  Link,
+  FileText,
+  ArrowRight,
+  Loader2
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 interface Class {
   id: string;
@@ -43,15 +53,58 @@ interface Class {
   description: string;
   level: 'beginner' | 'intermediate' | 'advanced';
   maxStudents: number;
-  currentStudents: number;
+  studentCount: number;
   startDate: string;
   endDate: string;
   isActive: boolean;
   instructorId: string;
-  instructorName: string;
-  assignments: number;
-  completionRate: number;
-  averageScore: number;
+  instructor: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  enrollmentCode: string;
+  assignments?: Assignment[];
+  enrollments?: Enrollment[];
+  schedule?: ClassSchedule[];
+  completionRate?: number;
+  averageScore?: number;
+}
+
+interface Assignment {
+  id: string;
+  title: string;
+  description: string;
+  startDate: string;
+  dueDate: string;
+  isUnlocked: boolean;
+  submissionCount?: number;
+  totalStudents?: number;
+}
+
+interface Enrollment {
+  id: string;
+  student: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  status: string;
+  enrolledAt: string;
+  progress?: number;
+  averageScore?: number;
+}
+
+interface ClassSchedule {
+  id: string;
+  dayOfWeek: string;
+  startTime: string;
+  endTime: string;
+  type: 'virtual' | 'physical';
+  location?: string;
+  meetingLink?: string;
 }
 
 interface Student {
@@ -83,6 +136,7 @@ export default function ClassesPage() {
 }
 
 function ClassesManagement() {
+  const router = useRouter();
   const { user } = useAuth();
   const [classes, setClasses] = useState<Class[]>([]);
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
@@ -93,6 +147,11 @@ function ClassesManagement() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showClassDetailsModal, setShowClassDetailsModal] = useState(false);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [levelFilter, setLevelFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   // Form states
   const [formData, setFormData] = useState({
@@ -103,6 +162,15 @@ function ClassesManagement() {
     startDate: '',
     endDate: '',
     instructorId: ''
+  });
+
+  const [scheduleData, setScheduleData] = useState({
+    dayOfWeek: 'monday',
+    startTime: '',
+    endTime: '',
+    type: 'virtual' as const,
+    location: '',
+    meetingLink: ''
   });
 
   const [inviteData, setInviteData] = useState({
@@ -152,7 +220,7 @@ function ClassesManagement() {
   const handleCreateClass = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.createAdminClass(formData);
+      await api.createClass(formData);
       toast.success('Class created successfully!');
       setShowCreateModal(false);
       setFormData({
@@ -170,31 +238,45 @@ function ClassesManagement() {
     }
   };
 
-  const handleInviteStudents = async (e: React.FormEvent) => {
+  const handleEditClass = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedClass) return;
+    
     try {
-      if (!selectedClass?.id) {
-        toast.error('No class selected');
+      await api.updateClass(selectedClass.id, formData);
+      toast.success('Class updated successfully!');
+      setShowEditModal(false);
+      loadClasses();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to update class');
+    }
+  };
+
+  const handleDeleteClass = async (classId: string) => {
+    if (confirm('Are you sure you want to delete this class? This action cannot be undone.')) {
+      try {
+        await api.deleteClass(classId);
+        toast.success('Class deleted successfully!');
+        loadClasses();
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Failed to delete class');
+      }
+    }
+  };
+
+  const handleSendInvitations = async () => {
+    if (!selectedClass) return;
+    
+    try {
+      const validEmails = inviteData.outsiderEmails.filter(email => email.trim());
+      if (validEmails.length === 0 && inviteData.selectedUsers.length === 0) {
+        toast.error('Please select users or add email addresses');
         return;
       }
 
-      // Combine selected users and outsider emails
-      const allEmails = [
-        ...inviteData.selectedUsers.map(userId => {
-          const user = allUsers.find(u => u.id === userId);
-          return user?.email || '';
-        }).filter(email => email !== ''),
-        ...inviteData.outsiderEmails
-      ];
-
-      if (allEmails.length === 0) {
-        toast.error('Please select users or enter email addresses');
-        return;
-      }
-
-      await api.inviteAdminClassStudents(selectedClass.id, { 
-        emails: allEmails, 
-        message: inviteData.message 
+      await api.inviteStudents(selectedClass.id, {
+        emails: validEmails,
+        message: inviteData.message
       });
       
       toast.success('Invitations sent successfully!');
@@ -207,6 +289,31 @@ function ClassesManagement() {
       });
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to send invitations');
+    }
+  };
+
+  const handleAddSchedule = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedClass) return;
+    
+    try {
+      await api.createClassSchedule({
+        ...scheduleData,
+        classId: selectedClass.id
+      });
+      toast.success('Schedule added successfully!');
+      setShowScheduleModal(false);
+      setScheduleData({
+        dayOfWeek: 'monday',
+        startTime: '',
+        endTime: '',
+        type: 'virtual',
+        location: '',
+        meetingLink: ''
+      });
+      loadClasses();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to add schedule');
     }
   };
 
@@ -262,28 +369,56 @@ function ClassesManagement() {
     }
   };
 
+  // Filter classes based on search and filters
+  const filteredClasses = classes.filter(cls => {
+    const matchesSearch = cls.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         cls.description.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesLevel = levelFilter === 'all' || cls.level === levelFilter;
+    const matchesStatus = statusFilter === 'all' || 
+                         (statusFilter === 'active' && cls.isActive) ||
+                         (statusFilter === 'inactive' && !cls.isActive);
+    
+    return matchesSearch && matchesLevel && matchesStatus;
+  });
+
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div></div>;
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        </div>
+      </div>
+    );
   }
+
   if (error) {
-    return <div className="min-h-screen flex flex-col items-center justify-center bg-red-50 text-red-800"><h1 className="text-2xl font-bold mb-4">Classes Error</h1><p>{error}</p><button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded" onClick={loadClasses}>Retry</button></div>;
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="flex flex-col items-center justify-center h-64">
+          <h1 className="text-2xl font-bold mb-4 text-red-800">Classes Error</h1>
+          <p className="text-red-600 mb-4">{error}</p>
+          <Button onClick={loadClasses}>Retry</Button>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
+      <header className="bg-white shadow-sm border-b">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
                 Class Management
               </h1>
-              <p className="text-gray-600 dark:text-gray-300">
+              <p className="text-gray-600 mt-2">
                 Create and manage classes, invite students, and track progress
               </p>
             </div>
-            <Button onClick={() => setShowCreateModal(true)}>
+            <Button onClick={() => setShowCreateModal(true)} size="sm">
               <Plus className="h-4 w-4 mr-2" />
               Create Class
             </Button>
@@ -292,9 +427,9 @@ function ClassesManagement() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-6 lg:py-8">
         <Tabs defaultValue="classes" className="space-y-6">
-          <TabsList>
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="classes">Classes</TabsTrigger>
             <TabsTrigger value="students">Students</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
@@ -302,10 +437,18 @@ function ClassesManagement() {
 
           <TabsContent value="classes" className="space-y-6">
             {/* Search and Filters */}
-            <div className="flex gap-4">
-              <Input placeholder="Search classes..." className="flex-1" />
-              <Select>
-                <SelectTrigger className="w-40">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input 
+                  placeholder="Search classes..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10" 
+                />
+              </div>
+              <Select value={levelFilter} onValueChange={setLevelFilter}>
+                <SelectTrigger className="w-full sm:w-40">
                   <SelectValue placeholder="Level" />
                 </SelectTrigger>
                 <SelectContent>
@@ -315,8 +458,8 @@ function ClassesManagement() {
                   <SelectItem value="advanced">Advanced</SelectItem>
                 </SelectContent>
               </Select>
-              <Select>
-                <SelectTrigger className="w-40">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-40">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -328,537 +471,760 @@ function ClassesManagement() {
             </div>
 
             {/* Classes Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {classes.map((classItem) => (
-                <Card key={classItem.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg">{classItem.name}</CardTitle>
-                        <CardDescription className="mt-2 line-clamp-3">
-                          {classItem.description}
-                        </CardDescription>
+            {filteredClasses.length === 0 ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <BookOpen className="w-12 h-12 text-gray-400 mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2 text-center">No classes found</h3>
+                  <p className="text-gray-600 text-center max-w-md">
+                    {searchTerm || levelFilter !== 'all' || statusFilter !== 'all'
+                      ? 'Try adjusting your search or filters'
+                      : 'Create your first class to get started'
+                    }
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
+                {filteredClasses.map((classItem) => (
+                  <Card key={classItem.id} className="hover:shadow-lg transition-shadow">
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-base lg:text-lg line-clamp-2">
+                            {classItem.name}
+                          </CardTitle>
+                          <CardDescription className="mt-2 line-clamp-2">
+                            {classItem.description}
+                          </CardDescription>
+                        </div>
+                        <Badge className={getLevelColor(classItem.level || 'beginner')}>
+                          {(classItem.level || 'beginner').charAt(0).toUpperCase() + (classItem.level || 'beginner').slice(1)}
+                        </Badge>
                       </div>
-                      <Badge className={getLevelColor(classItem.level || 'beginner')}>
-                        {(classItem.level || 'beginner').charAt(0).toUpperCase() + (classItem.level || 'beginner').slice(1)}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">Students</span>
-                        <p className="font-medium">{classItem.currentStudents || 0}/{classItem.maxStudents}</p>
+                    </CardHeader>
+                    
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Students</span>
+                          <p className="font-medium">{classItem.studentCount || 0}/{classItem.maxStudents}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Assignments</span>
+                          <p className="font-medium">{classItem.assignments?.length || 0}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Completion</span>
+                          <p className="font-medium">{classItem.completionRate || 0}%</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Avg Score</span>
+                          <p className="font-medium">{classItem.averageScore || 0}%</p>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-muted-foreground">Assignments</span>
-                        <p className="font-medium">{classItem.assignments || 0}</p>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Completion</span>
-                        <p className="font-medium">{classItem.completionRate || 0}%</p>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Avg Score</span>
-                        <p className="font-medium">{classItem.averageScore || 0}%</p>
-                      </div>
-                    </div>
 
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>Progress</span>
-                        <span>{classItem.completionRate || 0}%</span>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                          <span>Progress</span>
+                          <span>{classItem.completionRate || 0}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-blue-600 h-2 rounded-full" 
+                            style={{ width: `${classItem.completionRate || 0}%` }}
+                          ></div>
+                        </div>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-blue-600 h-2 rounded-full" 
-                          style={{ width: `${classItem.completionRate || 0}%` }}
-                        ></div>
-                      </div>
-                    </div>
 
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="flex-1"
-                        onClick={() => {
-                          setSelectedClass(classItem);
-                          setShowClassDetailsModal(true);
-                        }}
-                      >
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Details
-                      </Button>
-                      
-                      <Button 
-                        size="sm" 
-                        className="flex-1"
-                        onClick={() => {
-                          setSelectedClass(classItem);
-                          setShowInviteModal(true);
-                        }}
-                      >
-                        <UserPlus className="h-4 w-4 mr-2" />
-                        Invite
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex-1"
+                          onClick={() => {
+                            setSelectedClass(classItem);
+                            setShowClassDetailsModal(true);
+                          }}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          <span className="hidden sm:inline">View Details</span>
+                        </Button>
+                        
+                        <Button 
+                          size="sm" 
+                          className="flex-1"
+                          onClick={() => {
+                            setSelectedClass(classItem);
+                            setShowInviteModal(true);
+                          }}
+                        >
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          <span className="hidden sm:inline">Invite</span>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="students" className="space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <h2 className="text-xl lg:text-2xl font-bold">All Students</h2>
+              <Button size="sm">
+                <UserPlus className="w-4 h-4 mr-2" />
+                Invite Students
+              </Button>
+            </div>
+            
             <Card>
-              <CardHeader>
-                <CardTitle>Class Students</CardTitle>
-                <CardDescription>
-                  Manage students across all classes
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {students.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                      No students found
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      Select a class to view its students
-                    </p>
-                  </div>
-                ) : (
-                <div className="space-y-4">
-                  {students.map((student) => (
-                      <div key={student.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center space-x-4">
-                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <span className="text-blue-600 font-medium">
-                              {student.firstName.charAt(0)}{student.lastName.charAt(0)}
-                            </span>
-                            </div>
-                            <div>
-                            <h4 className="font-medium">{student.firstName} {student.lastName}</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">{student.email}</p>
-                          </div>
-                            </div>
-                        <div className="flex items-center space-x-4">
-                          <Badge className={getStatusColor(student.status)}>
-                            {student.status}
-                          </Badge>
-                            <div className="text-right">
-                            <p className="text-sm font-medium">{student.progress}%</p>
-                            <p className="text-xs text-gray-600 dark:text-gray-300">Progress</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-              </div>
-            )}
+              <CardContent className="pt-6">
+                <p className="text-gray-600 text-center py-8">
+                  Student management features will be implemented here. 
+                  You can view and manage all students across classes.
+                </p>
               </CardContent>
             </Card>
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <h2 className="text-xl lg:text-2xl font-bold">Class Analytics</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Classes</CardTitle>
-                  <BookOpen className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{classes.length}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {classes.filter(c => c.isActive).length} active
-                  </p>
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <div className="text-2xl lg:text-3xl font-bold text-blue-600">
+                      {classes.length}
+                    </div>
+                    <div className="text-sm text-gray-600">Total Classes</div>
+                  </div>
                 </CardContent>
               </Card>
-
+              
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {classes.reduce((sum, c) => sum + (c.currentStudents || 0), 0)}
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <div className="text-2xl lg:text-3xl font-bold text-green-600">
+                      {classes.reduce((sum, cls) => sum + (cls.studentCount || 0), 0)}
+                    </div>
+                    <div className="text-sm text-gray-600">Total Students</div>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Across all classes
-                  </p>
                 </CardContent>
               </Card>
-
+              
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Avg Completion</CardTitle>
-                  <Target className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {classes.length > 0 ? Math.round(classes.reduce((sum, c) => sum + (c.completionRate || 0), 0) / classes.length) : 0}%
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <div className="text-2xl lg:text-3xl font-bold text-purple-600">
+                      {classes.reduce((sum, cls) => sum + (cls.assignments?.length || 0), 0)}
+                    </div>
+                    <div className="text-sm text-gray-600">Total Assignments</div>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Across all classes
-                  </p>
                 </CardContent>
               </Card>
-
+              
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Avg Score</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {classes.length > 0 ? Math.round(classes.reduce((sum, c) => sum + (c.averageScore || 0), 0) / classes.length) : 0}%
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <div className="text-2xl lg:text-3xl font-bold text-orange-600">
+                      {classes.filter(cls => cls.isActive).length}
+                    </div>
+                    <div className="text-sm text-gray-600">Active Classes</div>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Across all classes
-                  </p>
                 </CardContent>
               </Card>
             </div>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">Analytics dashboard will be implemented here with charts and detailed metrics.</p>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>
 
       {/* Create Class Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-md mx-4">
-            <CardHeader>
-              <CardTitle>Create New Class</CardTitle>
-              <CardDescription>
-                Set up a new class with students and assignments
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleCreateClass} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Class Name</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Describe the class content, objectives, and what students will learn..."
-                    rows={4}
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="level">Level</Label>
-                    <Select 
-                      value={formData.level} 
-                      onValueChange={(value: any) => setFormData({ ...formData, level: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="beginner">Beginner</SelectItem>
-                        <SelectItem value="intermediate">Intermediate</SelectItem>
-                        <SelectItem value="advanced">Advanced</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="maxStudents">Max Students</Label>
-                    <Input
-                      id="maxStudents"
-                      type="number"
-                      value={formData.maxStudents}
-                      onChange={(e) => setFormData({ ...formData, maxStudents: parseInt(e.target.value) })}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="startDate">Start Date</Label>
-                    <Input
-                      id="startDate"
-                      type="date"
-                      value={formData.startDate}
-                      onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="endDate">End Date</Label>
-                    <Input
-                      id="endDate"
-                      type="date"
-                      value={formData.endDate}
-                      onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <Button type="submit" className="flex-1">
-                    Create Class
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => setShowCreateModal(false)}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Enhanced Invite Students Modal */}
-      {showInviteModal && selectedClass && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-            <CardHeader>
-              <CardTitle>Invite Students to {selectedClass.name}</CardTitle>
-              <CardDescription>
-                Invite existing users or send invitations to new users
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleInviteStudents} className="space-y-6">
-                {/* Existing Users Section */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    <h3 className="text-lg font-medium">Invite Existing Users</h3>
-                  </div>
-                  
-                  <div className="border rounded-lg p-4 max-h-60 overflow-y-auto">
-                    {allUsers.length === 0 ? (
-                      <p className="text-gray-500 text-center py-4">No available users found</p>
-                    ) : (
-                <div className="space-y-2">
-                        {allUsers.map((user) => (
-                          <div key={user.id} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
-                            <Checkbox
-                              id={user.id}
-                              checked={inviteData.selectedUsers.includes(user.id)}
-                              onCheckedChange={(checked) => handleUserSelection(user.id, checked as boolean)}
-                            />
-                            <div className="flex-1">
-                              <Label htmlFor={user.id} className="font-medium cursor-pointer">
-                                {user.firstName} {user.lastName}
-                              </Label>
-                              <p className="text-sm text-gray-600">{user.email}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Outsider Invitations Section */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <ExternalLink className="h-5 w-5" />
-                    <h3 className="text-lg font-medium">Invite New Users</h3>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Enter email address"
-                    value={inviteData.emails}
-                    onChange={(e) => setInviteData({ ...inviteData, emails: e.target.value })}
-                        className="flex-1"
-                      />
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        onClick={handleAddOutsiderEmail}
-                        disabled={!inviteData.emails.trim()}
-                      >
-                        Add
-                      </Button>
-                    </div>
-                    
-                    {inviteData.outsiderEmails.length > 0 && (
-                      <div className="space-y-2">
-                        <Label>Emails to invite:</Label>
-                        <div className="space-y-1">
-                          {inviteData.outsiderEmails.map((email, index) => (
-                            <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                              <span className="text-sm">{email}</span>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleRemoveOutsiderEmail(index)}
-                              >
-                                <XCircle className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Personal Message */}
-                <div className="space-y-2">
-                  <Label htmlFor="message">Personal Message (Optional)</Label>
-                  <Textarea
-                    id="message"
-                    placeholder="Add a personal message to the invitation..."
-                    value={inviteData.message}
-                    onChange={(e) => setInviteData({ ...inviteData, message: e.target.value })}
-                    rows={3}
-                  />
-                </div>
-
-                <div className="flex gap-2">
-                  <Button type="submit" className="flex-1">
-                    Send Invitations
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => setShowInviteModal(false)}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+      <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New Class</DialogTitle>
+            <DialogDescription>
+              Create a new class and generate an enrollment code for students.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleCreateClass} className="space-y-4">
+            <div>
+              <Label htmlFor="name">Class Name</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Enter class name"
+                required
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Enter class description"
+                rows={3}
+                required
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="level">Level</Label>
+                <Select value={formData.level} onValueChange={(value: any) => setFormData(prev => ({ ...prev, level: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="beginner">Beginner</SelectItem>
+                    <SelectItem value="intermediate">Intermediate</SelectItem>
+                    <SelectItem value="advanced">Advanced</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="maxStudents">Max Students</Label>
+                <Input
+                  id="maxStudents"
+                  type="number"
+                  value={formData.maxStudents}
+                  onChange={(e) => setFormData(prev => ({ ...prev, maxStudents: parseInt(e.target.value) }))}
+                  min="1"
+                  max="200"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="startDate">Start Date</Label>
+                <Input
+                  id="startDate"
+                  type="date"
+                  value={formData.startDate}
+                  onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="endDate">End Date</Label>
+                <Input
+                  id="endDate"
+                  type="date"
+                  value={formData.endDate}
+                  onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
+                  required
+                />
+              </div>
+            </div>
+          </form>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCreateModal(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateClass}>
+              Create Class
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Class Details Modal */}
-      {showClassDetailsModal && selectedClass && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-            <CardHeader>
-              <CardTitle>{selectedClass.name}</CardTitle>
-              <CardDescription>
-                Class details and information
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Class Description */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Description</Label>
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <p className="text-gray-700 whitespace-pre-wrap">{selectedClass.description}</p>
-                </div>
+      <Dialog open={showClassDetailsModal} onOpenChange={setShowClassDetailsModal}>
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selectedClass?.name}</DialogTitle>
+            <DialogDescription>
+              Detailed class information and management options
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedClass && (
+            <div className="space-y-6">
+              {/* Basic Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BookOpen className="w-5 h-5" />
+                      Class Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">Description</Label>
+                      <p className="text-sm">{selectedClass.description}</p>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">Instructor</Label>
+                      <p className="font-medium">
+                        {selectedClass.instructor?.firstName} {selectedClass.instructor?.lastName}
+                      </p>
+                      <p className="text-sm text-gray-600">{selectedClass.instructor?.email}</p>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">Enrollment</Label>
+                      <p className="font-medium">{selectedClass.studentCount} / {selectedClass.maxStudents} students</p>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">Enrollment Code</Label>
+                      <p className="font-mono bg-gray-100 p-2 rounded text-sm break-all">
+                        {selectedClass.enrollmentCode}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart3 className="w-5 h-5" />
+                      Statistics
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-600">
+                          {selectedClass.assignments?.length || 0}
+                        </div>
+                        <div className="text-sm text-gray-600">Assignments</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-600">
+                          {selectedClass.completionRate || 0}%
+                        </div>
+                        <div className="text-sm text-gray-600">Completion</div>
+                      </div>
+                    </div>
+                    
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-purple-600">
+                        {selectedClass.averageScore || 0}%
+                      </div>
+                      <div className="text-sm text-gray-600">Average Score</div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
 
-              {/* Class Stats */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Level</Label>
-                  <Badge className={getLevelColor(selectedClass.level)}>
-                    {selectedClass.level}
-                  </Badge>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Status</Label>
-                  <Badge className={selectedClass.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
-                    {selectedClass.isActive ? 'Active' : 'Inactive'}
-                  </Badge>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Students</Label>
-                  <p className="text-lg font-medium">{selectedClass.currentStudents}/{selectedClass.maxStudents}</p>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Assignments</Label>
-                  <p className="text-lg font-medium">{selectedClass.assignments}</p>
-                </div>
-              </div>
+              {/* Schedule */}
+              <Card>
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="flex items-center gap-2">
+                      <CalendarDays className="w-5 h-5" />
+                      Class Schedule
+                    </CardTitle>
+                    <Button 
+                      size="sm"
+                      onClick={() => {
+                        setShowClassDetailsModal(false);
+                        setShowScheduleModal(true);
+                      }}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Schedule
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {selectedClass.schedule && selectedClass.schedule.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {selectedClass.schedule.map((schedule) => (
+                        <div key={schedule.id} className="border rounded-lg p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            {schedule.type === 'virtual' ? <Video className="w-4 h-4" /> : <MapPin className="w-4 h-4" />}
+                            <span className="font-medium">{schedule.dayOfWeek}</span>
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            <div>{schedule.startTime} - {schedule.endTime}</div>
+                            {schedule.type === 'virtual' ? (
+                              <div className="mt-1">
+                                {schedule.meetingLink ? (
+                                  <a href={schedule.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                    Join Meeting
+                                  </a>
+                                ) : (
+                                  <span className="text-gray-500">No link provided</span>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="mt-1">{schedule.location || 'No location set'}</div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-600 text-center py-4">No schedule set for this class</p>
+                  )}
+                </CardContent>
+              </Card>
 
-              {/* Progress and Scores */}
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <Label>Completion Rate</Label>
-                    <span>{selectedClass.completionRate}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-blue-600 h-2 rounded-full" 
-                      style={{ width: `${selectedClass.completionRate}%` }}
-                    ></div>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <Label>Average Score</Label>
-                    <span>{selectedClass.averageScore}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-green-600 h-2 rounded-full" 
-                      style={{ width: `${selectedClass.averageScore}%` }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Dates */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Start Date</Label>
-                  <p className="text-sm">{new Date(selectedClass.startDate).toLocaleDateString()}</p>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">End Date</Label>
-                  <p className="text-sm">{new Date(selectedClass.endDate).toLocaleDateString()}</p>
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                <Button 
-                  className="flex-1"
+              {/* Quick Actions */}
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="outline"
                   onClick={() => {
                     setShowClassDetailsModal(false);
                     setShowInviteModal(true);
                   }}
                 >
-                  <UserPlus className="h-4 w-4 mr-2" />
+                  <UserPlus className="w-4 h-4 mr-2" />
                   Invite Students
                 </Button>
-                <Button 
-                  variant="outline" 
-                  className="flex-1"
-                  onClick={() => setShowClassDetailsModal(false)}
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowClassDetailsModal(false);
+                    setShowEditModal(true);
+                  }}
                 >
-                  Close
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Class
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowClassDetailsModal(false);
+                    router.push(`/classes/${selectedClass.id}`);
+                  }}
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  View Full Details
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    setShowClassDetailsModal(false);
+                    handleDeleteClass(selectedClass.id);
+                  }}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete Class
                 </Button>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowClassDetailsModal(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Invite Students Modal */}
+      <Dialog open={showInviteModal} onOpenChange={setShowInviteModal}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Invite Students to {selectedClass?.name}</DialogTitle>
+            <DialogDescription>
+              Send invitations to students to join this class.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label>Existing Students</Label>
+              <div className="max-h-40 overflow-y-auto border rounded-lg p-4 mt-2">
+                {allUsers.map((user) => (
+                  <div key={user.id} className="flex items-center space-x-2 py-2">
+                    <Checkbox
+                      id={user.id}
+                      checked={inviteData.selectedUsers.includes(user.id)}
+                      onCheckedChange={(checked) => handleUserSelection(user.id, checked as boolean)}
+                    />
+                    <Label htmlFor={user.id} className="text-sm">
+                      {user.firstName} {user.lastName} ({user.email})
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <Label>External Email Addresses</Label>
+              <div className="flex gap-2 mt-2">
+                <Input
+                  value={inviteData.emails}
+                  onChange={(e) => setInviteData(prev => ({ ...prev, emails: e.target.value }))}
+                  placeholder="student@example.com"
+                  type="email"
+                />
+                <Button type="button" variant="outline" onClick={handleAddOutsiderEmail}>
+                  Add
+                </Button>
+              </div>
+              
+              {inviteData.outsiderEmails.length > 0 && (
+                <div className="mt-2 space-y-2">
+                  {inviteData.outsiderEmails.map((email, index) => (
+                    <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                      <span className="text-sm">{email}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveOutsiderEmail(index)}
+                      >
+                        <XCircle className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <div>
+              <Label htmlFor="message">Message (Optional)</Label>
+              <Textarea
+                id="message"
+                value={inviteData.message}
+                onChange={(e) => setInviteData(prev => ({ ...prev, message: e.target.value }))}
+                placeholder="Add a personal message to the invitation..."
+                rows={3}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowInviteModal(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSendInvitations}>
+              Send Invitations
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Schedule Modal */}
+      <Dialog open={showScheduleModal} onOpenChange={setShowScheduleModal}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Add Class Schedule</DialogTitle>
+            <DialogDescription>
+              Add a new schedule entry for {selectedClass?.name}.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleAddSchedule} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="dayOfWeek">Day of Week</Label>
+                <Select value={scheduleData.dayOfWeek} onValueChange={(value) => setScheduleData(prev => ({ ...prev, dayOfWeek: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="monday">Monday</SelectItem>
+                    <SelectItem value="tuesday">Tuesday</SelectItem>
+                    <SelectItem value="wednesday">Wednesday</SelectItem>
+                    <SelectItem value="thursday">Thursday</SelectItem>
+                    <SelectItem value="friday">Friday</SelectItem>
+                    <SelectItem value="saturday">Saturday</SelectItem>
+                    <SelectItem value="sunday">Sunday</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="type">Type</Label>
+                <Select value={scheduleData.type} onValueChange={(value: any) => setScheduleData(prev => ({ ...prev, type: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="virtual">Virtual</SelectItem>
+                    <SelectItem value="physical">Physical</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="startTime">Start Time</Label>
+                <Input
+                  id="startTime"
+                  type="time"
+                  value={scheduleData.startTime}
+                  onChange={(e) => setScheduleData(prev => ({ ...prev, startTime: e.target.value }))}
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="endTime">End Time</Label>
+                <Input
+                  id="endTime"
+                  type="time"
+                  value={scheduleData.endTime}
+                  onChange={(e) => setScheduleData(prev => ({ ...prev, endTime: e.target.value }))}
+                  required
+                />
+              </div>
+            </div>
+            
+            {scheduleData.type === 'virtual' ? (
+              <div>
+                <Label htmlFor="meetingLink">Meeting Link</Label>
+                <Input
+                  id="meetingLink"
+                  type="url"
+                  value={scheduleData.meetingLink}
+                  onChange={(e) => setScheduleData(prev => ({ ...prev, meetingLink: e.target.value }))}
+                  placeholder="https://meet.google.com/..."
+                />
+              </div>
+            ) : (
+              <div>
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  value={scheduleData.location}
+                  onChange={(e) => setScheduleData(prev => ({ ...prev, location: e.target.value }))}
+                  placeholder="Room 101, Building A"
+                />
+              </div>
+            )}
+          </form>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowScheduleModal(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddSchedule}>
+              Add Schedule
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Class Modal */}
+      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Class</DialogTitle>
+            <DialogDescription>
+              Update class information and settings.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleEditClass} className="space-y-4">
+            <div>
+              <Label htmlFor="edit-name">Class Name</Label>
+              <Input
+                id="edit-name"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Enter class name"
+                required
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="edit-description">Description</Label>
+              <Textarea
+                id="edit-description"
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Enter class description"
+                rows={3}
+                required
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-level">Level</Label>
+                <Select value={formData.level} onValueChange={(value: any) => setFormData(prev => ({ ...prev, level: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="beginner">Beginner</SelectItem>
+                    <SelectItem value="intermediate">Intermediate</SelectItem>
+                    <SelectItem value="advanced">Advanced</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="edit-maxStudents">Max Students</Label>
+                <Input
+                  id="edit-maxStudents"
+                  type="number"
+                  value={formData.maxStudents}
+                  onChange={(e) => setFormData(prev => ({ ...prev, maxStudents: parseInt(e.target.value) }))}
+                  min="1"
+                  max="200"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-startDate">Start Date</Label>
+                <Input
+                  id="edit-startDate"
+                  type="date"
+                  value={formData.startDate}
+                  onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="edit-endDate">End Date</Label>
+                <Input
+                  id="edit-endDate"
+                  type="date"
+                  value={formData.endDate}
+                  onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
+                  required
+                />
+              </div>
+            </div>
+          </form>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEditModal(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleEditClass}>
+              Update Class
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 } 

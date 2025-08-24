@@ -428,7 +428,7 @@ export default function ClassDetailPage() {
           <TabsContent value="students" className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="text-xl lg:text-2xl font-bold">
-                {isStudent ? 'My Progress' : 'Students'}
+                {isStudent ? 'Class Students' : 'Students'}
               </h2>
               {canManageClass && (
                 <Button size="sm" className="w-full sm:w-auto">
@@ -440,53 +440,71 @@ export default function ClassDetailPage() {
             
             {classDetails.enrollments && classDetails.enrollments.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
-                {classDetails.enrollments.map((enrollment) => (
-                  <Card key={enrollment.id}>
-                    <CardContent className="pt-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="min-w-0 flex-1">
-                          <h3 className="font-medium truncate">
-                            {enrollment.student.firstName} {enrollment.student.lastName}
-                          </h3>
-                          {enrollment.student.email && (
-                            <p className="text-sm text-gray-600 truncate">{enrollment.student.email}</p>
+                {classDetails.enrollments.map((enrollment) => {
+                  const isCurrentUser = enrollment.student.id === user?.id;
+                  const showProgress = canManageClass || isCurrentUser;
+                  
+                  return (
+                    <Card key={enrollment.id}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="min-w-0 flex-1">
+                            <h3 className="font-medium truncate">
+                              {enrollment.student.firstName} {enrollment.student.lastName}
+                              {isCurrentUser && (
+                                <Badge variant="outline" className="ml-2 text-xs">
+                                  You
+                                </Badge>
+                              )}
+                            </h3>
+                            {enrollment.student.email && canManageClass && (
+                              <p className="text-sm text-gray-600 truncate">{enrollment.student.email}</p>
+                            )}
+                          </div>
+                          {showProgress && (
+                            <Badge variant={enrollment.status === 'active' ? "default" : "secondary"} className="shrink-0">
+                              {enrollment.status}
+                            </Badge>
                           )}
                         </div>
-                        <Badge variant={enrollment.status === 'active' ? "default" : "secondary"} className="shrink-0">
-                          {enrollment.status}
-                        </Badge>
-                      </div>
-                      
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Progress:</span>
-                          <span className="font-medium">{enrollment.progress || 0}%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Average Score:</span>
-                          <span className="font-medium">{enrollment.averageScore || 0}%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Enrolled:</span>
-                          <span className="font-medium text-xs">
-                            {new Date(enrollment.enrolledAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                        
+                        {showProgress ? (
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Progress:</span>
+                              <span className="font-medium">{enrollment.progress || 0}%</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Average Score:</span>
+                              <span className="font-medium">{enrollment.averageScore || 0}%</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Enrolled:</span>
+                              <span className="font-medium text-xs">
+                                {new Date(enrollment.enrolledAt).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-sm text-gray-500">
+                            {isStudent ? 'Progress data hidden' : 'Student enrolled'}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             ) : (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-12">
                   <Users className="w-12 h-12 text-gray-400 mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2 text-center">
-                    {isStudent ? 'No progress data available' : 'No students enrolled'}
+                    {isStudent ? 'No students enrolled yet' : 'No students enrolled'}
                   </h3>
                   <p className="text-gray-600 text-center max-w-md">
-                    {isStudent 
-                      ? 'Your progress data will appear here once you start completing assignments'
+                    {canManageClass 
+                      ? 'Invite students to get started with this class'
                       : 'No students have enrolled in this class yet'
                     }
                   </p>
