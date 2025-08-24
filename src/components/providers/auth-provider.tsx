@@ -14,7 +14,7 @@ interface AuthContextType {
   login: (email: string, password: string, verificationOtp?: string) => Promise<void>;
   register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
   verifyEmail: (token: string) => Promise<void>;
-  resendVerification: (email: string) => Promise<void>;
+  resendVerification: (email: string) => Promise<{ message: string }>;
   logout: () => void;
   updateUser: (userData: User) => void;
 }
