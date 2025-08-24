@@ -8,7 +8,7 @@ import { useAuth } from '@/components/providers/auth-provider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Eye, EyeOff, Loader2, AlertCircle, Mail } from 'lucide-react';
+import { Eye, EyeOff, Loader2, AlertCircle, Mail, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const loginSchema = z.object({
@@ -151,20 +151,6 @@ export function LoginForm() {
               </p>
               <p className="text-xs text-green-700">
                 Can't find the email? Check your spam folder or request a new code below.
-              </p>
-            </div>
-          </div>
-            <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-            <div className="flex-1">
-              <h3 className="text-sm font-medium text-blue-900 mb-1">
-                Email Verification Required
-              </h3>
-              <p className="text-sm text-blue-800 mb-2">
-                We've sent a 6-digit verification code to <strong>{email}</strong>. 
-                Please check your email and enter the code below to continue.
-              </p>
-              <p className="text-xs text-blue-700">
-                Can't find the email? Check your spam folder or request a new code.
               </p>
             </div>
           </div>
