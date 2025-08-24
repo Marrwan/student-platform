@@ -192,7 +192,7 @@ export default function LeaderboardPage() {
   const loadProjects = async () => {
     try {
       const response = await api.getProjects();
-      setProjects(response.projects.filter((p: Project) => p.isUnlocked));
+      setProjects(response.data.filter((p: Project) => p.isUnlocked));
     } catch (error) {
       console.error('Error loading projects:', error);
     }

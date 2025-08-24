@@ -71,7 +71,7 @@ interface User {
   lastName: string;
   email: string;
   role: string;
-  isActive: boolean;
+  isActive?: boolean;
 }
 
 export default function ClassesPage() {
@@ -133,7 +133,7 @@ function ClassesManagement() {
   const loadAllUsers = async () => {
     try {
       const response = await api.getAdminUsers();
-      setAllUsers(response.users.filter((u: User) => u.role === 'student' && u.isActive));
+      setAllUsers(response.users.filter((u: any) => u.role === 'student' && u.isActive === true));
     } catch (error) {
       console.error('Error loading users:', error);
     }
@@ -182,8 +182,8 @@ function ClassesManagement() {
       const allEmails = [
         ...inviteData.selectedUsers.map(userId => {
           const user = allUsers.find(u => u.id === userId);
-          return user?.email;
-        }).filter(Boolean),
+          return user?.email || '';
+        }).filter(email => email !== ''),
         ...inviteData.outsiderEmails
       ];
 

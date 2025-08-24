@@ -5,6 +5,8 @@ import {
   Project, 
   Submission, 
   LeaderboardEntry, 
+  ClassLeaderboardEntry,
+  ProjectLeaderboardEntry,
   AuthResponse, 
   ApiResponse,
   PaginatedResponse,
@@ -851,12 +853,12 @@ class ApiClient {
   async getClassLeaderboard(classId: string, params?: {
     page?: number;
     limit?: number;
-  }): Promise<PaginatedResponse<LeaderboardEntry>> {
+  }): Promise<PaginatedResponse<ClassLeaderboardEntry>> {
     const cacheKey = `class-leaderboard:${classId}:${JSON.stringify(params)}`;
     return this.cachedRequest(
       cacheKey,
       async () => {
-        const response: AxiosResponse<PaginatedResponse<LeaderboardEntry>> = await this.client.get(`/leaderboard/class/${classId}`, { params });
+        const response: AxiosResponse<PaginatedResponse<ClassLeaderboardEntry>> = await this.client.get(`/leaderboard/class/${classId}`, { params });
         return response.data;
       },
       1 * 60 * 1000 // 1 minute cache
@@ -866,12 +868,12 @@ class ApiClient {
   async getProjectLeaderboard(projectId: string, params?: {
     page?: number;
     limit?: number;
-  }): Promise<PaginatedResponse<Submission>> {
+  }): Promise<PaginatedResponse<ProjectLeaderboardEntry>> {
     const cacheKey = `project-leaderboard:${projectId}:${JSON.stringify(params)}`;
     return this.cachedRequest(
       cacheKey,
       async () => {
-        const response: AxiosResponse<PaginatedResponse<Submission>> = await this.client.get(`/leaderboard/project/${projectId}`, { params });
+        const response: AxiosResponse<PaginatedResponse<ProjectLeaderboardEntry>> = await this.client.get(`/leaderboard/project/${projectId}`, { params });
         return response.data;
       },
       1 * 60 * 1000 // 1 minute cache

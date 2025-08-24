@@ -411,6 +411,52 @@ export interface LeaderboardEntry {
   bonusPoints: number;
   penaltyPoints: number;
   finalScore: number;
+  completionRate: number;
+  qualityScore: number;
+  totalSubmissions: number;
+  isCurrentUser: boolean;
+}
+
+export interface ClassLeaderboardEntry {
+  id: string;
+  rank: number;
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  attendanceScore: number;
+  assignmentScore: number;
+  finalScore: number;
+  completedProjects: number;
+  totalSubmissions: number;
+  completionRate: number;
+  lateSubmissions: number;
+  enrolledAt: string;
+  isCurrentUser: boolean;
+}
+
+export interface ProjectLeaderboardEntry {
+  id: string;
+  rank: number;
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  submissionId: string;
+  baseScore: number;
+  bonusPoints: number;
+  deductions: number;
+  finalScore: number;
+  intelligentScore: number;
+  timeBonus: number;
+  qualityBonus: number;
+  latePenalty: number;
+  hoursToSubmit: number;
+  isLate: boolean;
+  status: string;
+  submittedAt: string;
+  reviewedAt: string;
+  adminFeedback: string;
   isCurrentUser: boolean;
 }
 
@@ -429,6 +475,12 @@ export interface LeaderboardStats {
   totalStudents: number;
   totalSubmissions: number;
   averageScore: number;
+  totalParticipants: number;
+  topScore: number;
+  activeStreaks: number;
+  completionRate: number;
+  totalClasses: number;
+  activeClasses: number;
 }
 
 export interface PersonalStats {
