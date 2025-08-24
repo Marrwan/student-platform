@@ -115,6 +115,17 @@ export function LoginForm() {
         {errors.password && (
           <p className="text-sm text-red-500">{errors.password.message}</p>
         )}
+        
+        <div className="text-right">
+          <Button
+            type="button"
+            variant="link"
+            className="p-0 h-auto text-sm text-blue-600 hover:text-blue-800"
+            onClick={() => window.location.href = '/forgot-password'}
+          >
+            Forgot your password?
+          </Button>
+        </div>
       </div>
 
       {needsVerification && (
