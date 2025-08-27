@@ -87,6 +87,8 @@ interface Assignment {
   submissionCount?: number;
   totalStudents?: number;
   isActive?: boolean; // Added isActive to the interface
+  getStatus?: string; // Added for backend status
+  canSubmit?: boolean; // Added for backend submission status
 }
 
 interface Enrollment {
@@ -389,35 +391,68 @@ export default function ClassDetailPage() {
             {classDetails.assignments && classDetails.assignments.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
                 {classDetails.assignments.map((assignment) => {
+                  // Use backend model methods if available, otherwise calculate locally
                   const now = new Date();
                   const deadline = assignment.deadline ? new Date(assignment.deadline) : null;
                   const startDate = assignment.startDate ? new Date(assignment.startDate) : null;
                   
-                  // Determine assignment status
+                  // Determine assignment status using backend methods or local calculation
                   let status = 'active';
                   let statusText = 'Active';
                   let statusVariant: "default" | "destructive" | "outline" | "secondary" = 'default';
                   
-                  if (!assignment.isUnlocked) {
-                    status = 'locked';
-                    statusText = 'Locked';
-                    statusVariant = 'secondary';
-                  } else if (assignment.isActive === false) {
-                    status = 'inactive';
-                    statusText = 'Inactive';
-                    statusVariant = 'secondary';
-                  } else if (startDate && now < startDate) {
-                    status = 'not_started';
-                    statusText = 'Not Started';
-                    statusVariant = 'outline';
-                  } else if (deadline && now > deadline) {
-                    status = 'overdue';
-                    statusText = 'Overdue';
-                    statusVariant = 'destructive';
+                  if (assignment.getStatus) {
+                    // Use backend model method
+                    status = assignment.getStatus;
+                    switch (status) {
+                      case 'locked':
+                        statusText = 'Locked';
+                        statusVariant = 'secondary';
+                        break;
+                      case 'inactive':
+                        statusText = 'Inactive';
+                        statusVariant = 'secondary';
+                        break;
+                      case 'not_started':
+                        statusText = 'Not Started';
+                        statusVariant = 'outline';
+                        break;
+                      case 'overdue':
+                        statusText = 'Overdue';
+                        statusVariant = 'destructive';
+                        break;
+                      case 'active':
+                        statusText = 'Active';
+                        statusVariant = 'default';
+                        break;
+                      default:
+                        statusText = 'Active';
+                        statusVariant = 'default';
+                    }
+                  } else {
+                    // Fallback to local calculation
+                    if (!assignment.isUnlocked) {
+                      status = 'locked';
+                      statusText = 'Locked';
+                      statusVariant = 'secondary';
+                    } else if (assignment.isActive === false) {
+                      status = 'inactive';
+                      statusText = 'Inactive';
+                      statusVariant = 'secondary';
+                    } else if (startDate && now < startDate) {
+                      status = 'not_started';
+                      statusText = 'Not Started';
+                      statusVariant = 'outline';
+                    } else if (deadline && now > deadline) {
+                      status = 'overdue';
+                      statusText = 'Overdue';
+                      statusVariant = 'destructive';
+                    }
                   }
                   
                   const isLocked = status === 'locked';
                   const isActive = status === 'active';
+                  const canSubmit = assignment.canSubmit !== undefined ? assignment.canSubmit : false;
                   
                   return (
                     <Card key={assignment.id} className="hover:shadow-lg transition-shadow">

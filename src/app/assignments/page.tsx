@@ -41,6 +41,14 @@ interface Assignment {
   deadline: string;
   requirements: string;
   isActive: boolean;
+  isUnlocked: boolean;
+  canSubmit?: boolean;
+  getStatus?: string;
+  isOverdue?: boolean;
+  timeRemaining?: number;
+  submissionStatus?: string;
+  submissionScore?: number;
+  hasSubmission?: boolean;
   submission?: {
     id: string;
     status: string;
@@ -95,8 +103,27 @@ function AssignmentsList() {
     return matchesSearch && matchesStatus && matchesClass;
   });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
+  const getStatusColor = (assignment: Assignment) => {
+    // Use backend status if available
+    if (assignment.getStatus) {
+      switch (assignment.getStatus) {
+        case 'active':
+          return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200';
+        case 'not_started':
+          return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200';
+        case 'overdue':
+          return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-200';
+        case 'locked':
+          return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-200';
+        case 'inactive':
+          return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-200';
+        default:
+          return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-200';
+      }
+    }
+    
+    // Fallback to submission status
+    switch (assignment.submissionStatus) {
       case 'submitted':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200';
       case 'graded':
@@ -106,6 +133,29 @@ function AssignmentsList() {
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-200';
     }
+  };
+
+  const getStatusText = (assignment: Assignment) => {
+    // Use backend status if available
+    if (assignment.getStatus) {
+      switch (assignment.getStatus) {
+        case 'active':
+          return 'Active';
+        case 'not_started':
+          return 'Not Started';
+        case 'overdue':
+          return 'Overdue';
+        case 'locked':
+          return 'Locked';
+        case 'inactive':
+          return 'Inactive';
+        default:
+          return 'Active';
+      }
+    }
+    
+    // Fallback to submission status
+    return assignment.submissionStatus || 'Pending';
   };
 
   const getDifficultyColor = (difficulty: string) => {
@@ -260,8 +310,8 @@ function AssignmentsList() {
                     <Badge className={getDifficultyColor(assignment.difficulty)}>
                       {assignment.difficulty.charAt(0).toUpperCase() + assignment.difficulty.slice(1)}
                     </Badge>
-                    <Badge className={getStatusColor(assignment.submission?.status || 'pending')}>
-                      {assignment.submission?.status || 'Pending'}
+                    <Badge className={getStatusColor(assignment)}>
+                      {getStatusText(assignment)}
                     </Badge>
                   </div>
 
@@ -293,10 +343,10 @@ function AssignmentsList() {
                     </div>
                   </div>
 
-                  {assignment.submission?.score && (
+                  {assignment.submissionScore && (
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-600 dark:text-gray-300">Your Score</span>
-                      <span className="font-medium text-green-600">{assignment.submission.score}/{assignment.maxScore}</span>
+                      <span className="font-medium text-green-600">{assignment.submissionScore}/{assignment.maxScore}</span>
                     </div>
                   )}
 
@@ -311,14 +361,26 @@ function AssignmentsList() {
                       View Details
                     </Button>
                     
-                    {!assignment.submission && (
+                    {!assignment.hasSubmission && assignment.canSubmit && (
                       <Button 
                         size="sm" 
                         className="flex-1"
-                        onClick={() => router.push(`/assignments/${assignment.id}/submit`)}
+                        onClick={() => router.push(`/assignments/${assignment.id}`)}
                       >
                         <Upload className="h-4 w-4 mr-2" />
                         Submit
+                      </Button>
+                    )}
+                    
+                    {assignment.hasSubmission && (
+                      <Button 
+                        variant="outline"
+                        size="sm" 
+                        className="flex-1"
+                        onClick={() => router.push(`/assignments/${assignment.id}`)}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        View Submission
                       </Button>
                     )}
                   </div>

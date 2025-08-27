@@ -53,6 +53,16 @@ interface Assignment {
   };
   createdAt: string;
   updatedAt: string;
+  // Backend model methods
+  canSubmit?: boolean;
+  getStatus?: string;
+  isOverdue?: boolean;
+  timeRemaining?: number;
+  isAvailable?: boolean;
+  // Submission info
+  submissionStatus?: string;
+  submissionScore?: number;
+  hasSubmission?: boolean;
 }
 
 interface Submission {
@@ -184,30 +194,44 @@ export default function AssignmentDetailPage() {
 
   const isDeadlinePassed = () => {
     if (!assignment) return false;
-    return new Date() > new Date(assignment.deadline);
+    return assignment.isOverdue || new Date() > new Date(assignment.deadline);
   };
 
   const canSubmit = () => {
     if (!assignment) return false;
+    // Use backend method if available
+    if (assignment.canSubmit !== undefined) {
+      return assignment.canSubmit;
+    }
+    // Fallback to local calculation
     if (isDeadlinePassed() && !assignment.allowLateSubmission) return false;
     return true;
   };
 
-  const isAdmin = () => {
-    return currentUser?.role === 'admin' || currentUser?.role === 'partial_admin';
+  const getAssignmentStatus = () => {
+    if (!assignment) return 'unknown';
+    return assignment.getStatus || 'active';
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'approved':
-        return <Badge className="bg-green-100 text-green-800">Approved</Badge>;
-      case 'rejected':
-        return <Badge className="bg-red-100 text-red-800">Rejected</Badge>;
-      case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-800">Pending Review</Badge>;
+      case 'active':
+        return <Badge className="bg-green-100 text-green-800">Active</Badge>;
+      case 'not_started':
+        return <Badge className="bg-blue-100 text-blue-800">Not Started</Badge>;
+      case 'overdue':
+        return <Badge className="bg-red-100 text-red-800">Overdue</Badge>;
+      case 'locked':
+        return <Badge className="bg-gray-100 text-gray-800">Locked</Badge>;
+      case 'inactive':
+        return <Badge className="bg-yellow-100 text-yellow-800">Inactive</Badge>;
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800">Unknown</Badge>;
     }
+  };
+
+  const isAdmin = () => {
+    return currentUser?.role === 'admin' || currentUser?.role === 'partial_admin';
   };
 
   if (loading) {
