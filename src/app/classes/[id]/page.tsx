@@ -86,6 +86,7 @@ interface Assignment {
   isUnlocked: boolean;
   submissionCount?: number;
   totalStudents?: number;
+  isActive?: boolean; // Added isActive to the interface
 }
 
 interface Enrollment {
@@ -391,9 +392,32 @@ export default function ClassDetailPage() {
                   const now = new Date();
                   const deadline = assignment.deadline ? new Date(assignment.deadline) : null;
                   const startDate = assignment.startDate ? new Date(assignment.startDate) : null;
-                  const isOverdue = deadline && deadline < now;
-                  const isNotStarted = startDate && startDate > now;
-                  const isActive = assignment.isUnlocked && !isOverdue && !isNotStarted;
+                  
+                  // Determine assignment status
+                  let status = 'active';
+                  let statusText = 'Active';
+                  let statusVariant: "default" | "destructive" | "outline" | "secondary" = 'default';
+                  
+                  if (!assignment.isUnlocked) {
+                    status = 'locked';
+                    statusText = 'Locked';
+                    statusVariant = 'secondary';
+                  } else if (assignment.isActive === false) {
+                    status = 'inactive';
+                    statusText = 'Inactive';
+                    statusVariant = 'secondary';
+                  } else if (startDate && now < startDate) {
+                    status = 'not_started';
+                    statusText = 'Not Started';
+                    statusVariant = 'outline';
+                  } else if (deadline && now > deadline) {
+                    status = 'overdue';
+                    statusText = 'Overdue';
+                    statusVariant = 'destructive';
+                  }
+                  
+                  const isLocked = status === 'locked';
+                  const isActive = status === 'active';
                   
                   return (
                     <Card key={assignment.id} className="hover:shadow-lg transition-shadow">
@@ -403,23 +427,9 @@ export default function ClassDetailPage() {
                             {assignment.title}
                           </CardTitle>
                           <div className="flex gap-1">
-                            {!assignment.isUnlocked ? (
-                              <Badge variant="secondary" className="shrink-0">
-                                Locked
-                              </Badge>
-                            ) : isNotStarted ? (
-                              <Badge variant="outline" className="shrink-0 text-blue-600 border-blue-600">
-                                Not Started
-                              </Badge>
-                            ) : isOverdue ? (
-                              <Badge variant="destructive" className="shrink-0">
-                                Overdue
-                              </Badge>
-                            ) : (
-                              <Badge variant="default" className="shrink-0">
-                                Active
-                              </Badge>
-                            )}
+                            <Badge variant={statusVariant} className="shrink-0">
+                              {statusText}
+                            </Badge>
                           </div>
                         </div>
                         <CardDescription className="line-clamp-2">
@@ -451,13 +461,45 @@ export default function ClassDetailPage() {
                             size="sm" 
                             className="flex-1"
                             onClick={() => router.push(`/assignments/${assignment.id}`)}
-                            disabled={!assignment.isUnlocked}
+                            disabled={isLocked && !canManageClass}
                           >
                             <Eye className="w-4 h-4 mr-2" />
                             <span className="hidden sm:inline">
-                              {assignment.isUnlocked ? 'View Details' : 'Locked'}
+                              {isLocked && !canManageClass ? 'Locked' : 'View Details'}
                             </span>
                           </Button>
+                          
+                          {canManageClass && (
+                            <Button 
+                              variant={isLocked ? "default" : "secondary"}
+                              size="sm"
+                              onClick={async () => {
+                                try {
+                                  const response = await fetch(`/api/admin/assignments/${assignment.id}`, {
+                                    method: 'PUT',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                      'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                    },
+                                    body: JSON.stringify({
+                                      isUnlocked: !isLocked
+                                    })
+                                  });
+                                  
+                                  if (response.ok) {
+                                    // Refresh the page to show updated status
+                                    window.location.reload();
+                                  } else {
+                                    console.error('Failed to update assignment');
+                                  }
+                                } catch (error) {
+                                  console.error('Error updating assignment:', error);
+                                }
+                              }}
+                            >
+                              {isLocked ? 'Unlock' : 'Lock'}
+                            </Button>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
