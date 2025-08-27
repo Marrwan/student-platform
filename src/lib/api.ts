@@ -643,6 +643,11 @@ class ApiClient {
     // Clear related caches
     this.clearCache('assignments');
     this.clearCache(`assignment:${id}`);
+    // Also clear class cache if classId is returned so class detail refreshes correctly
+    if ((response.data?.assignment && response.data.assignment.classId) || (response.data?.assignment?.classId)) {
+      const classId = response.data.assignment.classId;
+      this.clearCache(`class:${classId}`);
+    }
     return response.data;
   }
 
