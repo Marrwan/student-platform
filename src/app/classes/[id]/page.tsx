@@ -348,13 +348,13 @@ export default function ClassDetailPage() {
                       <div className="text-2xl font-bold text-blue-600">
                         {classDetails.assignments?.length || 0}
                       </div>
-                      <div className="text-sm text-gray-600">Assignments</div>
+                      <div className="text-sm text-gray-600">Total Assignments</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-green-600">
-                        {classDetails.completionRate || 0}%
+                        {classDetails.assignments?.filter(a => a.isUnlocked).length || 0}
                       </div>
-                      <div className="text-sm text-gray-600">Completion</div>
+                      <div className="text-sm text-gray-600">Active</div>
                     </div>
                   </div>
                   
@@ -385,7 +385,7 @@ export default function ClassDetailPage() {
               )}
             </div>
             
-            {classDetails.assignments && classDetails.assignments.length > 0 ? (
+                        {classDetails.assignments && classDetails.assignments.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
                 {classDetails.assignments.map((assignment) => (
                   <Card key={assignment.id} className="hover:shadow-lg transition-shadow">
@@ -394,9 +394,14 @@ export default function ClassDetailPage() {
                         <CardTitle className="text-base lg:text-lg line-clamp-2">
                           {assignment.title}
                         </CardTitle>
-                        <Badge variant={assignment.isUnlocked ? "default" : "secondary"} className="shrink-0">
-                          {assignment.isUnlocked ? 'Active' : 'Locked'}
-                        </Badge>
+                        <div className="flex gap-1">
+                          <Badge variant={assignment.isUnlocked ? "default" : "secondary"} className="shrink-0">
+                            {assignment.isUnlocked ? 'Active' : 'Locked'}
+                          </Badge>
+                          {assignment.deadline && new Date(assignment.deadline) < new Date() && (
+                            <Badge variant="destructive" className="shrink-0 text-xs">Overdue</Badge>
+                          )}
+                        </div>
                       </div>
                       <CardDescription className="line-clamp-2">
                         {assignment.description}
@@ -407,6 +412,9 @@ export default function ClassDetailPage() {
                       <div className="flex items-center text-sm text-gray-600">
                         <Calendar className="w-4 h-4 mr-2 shrink-0" />
                         <span>Due: {assignment.deadline ? new Date(assignment.deadline).toLocaleDateString() : 'No deadline set'}</span>
+                        {assignment.deadline && new Date(assignment.deadline) < new Date() && (
+                          <Badge variant="destructive" className="ml-2 text-xs">Overdue</Badge>
+                        )}
                       </div>
                       
                       {assignment.submissionCount !== undefined && canManageClass && (
