@@ -385,59 +385,84 @@ export default function ClassDetailPage() {
               )}
             </div>
             
-                        {classDetails.assignments && classDetails.assignments.length > 0 ? (
+            {classDetails.assignments && classDetails.assignments.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
-                {classDetails.assignments.map((assignment) => (
-                  <Card key={assignment.id} className="hover:shadow-lg transition-shadow">
-                    <CardHeader className="pb-3">
-                      <div className="flex justify-between items-start gap-2">
-                        <CardTitle className="text-base lg:text-lg line-clamp-2">
-                          {assignment.title}
-                        </CardTitle>
-                        <div className="flex gap-1">
-                          <Badge variant={assignment.isUnlocked ? "default" : "secondary"} className="shrink-0">
-                            {assignment.isUnlocked ? 'Active' : 'Locked'}
-                          </Badge>
-                          {assignment.deadline && new Date(assignment.deadline) < new Date() && (
-                            <Badge variant="destructive" className="shrink-0 text-xs">Overdue</Badge>
-                          )}
+                {classDetails.assignments.map((assignment) => {
+                  const now = new Date();
+                  const deadline = assignment.deadline ? new Date(assignment.deadline) : null;
+                  const startDate = assignment.startDate ? new Date(assignment.startDate) : null;
+                  const isOverdue = deadline && deadline < now;
+                  const isNotStarted = startDate && startDate > now;
+                  const isActive = assignment.isUnlocked && !isOverdue && !isNotStarted;
+                  
+                  return (
+                    <Card key={assignment.id} className="hover:shadow-lg transition-shadow">
+                      <CardHeader className="pb-3">
+                        <div className="flex justify-between items-start gap-2">
+                          <CardTitle className="text-base lg:text-lg line-clamp-2">
+                            {assignment.title}
+                          </CardTitle>
+                          <div className="flex gap-1">
+                            {!assignment.isUnlocked ? (
+                              <Badge variant="secondary" className="shrink-0">
+                                Locked
+                              </Badge>
+                            ) : isNotStarted ? (
+                              <Badge variant="outline" className="shrink-0 text-blue-600 border-blue-600">
+                                Not Started
+                              </Badge>
+                            ) : isOverdue ? (
+                              <Badge variant="destructive" className="shrink-0">
+                                Overdue
+                              </Badge>
+                            ) : (
+                              <Badge variant="default" className="shrink-0">
+                                Active
+                              </Badge>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      <CardDescription className="line-clamp-2">
-                        {assignment.description}
-                      </CardDescription>
-                    </CardHeader>
-                    
-                    <CardContent className="space-y-3">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <Calendar className="w-4 h-4 mr-2 shrink-0" />
-                        <span>Due: {assignment.deadline ? new Date(assignment.deadline).toLocaleDateString() : 'No deadline set'}</span>
-                        {assignment.deadline && new Date(assignment.deadline) < new Date() && (
-                          <Badge variant="destructive" className="ml-2 text-xs">Overdue</Badge>
-                        )}
-                      </div>
+                        <CardDescription className="line-clamp-2">
+                          {assignment.description}
+                        </CardDescription>
+                      </CardHeader>
                       
-                      {assignment.submissionCount !== undefined && canManageClass && (
+                      <CardContent className="space-y-3">
                         <div className="flex items-center text-sm text-gray-600">
-                          <FileText className="w-4 h-4 mr-2 shrink-0" />
-                          <span>{assignment.submissionCount} / {assignment.totalStudents} submissions</span>
+                          <Calendar className="w-4 h-4 mr-2 shrink-0" />
+                          <span>
+                            {startDate && `Start: ${startDate.toLocaleDateString()}`}
+                            {startDate && deadline && ' | '}
+                            {deadline && `Due: ${deadline.toLocaleDateString()}`}
+                            {!startDate && !deadline && 'No dates set'}
+                          </span>
                         </div>
-                      )}
-                      
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex-1"
-                          onClick={() => router.push(`/assignments/${assignment.id}`)}
-                        >
-                          <Eye className="w-4 h-4 mr-2" />
-                          <span className="hidden sm:inline">View Details</span>
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                        
+                        {assignment.submissionCount !== undefined && canManageClass && (
+                          <div className="flex items-center text-sm text-gray-600">
+                            <FileText className="w-4 h-4 mr-2 shrink-0" />
+                            <span>{assignment.submissionCount} / {assignment.totalStudents} submissions</span>
+                          </div>
+                        )}
+                        
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1"
+                            onClick={() => router.push(`/assignments/${assignment.id}`)}
+                            disabled={!assignment.isUnlocked}
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            <span className="hidden sm:inline">
+                              {assignment.isUnlocked ? 'View Details' : 'Locked'}
+                            </span>
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             ) : (
               <Card>
