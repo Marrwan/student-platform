@@ -83,12 +83,21 @@ export function LoginForm() {
     
     setResendLoading(true);
     try {
-      await resendVerification(email);
+      const response = await resendVerification(email);
       setVerificationSent(true);
       setResendCooldown(30); // 30 second cooldown
-      toast.success('Verification code sent successfully! Check your email for the new code.');
+      
+      // Show success message from the backend
+      toast.success(response.message || 'Verification code sent successfully! Check your email for the new code.');
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to send verification code');
+      // Handle specific error cases
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else if (error.message) {
+        toast.error(error.message);
+      } else {
+        toast.error('Failed to send verification code. Please try again.');
+      }
     } finally {
       setResendLoading(false);
     }
