@@ -49,11 +49,18 @@ interface TodayProject {
   status: 'pending' | 'completed' | 'missed';
   difficulty: string;
   requirements: string[];
+  class?: string;
+}
+
+interface TodayProjectResponse {
+  project: TodayProject | null;
+  message?: string;
 }
 
 interface RecentSubmission {
   id: string;
   projectTitle: string;
+  class?: string;
   submittedAt: string;
   status: 'pending' | 'reviewed' | 'accepted' | 'rejected';
   score?: number;
@@ -98,7 +105,7 @@ function StudentDashboard() {
   const { data: paymentsData } = usePaymentHistory({ limit: 3 });
 
   // Memoize data to prevent unnecessary re-renders
-  const todayProject = useMemo(() => todayProjectData?.project || null, [todayProjectData]);
+  const todayProject = useMemo(() => (todayProjectData as TodayProjectResponse)?.project || null, [todayProjectData]);
   const recentSubmissions = useMemo(() => recentSubmissionsData?.submissions || [], [recentSubmissionsData]);
   const progressStats = useMemo(() => progressStatsData?.stats || {
     totalProjects: 0,
@@ -384,7 +391,14 @@ function StudentDashboard() {
                 {todayProject ? (
                   <div className="space-y-6">
                     <div>
-                      <h3 className="text-xl font-semibold mb-2">{todayProject.title}</h3>
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="text-xl font-semibold">{todayProject.title}</h3>
+                        {todayProject.class && (
+                          <Badge variant="secondary" className="text-xs">
+                            {todayProject.class}
+                          </Badge>
+                        )}
+                      </div>
                       <p className="text-gray-600 dark:text-gray-300 mb-4">
                         {todayProject.description}
                       </p>
@@ -433,11 +447,18 @@ function StudentDashboard() {
                     </div>
 
                     <div className="flex gap-3">
-                      <Button className="flex-1">
+                      <Button 
+                        className="flex-1" 
+                        onClick={() => router.push(`/assignments/${todayProject.id}`)}
+                      >
                         <Eye className="h-4 w-4 mr-2" />
-                        View Project
+                        View Assignment
                       </Button>
-                      <Button variant="outline" className="flex-1">
+                      <Button 
+                        variant="outline" 
+                        className="flex-1"
+                        onClick={() => router.push(`/assignments/${todayProject.id}`)}
+                      >
                         <Upload className="h-4 w-4 mr-2" />
                         Submit Work
                       </Button>
@@ -447,11 +468,15 @@ function StudentDashboard() {
                   <div className="text-center py-8">
                     <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                      No Project Today
+                      No Assignments Available
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      Check back tomorrow for your next assignment
+                    <p className="text-gray-600 dark:text-gray-300 mb-4">
+                      {(todayProjectData as TodayProjectResponse)?.message || 'Join a class to see assignments'}
                     </p>
+                    <Button onClick={() => router.push('/classes')} className="mt-2">
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      Browse Classes
+                    </Button>
                   </div>
                 )}
               </CardContent>
@@ -466,9 +491,9 @@ function StudentDashboard() {
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/projects')}>
+                <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/assignments')}>
                   <Code className="h-4 w-4 mr-2" />
-                  View All Projects
+                  View All Assignments
                 </Button>
                 <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/classes')}>
                   <BookOpen className="h-4 w-4 mr-2" />
@@ -545,7 +570,14 @@ function StudentDashboard() {
                   {recentSubmissions.map((submission) => (
                     <div key={submission.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex-1">
-                        <h4 className="font-medium">{submission.projectTitle}</h4>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-medium">{submission.projectTitle}</h4>
+                          {submission.class && (
+                            <Badge variant="outline" className="text-xs">
+                              {submission.class}
+                            </Badge>
+                          )}
+                        </div>
                         <p className="text-sm text-muted-foreground">
                           Submitted {formatDate(submission.submittedAt)}
                         </p>
