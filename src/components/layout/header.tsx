@@ -64,7 +64,7 @@ export default function Header() {
                       className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
                     >
                       <Shield className="w-4 h-4" />
-                      <span>Admin Dashboard</span>
+                      <span>Dashboard</span>
                     </Link>
                     <Link 
                       href="/admin/classes" 
