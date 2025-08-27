@@ -510,23 +510,10 @@ export default function ClassDetailPage() {
                               size="sm"
                               onClick={async () => {
                                 try {
-                                  const response = await fetch(`/api/admin/assignments/${assignment.id}`, {
-                                    method: 'PUT',
-                                    headers: {
-                                      'Content-Type': 'application/json',
-                                      'Authorization': `Bearer ${localStorage.getItem('token')}`
-                                    },
-                                    body: JSON.stringify({
-                                      isUnlocked: !isLocked
-                                    })
-                                  });
-                                  
-                                  if (response.ok) {
-                                    // Refresh the page to show updated status
-                                    window.location.reload();
-                                  } else {
-                                    console.error('Failed to update assignment');
-                                  }
+                                  // Use shared API client to avoid double /api issues in production
+                                  await api.updateAssignment(assignment.id, { isUnlocked: !isLocked });
+                                  // Refresh the page to show updated status
+                                  window.location.reload();
                                 } catch (error) {
                                   console.error('Error updating assignment:', error);
                                 }
