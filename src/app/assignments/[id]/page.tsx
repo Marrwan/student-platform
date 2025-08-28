@@ -630,7 +630,7 @@ export default function AssignmentDetailPage() {
                           <Input
                             id="zipFile"
                             type="file"
-                            accept=".zip"
+                            accept=".zip,.html,.js,.css,.txt,.md"
                             onChange={(e) => setSubmissionData(prev => ({ 
                               ...prev, 
                               zipFile: e.target.files?.[0] || null 

@@ -692,6 +692,10 @@ class ApiClient {
       formData.append('githubLink', data.githubLink);
     }
     
+    if (data.submissionLink) {
+      formData.append('submissionLink', data.submissionLink);
+    }
+    
     if (data.codeSubmission) {
       formData.append('codeSubmission', JSON.stringify(data.codeSubmission));
     }
