@@ -199,13 +199,39 @@ export default function AssignmentDetailPage() {
 
   const canSubmit = () => {
     if (!assignment) return false;
-    // Use backend method if available
-    if (assignment.canSubmit !== undefined) {
-      return assignment.canSubmit;
+    
+    const now = new Date();
+    const startDate = new Date(assignment.startDate);
+    const deadline = new Date(assignment.deadline);
+    
+    // Cannot submit before start time
+    if (now < startDate) return false;
+    
+    // If late submissions are allowed, can submit anytime after start
+    if (assignment.allowLateSubmission) {
+      return true;
     }
-    // Fallback to local calculation
-    if (isDeadlinePassed() && !assignment.allowLateSubmission) return false;
-    return true;
+    
+    // If late submissions are not allowed, can only submit before deadline
+    return now <= deadline;
+  };
+
+  const getSubmissionMessage = () => {
+    if (!assignment) return '';
+    
+    const now = new Date();
+    const startDate = new Date(assignment.startDate);
+    const deadline = new Date(assignment.deadline);
+    
+    if (now < startDate) {
+      return `Assignment has not started yet. Start time: ${startDate.toLocaleString()}`;
+    } else if (now > deadline && !assignment.allowLateSubmission) {
+      return 'Assignment deadline has passed and late submissions are not allowed';
+    } else if (now > deadline && assignment.allowLateSubmission) {
+      return 'Assignment deadline has passed. Late submission is allowed but may require payment.';
+    }
+    
+    return '';
   };
 
   const getAssignmentStatus = () => {
@@ -495,10 +521,7 @@ export default function AssignmentDetailPage() {
                     <Alert>
                       <XCircle className="h-4 w-4" />
                       <AlertDescription>
-                        {isDeadlinePassed() 
-                          ? 'The deadline has passed and late submissions are not allowed.'
-                          : 'You cannot submit this assignment at this time.'
-                        }
+                        {getSubmissionMessage()}
                       </AlertDescription>
                     </Alert>
                   ) : (

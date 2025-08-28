@@ -374,10 +374,10 @@ function StudentDashboard() {
                   <div>
                     <CardTitle className="flex items-center gap-2">
                       <Calendar className="h-5 w-5" />
-                      Today's Project
+                      Current Assignment
                     </CardTitle>
                     <CardDescription>
-                      {todayProject ? 'Your current assignment' : 'No project assigned for today'}
+                      {todayProject ? 'Your current assignment' : 'No assignment available'}
                     </CardDescription>
                   </div>
                   {todayProject && (
@@ -414,7 +414,7 @@ function StudentDashboard() {
                           {todayProject.timeRemaining}
                         </div>
                         {todayProject.isOverdue && (
-                          <p className="text-xs text-red-600">Project is overdue!</p>
+                          <p className="text-xs text-red-600">Assignment is overdue!</p>
                         )}
                       </div>
 

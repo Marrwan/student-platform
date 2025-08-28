@@ -55,6 +55,7 @@ interface Assignment {
     score?: number;
     submittedAt: string;
   };
+  allowLateSubmission?: boolean;
 }
 
 export default function AssignmentsPage() {
@@ -113,8 +114,6 @@ function AssignmentsList() {
           return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200';
         case 'overdue':
           return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-200';
-        case 'locked':
-          return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-200';
         case 'inactive':
           return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-200';
         default:
@@ -145,8 +144,6 @@ function AssignmentsList() {
           return 'Not Started';
         case 'overdue':
           return 'Overdue';
-        case 'locked':
-          return 'Locked';
         case 'inactive':
           return 'Inactive';
         default:
@@ -156,6 +153,23 @@ function AssignmentsList() {
     
     // Fallback to submission status
     return assignment.submissionStatus || 'Pending';
+  };
+
+  const canSubmitAssignment = (assignment: Assignment) => {
+    const now = new Date();
+    const startDate = new Date(assignment.startDate);
+    const deadline = new Date(assignment.deadline);
+    
+    // Cannot submit before start time
+    if (now < startDate) return false;
+    
+    // If late submissions are allowed, can submit anytime after start
+    if (assignment.allowLateSubmission) {
+      return true;
+    }
+    
+    // If late submissions are not allowed, can only submit before deadline
+    return now <= deadline;
   };
 
   const getDifficultyColor = (difficulty: string) => {
@@ -361,7 +375,7 @@ function AssignmentsList() {
                       View Details
                     </Button>
                     
-                    {!assignment.hasSubmission && assignment.canSubmit && (
+                    {!assignment.hasSubmission && canSubmitAssignment(assignment) && (
                       <Button 
                         size="sm" 
                         className="flex-1"
@@ -369,6 +383,18 @@ function AssignmentsList() {
                       >
                         <Upload className="h-4 w-4 mr-2" />
                         Submit
+                      </Button>
+                    )}
+                    
+                    {!assignment.hasSubmission && !canSubmitAssignment(assignment) && (
+                      <Button 
+                        variant="outline"
+                        size="sm" 
+                        className="flex-1"
+                        onClick={() => router.push(`/assignments/${assignment.id}`)}
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        View Only
                       </Button>
                     )}
                     
