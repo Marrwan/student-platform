@@ -89,7 +89,7 @@ export default function AssignmentDetailPage() {
   const assignmentId = params.id as string;
 
   const [assignment, setAssignment] = useState<Assignment | null>(null);
-  const [submission, setSubmission] = useState<Submission | null>(null);
+  const [submission, setSubmission] = useState<any | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -99,7 +99,8 @@ export default function AssignmentDetailPage() {
 
   // Submission form data
   const [submissionData, setSubmissionData] = useState({
-    submissionType: 'code' as 'code' | 'link' | 'zip',
+    submissionType: 'code' as 'github' | 'code' | 'link' | 'zip',
+    githubLink: '',
     submissionLink: '',
     codeSubmission: {
       html: '',
@@ -137,11 +138,24 @@ export default function AssignmentDetailPage() {
 
   const loadSubmission = async () => {
     try {
-      // This would be implemented in the API
-      // const data = await api.getMySubmission(assignmentId);
-      // setSubmission(data);
+      const { submission } = await api.getMySubmission(assignmentId);
+      setSubmission(submission);
+      if (submission) {
+        const submissionData = submission as any;
+        // Update submission data with existing submission
+        setSubmissionData({
+          submissionType: submissionData.submissionType as 'github' | 'code' | 'link' | 'zip',
+          githubLink: submissionData.githubLink || '',
+          submissionLink: submissionData.submissionLink || '',
+          codeSubmission: typeof submissionData.codeSubmission === 'string' 
+            ? JSON.parse(submissionData.codeSubmission) 
+            : (submissionData.codeSubmission || { html: '', css: '', javascript: '' }),
+          zipFile: null
+        });
+      }
     } catch (error) {
       console.error('Error loading submission:', error);
+      setSubmission(null);
     }
   };
 
@@ -184,7 +198,10 @@ export default function AssignmentDetailPage() {
       };
       await api.submitAssignment(assignmentId, submitData);
       toast.success('Assignment submitted successfully!');
-      loadSubmission();
+      
+      // Clear cache and reload submission
+      api.clearCache(`my-submission:${assignmentId}`);
+      await loadSubmission();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to submit assignment');
     } finally {

@@ -347,6 +347,24 @@ class ApiClient {
     return response.data;
   }
 
+  async getMySubmission(assignmentId: string): Promise<{ submission: Submission | null }> {
+    return this.cachedRequest(
+      `my-submission:${assignmentId}`,
+      async () => {
+        try {
+          const response: AxiosResponse<{ submission: Submission }> = await this.client.get(`/assignments/${assignmentId}/my-submission`);
+          return response.data;
+        } catch (error: any) {
+          if (error.response?.status === 404) {
+            return { submission: null };
+          }
+          throw error;
+        }
+      },
+      1 * 60 * 1000 // 1 minute cache
+    );
+  }
+
   async getMySubmissions(params?: {
     page?: number;
     limit?: number;

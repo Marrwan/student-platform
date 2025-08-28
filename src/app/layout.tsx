@@ -20,6 +20,11 @@ export const metadata: Metadata = {
   description: 'A comprehensive learning platform for structured programming education with assignments, progress tracking, and expert feedback',
   keywords: ['Programming', 'Learning', 'Education', 'Assignments', 'Progress Tracking', 'Web Development'],
   authors: [{ name: 'Learning Platform Team' }],
+  icons: {
+    icon: '/logo.jpeg',
+    shortcut: '/logo.jpeg',
+    apple: '/logo.jpeg',
+  },
   // Performance optimizations
   robots: {
     index: true,
@@ -98,6 +103,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.className}>
       <head>
+        {/* Favicon */}
+        <link rel="icon" type="image/jpeg" href="/logo.jpeg" style={{borderRadius : '50%'}} />
+        <link rel="shortcut icon" type="image/jpeg" href="/logo.jpeg" style={{borderRadius : '50%'}} />
+        <link rel="apple-touch-icon" href="/logo.jpeg" style={{borderRadius : '50%'}} />
+        
         {/* Preload critical resources */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -110,7 +120,7 @@ export default function RootLayout({
         <link rel="preload" href="/globals.css" as="style" />
         
         {/* Preload critical images */}
-        <link rel="preload" href="/favicon.ico" as="image" type="image/x-icon" />
+        <link rel="preload" href="/logo.jpeg" as="image" type="image/jpeg" />
         
         {/* Performance monitoring */}
         <script
