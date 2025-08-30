@@ -309,6 +309,19 @@ export default function AssignmentDetailPage() {
     }
   };
 
+  const getSubmissionStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Badge className="bg-yellow-100 text-yellow-800">Pending Review</Badge>;
+      case 'reviewed':
+        return <Badge className="bg-blue-100 text-blue-800">Reviewed</Badge>;
+      case 'accepted':
+        return <Badge className="bg-green-100 text-green-800">Accepted</Badge>;
+      default:
+        return <Badge className="bg-gray-100 text-gray-800">Unknown</Badge>;
+    }
+  };
+
   const isAdmin = () => {
     return currentUser?.role === 'admin' || currentUser?.role === 'partial_admin';
   };
@@ -364,7 +377,7 @@ export default function AssignmentDetailPage() {
           </div>
           
           <div className="flex gap-2 w-full lg:w-auto">
-            {submission && getStatusBadge(submission.status)}
+            {submission && getSubmissionStatusBadge(submission.status)}
             {isDeadlinePassed() && (
               <Badge variant="destructive">
                 Deadline Passed
@@ -544,7 +557,7 @@ export default function AssignmentDetailPage() {
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Status</span>
-                    {getStatusBadge(submission.status)}
+                    {getSubmissionStatusBadge(submission.status)}
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Submitted</span>
