@@ -584,10 +584,13 @@ export default function AssignmentDetailPage() {
                       </div>
                       <div className="bg-white p-4">
                         <iframe
+                          key={`submission-preview-${submission.id}`}
                           srcDoc={`
                             <!DOCTYPE html>
                             <html>
                               <head>
+                                <meta charset="utf-8">
+                                <meta name="viewport" content="width=device-width, initial-scale=1">
                                 <style>${submission.codeSubmission.css || ''}</style>
                               </head>
                               <body>
@@ -611,6 +614,7 @@ export default function AssignmentDetailPage() {
                       </div>
                       <div className="bg-white p-4">
                         <iframe
+                          key={`submission-link-${submission.id}`}
                           src={submission.submissionLink}
                           className="w-full h-64 border-0 rounded"
                           title="Link Preview"
@@ -762,10 +766,13 @@ export default function AssignmentDetailPage() {
                             </div>
                             <div className="bg-white p-4">
                               <iframe
+                                key={`preview-${submissionData.codeSubmission.html}-${submissionData.codeSubmission.css}-${submissionData.codeSubmission.javascript}`}
                                 srcDoc={`
                                   <!DOCTYPE html>
                                   <html>
                                     <head>
+                                      <meta charset="utf-8">
+                                      <meta name="viewport" content="width=device-width, initial-scale=1">
                                       <style>${submissionData.codeSubmission.css}</style>
                                     </head>
                                     <body>
@@ -808,6 +815,7 @@ export default function AssignmentDetailPage() {
                               </div>
                               <div className="bg-white p-4">
                                 <iframe
+                                  key={`link-preview-${submissionData.submissionLink}`}
                                   src={submissionData.submissionLink}
                                   className="w-full h-64 border-0 rounded"
                                   title="Link Preview"
