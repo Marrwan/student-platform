@@ -99,8 +99,9 @@ export default function AssignmentDetailPage() {
   const [activeTab, setActiveTab] = useState('details');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [submissionCount, setSubmissionCount] = useState(0);
-  const [canEdit, setCanEdit] = useState(true);
-  const [editReason, setEditReason] = useState<string>('');
+  const [canEdit, setCanEdit] = useState(false);
+  const [editReason, setEditReason] = useState('');
+  const [previewKey, setPreviewKey] = useState(0);
 
   // Submission form data
   const [submissionData, setSubmissionData] = useState({
@@ -144,46 +145,29 @@ export default function AssignmentDetailPage() {
   const loadSubmission = async () => {
     try {
       const response = await api.getMySubmission(assignmentId);
-      const submissionData = response.submission || response;
-      setSubmission(submissionData);
+      const canEditResponse = await api.canEditSubmission(assignmentId);
       
-      if (submissionData) {
-        // Check if user can edit this submission
-        const editCheck = await api.canEditSubmission(assignmentId);
-        setCanEdit(editCheck.canEdit);
-        setEditReason(editCheck.reason || '');
-        
-        // Cast to proper type for form data
-        const submission = submissionData as unknown as Submission;
-        
-        // Parse codeSubmission if it's a JSON string
-        let parsedCodeSubmission = submission.codeSubmission;
-        if (parsedCodeSubmission && typeof parsedCodeSubmission === 'string') {
+      if (response && response.submission) {
+        // Parse codeSubmission if it's a string
+        if (typeof response.submission.codeSubmission === 'string') {
           try {
-            parsedCodeSubmission = JSON.parse(parsedCodeSubmission);
+            response.submission.codeSubmission = JSON.parse(response.submission.codeSubmission);
           } catch (e) {
             console.error('Error parsing codeSubmission:', e);
           }
         }
-        
-        // Set form data from existing submission
-        setSubmissionData({
-          submissionType: submission.submissionType,
-          githubLink: submission.githubLink || '',
-          submissionLink: submission.submissionLink || '',
-          codeSubmission: parsedCodeSubmission || { html: '', css: '', javascript: '' },
-          zipFile: null
-        });
+        setSubmission(response.submission);
       } else {
-        // No submission exists, user can edit (create new submission)
-        setCanEdit(true);
-        setEditReason('');
+        setSubmission(null);
       }
+      
+      setCanEdit(canEditResponse.canEdit);
+      setEditReason(canEditResponse.reason);
     } catch (error) {
       console.error('Error loading submission:', error);
-      // If no submission exists, user can edit
-      setCanEdit(true);
-      setEditReason('');
+      setSubmission(null);
+      setCanEdit(false);
+      setEditReason('Error loading submission');
     }
   };
 
@@ -220,10 +204,21 @@ export default function AssignmentDetailPage() {
     setSubmitting(true);
 
     try {
-      const submitData = {
-        ...submissionData,
-        zipFile: submissionData.zipFile || undefined
+      // Prepare submit data based on submission type
+      let submitData: any = {
+        submissionType: submissionData.submissionType
       };
+
+      // Add fields based on submission type
+      if (submissionData.submissionType === 'code') {
+        submitData.codeSubmission = submissionData.codeSubmission;
+      } else if (submissionData.submissionType === 'link') {
+        submitData.submissionLink = submissionData.submissionLink;
+      } else if (submissionData.submissionType === 'github') {
+        submitData.githubLink = submissionData.githubLink;
+      } else if (submissionData.submissionType === 'zip') {
+        submitData.zipFile = submissionData.zipFile || undefined;
+      }
 
       if (submission && canEdit) {
         // Update existing submission
@@ -714,13 +709,16 @@ export default function AssignmentDetailPage() {
                             <Textarea
                               id="html"
                               value={submissionData.codeSubmission.html}
-                              onChange={(e) => setSubmissionData(prev => ({ 
-                                ...prev, 
-                                codeSubmission: { 
-                                  ...prev.codeSubmission, 
-                                  html: e.target.value 
-                                } 
-                              }))}
+                              onChange={(e) => {
+                                setSubmissionData(prev => ({ 
+                                  ...prev, 
+                                  codeSubmission: { 
+                                    ...prev.codeSubmission, 
+                                    html: e.target.value 
+                                  } 
+                                }));
+                                setPreviewKey(prev => prev + 1);
+                              }}
                               placeholder="Enter your HTML code"
                               rows={6}
                               required
@@ -731,13 +729,16 @@ export default function AssignmentDetailPage() {
                             <Textarea
                               id="css"
                               value={submissionData.codeSubmission.css}
-                              onChange={(e) => setSubmissionData(prev => ({ 
-                                ...prev, 
-                                codeSubmission: { 
-                                  ...prev.codeSubmission, 
-                                  css: e.target.value 
-                                } 
-                              }))}
+                              onChange={(e) => {
+                                setSubmissionData(prev => ({ 
+                                  ...prev, 
+                                  codeSubmission: { 
+                                    ...prev.codeSubmission, 
+                                    css: e.target.value 
+                                  } 
+                                }));
+                                setPreviewKey(prev => prev + 1);
+                              }}
                               placeholder="Enter your CSS code"
                               rows={6}
                             />
@@ -747,13 +748,16 @@ export default function AssignmentDetailPage() {
                             <Textarea
                               id="javascript"
                               value={submissionData.codeSubmission.javascript}
-                              onChange={(e) => setSubmissionData(prev => ({ 
-                                ...prev, 
-                                codeSubmission: { 
-                                  ...prev.codeSubmission, 
-                                  javascript: e.target.value 
-                                } 
-                              }))}
+                              onChange={(e) => {
+                                setSubmissionData(prev => ({ 
+                                  ...prev, 
+                                  codeSubmission: { 
+                                    ...prev.codeSubmission, 
+                                    javascript: e.target.value 
+                                  } 
+                                }));
+                                setPreviewKey(prev => prev + 1);
+                              }}
                               placeholder="Enter your JavaScript code"
                               rows={6}
                             />
@@ -766,7 +770,7 @@ export default function AssignmentDetailPage() {
                             </div>
                             <div className="bg-white p-4">
                               <iframe
-                                key={`preview-${submissionData.codeSubmission.html}-${submissionData.codeSubmission.css}-${submissionData.codeSubmission.javascript}`}
+                                key={`preview-${previewKey}`}
                                 srcDoc={`
                                   <!DOCTYPE html>
                                   <html>
