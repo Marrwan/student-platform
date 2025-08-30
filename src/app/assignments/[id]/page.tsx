@@ -536,7 +536,7 @@ export default function AssignmentDetailPage() {
 
           {/* Submit Tab */}
           <TabsContent value="submit" className="space-y-6">
-            {submission ? (
+            {submission && (
               <Card>
                 <CardHeader>
                   <CardTitle>Your Submission</CardTitle>
@@ -589,13 +589,16 @@ export default function AssignmentDetailPage() {
                   </div>
                 </CardContent>
               </Card>
-            ) : (
+            )}
+
+            {/* Submission Form - Always show when can submit or can edit */}
+            {(canSubmit() || (submission && canEdit)) ? (
               <Card>
                 <CardHeader>
-                  <CardTitle>Submit Assignment</CardTitle>
+                  <CardTitle>{submission ? 'Edit Submission' : 'Submit Assignment'}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {!canSubmit() ? (
+                  {!canSubmit() && !submission ? (
                     <Alert>
                       <XCircle className="h-4 w-4" />
                       <AlertDescription>
@@ -746,6 +749,16 @@ export default function AssignmentDetailPage() {
                       )}
                     </form>
                   )}
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <XCircle className="w-12 h-12 text-gray-400 mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Cannot Submit</h3>
+                  <p className="text-gray-600 text-center">
+                    {getSubmissionMessage()}
+                  </p>
                 </CardContent>
               </Card>
             )}
