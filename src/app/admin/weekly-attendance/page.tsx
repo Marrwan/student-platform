@@ -125,10 +125,10 @@ function WeeklyAttendanceDashboard() {
 
   const loadWeeks = async () => {
     try {
-      const response = await api.get(`/weekly-attendance/classes/${selectedClass}/weeks`);
-      setWeeks(response.data.weeks);
-      if (response.data.weeks.length > 0) {
-        setSelectedWeek(response.data.weeks[0].weekStart);
+      const response = await api.getWeeklyAttendanceWeeks(selectedClass);
+      setWeeks(response.weeks);
+      if (response.weeks.length > 0) {
+        setSelectedWeek(response.weeks[0].weekStart);
       }
     } catch (error) {
       console.error('Error loading weeks:', error);
@@ -138,8 +138,8 @@ function WeeklyAttendanceDashboard() {
 
   const loadStudents = async () => {
     try {
-      const response = await api.get(`/weekly-attendance/classes/${selectedClass}/students`);
-      setStudents(response.data.students);
+      const response = await api.getWeeklyAttendanceStudents(selectedClass);
+      setStudents(response.students);
     } catch (error) {
       console.error('Error loading students:', error);
       toast.error('Failed to load students');
@@ -149,8 +149,8 @@ function WeeklyAttendanceDashboard() {
   const loadAttendance = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/weekly-attendance/classes/${selectedClass}/attendance?weekStartDate=${selectedWeek}`);
-      setAttendanceData(response.data.attendance);
+      const response = await api.getWeeklyAttendance(selectedClass, selectedWeek);
+      setAttendanceData(response.attendance);
     } catch (error) {
       console.error('Error loading attendance:', error);
       toast.error('Failed to load attendance');
@@ -206,7 +206,7 @@ function WeeklyAttendanceDashboard() {
         }
       }));
 
-      await api.post(`/weekly-attendance/classes/${selectedClass}/attendance/bulk`, {
+      await api.markWeeklyAttendanceBulk(selectedClass, {
         weekStartDate: selectedWeek,
         attendanceData: attendanceDataToSave
       });

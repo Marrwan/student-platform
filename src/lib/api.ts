@@ -1361,6 +1361,84 @@ class ApiClient {
     });
     return response.data;
   }
+
+  // Weekly Attendance Methods
+  async getWeeklyAttendanceWeeks(classId: string): Promise<{ weeks: any[] }> {
+    return this.cachedRequest(
+      `weekly-attendance-weeks-${classId}`,
+      async () => {
+        const response = await this.client.get(`/weekly-attendance/classes/${classId}/weeks`);
+        return response.data;
+      },
+      5 * 60 * 1000 // 5 minutes cache
+    );
+  }
+
+  async getWeeklyAttendanceStudents(classId: string): Promise<{ students: any[] }> {
+    return this.cachedRequest(
+      `weekly-attendance-students-${classId}`,
+      async () => {
+        const response = await this.client.get(`/weekly-attendance/classes/${classId}/students`);
+        return response.data;
+      },
+      5 * 60 * 1000 // 5 minutes cache
+    );
+  }
+
+  async getWeeklyAttendance(classId: string, weekStartDate: string): Promise<{ attendance: any[] }> {
+    return this.cachedRequest(
+      `weekly-attendance-${classId}-${weekStartDate}`,
+      async () => {
+        const response = await this.client.get(`/weekly-attendance/classes/${classId}/attendance?weekStartDate=${weekStartDate}`);
+        return response.data;
+      },
+      2 * 60 * 1000 // 2 minutes cache
+    );
+  }
+
+  async getStudentAttendanceHistory(classId: string, userId: string): Promise<{ attendance: any[] }> {
+    return this.cachedRequest(
+      `student-attendance-history-${classId}-${userId}`,
+      async () => {
+        const response = await this.client.get(`/weekly-attendance/classes/${classId}/students/${userId}/attendance`);
+        return response.data;
+      },
+      5 * 60 * 1000 // 5 minutes cache
+    );
+  }
+
+  async getClassAttendanceSummary(classId: string): Promise<{ summary: any }> {
+    return this.cachedRequest(
+      `class-attendance-summary-${classId}`,
+      async () => {
+        const response = await this.client.get(`/weekly-attendance/classes/${classId}/attendance/summary`);
+        return response.data;
+      },
+      5 * 60 * 1000 // 5 minutes cache
+    );
+  }
+
+  async markWeeklyAttendance(classId: string, data: {
+    userId: string;
+    weekStartDate: string;
+    attendance: any;
+  }): Promise<{ message: string }> {
+    const response = await this.client.post(`/weekly-attendance/classes/${classId}/attendance`, data);
+    this.clearCache(`weekly-attendance-${classId}-${data.weekStartDate}`);
+    this.clearCache(`student-attendance-history-${classId}-${data.userId}`);
+    this.clearCache(`class-attendance-summary-${classId}`);
+    return response.data;
+  }
+
+  async markWeeklyAttendanceBulk(classId: string, data: {
+    weekStartDate: string;
+    attendanceData: any[];
+  }): Promise<{ message: string }> {
+    const response = await this.client.post(`/weekly-attendance/classes/${classId}/attendance/bulk`, data);
+    this.clearCache(`weekly-attendance-${classId}-${data.weekStartDate}`);
+    this.clearCache(`class-attendance-summary-${classId}`);
+    return response.data;
+  }
 }
 
 export const api = new ApiClient(); 
