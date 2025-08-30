@@ -576,6 +576,50 @@ export default function AssignmentDetailPage() {
                     </div>
                   )}
                   
+                  {/* Submission Preview */}
+                  {submission.submissionType === 'code' && submission.codeSubmission && (
+                    <div className="border rounded-lg overflow-hidden">
+                      <div className="bg-gray-100 px-4 py-2 border-b">
+                        <span className="text-sm font-medium text-gray-700">Your Code Output</span>
+                      </div>
+                      <div className="bg-white p-4">
+                        <iframe
+                          srcDoc={`
+                            <!DOCTYPE html>
+                            <html>
+                              <head>
+                                <style>${submission.codeSubmission.css || ''}</style>
+                              </head>
+                              <body>
+                                ${submission.codeSubmission.html || ''}
+                                <script>${submission.codeSubmission.javascript || ''}</script>
+                              </body>
+                            </html>
+                          `}
+                          className="w-full h-64 border-0 rounded"
+                          title="Submission Preview"
+                          sandbox="allow-scripts allow-same-origin"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
+                  {submission.submissionType === 'link' && submission.submissionLink && (
+                    <div className="border rounded-lg overflow-hidden">
+                      <div className="bg-gray-100 px-4 py-2 border-b">
+                        <span className="text-sm font-medium text-gray-700">Your Deployed Site</span>
+                      </div>
+                      <div className="bg-white p-4">
+                        <iframe
+                          src={submission.submissionLink}
+                          className="w-full h-64 border-0 rounded"
+                          title="Link Preview"
+                          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
                   {/* Edit Submission Section */}
                   <div className="pt-4 border-t">
                     {canEdit ? (
@@ -659,23 +703,6 @@ export default function AssignmentDetailPage() {
                         </select>
                       </div>
 
-                      {submissionData.submissionType === 'link' && (
-                        <div>
-                          <Label htmlFor="submissionLink">Submission Link</Label>
-                          <Input
-                            id="submissionLink"
-                            type="url"
-                            value={submissionData.submissionLink}
-                            onChange={(e) => setSubmissionData(prev => ({ 
-                              ...prev, 
-                              submissionLink: e.target.value 
-                            }))}
-                            placeholder="https://github.com/your-repo or https://your-demo.com"
-                            required
-                          />
-                        </div>
-                      )}
-
                       {submissionData.submissionType === 'code' && (
                         <div className="space-y-4">
                           <div>
@@ -727,6 +754,68 @@ export default function AssignmentDetailPage() {
                               rows={6}
                             />
                           </div>
+                          
+                          {/* Live Preview for Code */}
+                          <div className="border rounded-lg overflow-hidden">
+                            <div className="bg-gray-100 px-4 py-2 border-b">
+                              <Label className="text-sm font-medium text-gray-700">Live Preview</Label>
+                            </div>
+                            <div className="bg-white p-4">
+                              <iframe
+                                srcDoc={`
+                                  <!DOCTYPE html>
+                                  <html>
+                                    <head>
+                                      <style>${submissionData.codeSubmission.css}</style>
+                                    </head>
+                                    <body>
+                                      ${submissionData.codeSubmission.html}
+                                      <script>${submissionData.codeSubmission.javascript}</script>
+                                    </body>
+                                  </html>
+                                `}
+                                className="w-full h-64 border-0 rounded"
+                                title="Code Preview"
+                                sandbox="allow-scripts allow-same-origin"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {submissionData.submissionType === 'link' && (
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="submissionLink">Submission Link</Label>
+                            <Input
+                              id="submissionLink"
+                              type="url"
+                              value={submissionData.submissionLink}
+                              onChange={(e) => setSubmissionData(prev => ({ 
+                                ...prev, 
+                                submissionLink: e.target.value 
+                              }))}
+                              placeholder="https://github.com/your-repo or https://your-demo.com"
+                              required
+                            />
+                          </div>
+                          
+                          {/* Live Preview for Link */}
+                          {submissionData.submissionLink && (
+                            <div className="border rounded-lg overflow-hidden">
+                              <div className="bg-gray-100 px-4 py-2 border-b">
+                                <Label className="text-sm font-medium text-gray-700">Live Preview</Label>
+                              </div>
+                              <div className="bg-white p-4">
+                                <iframe
+                                  src={submissionData.submissionLink}
+                                  className="w-full h-64 border-0 rounded"
+                                  title="Link Preview"
+                                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
+                                />
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
 

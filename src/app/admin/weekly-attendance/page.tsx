@@ -150,10 +150,61 @@ function WeeklyAttendanceDashboard() {
     try {
       setLoading(true);
       const response = await api.getWeeklyAttendance(selectedClass, selectedWeek);
-      setAttendanceData(response.attendance);
+      
+      // If no attendance data exists, create initial data for all students
+      if (response.attendance.length === 0 && students.length > 0) {
+        const initialAttendanceData = students.map(student => ({
+          id: `temp-${student.id}`,
+          userId: student.id,
+          weekStartDate: selectedWeek,
+          weekEndDate: new Date(new Date(selectedWeek).getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          monday: false,
+          tuesday: false,
+          wednesday: false,
+          thursday: false,
+          friday: false,
+          saturday: false,
+          sunday: false,
+          totalDaysPresent: 0,
+          totalDaysInWeek: 5, // Assuming 5-day week
+          attendancePercentage: 0,
+          score: 0,
+          notes: '',
+          markedAt: new Date().toISOString(),
+          user: student
+        }));
+        setAttendanceData(initialAttendanceData);
+      } else {
+        setAttendanceData(response.attendance);
+      }
     } catch (error) {
       console.error('Error loading attendance:', error);
       toast.error('Failed to load attendance');
+      
+      // If error occurs, create initial data for all students
+      if (students.length > 0) {
+        const initialAttendanceData = students.map(student => ({
+          id: `temp-${student.id}`,
+          userId: student.id,
+          weekStartDate: selectedWeek,
+          weekEndDate: new Date(new Date(selectedWeek).getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          monday: false,
+          tuesday: false,
+          wednesday: false,
+          thursday: false,
+          friday: false,
+          saturday: false,
+          sunday: false,
+          totalDaysPresent: 0,
+          totalDaysInWeek: 5,
+          attendancePercentage: 0,
+          score: 0,
+          notes: '',
+          markedAt: new Date().toISOString(),
+          user: student
+        }));
+        setAttendanceData(initialAttendanceData);
+      }
     } finally {
       setLoading(false);
     }
@@ -162,7 +213,20 @@ function WeeklyAttendanceDashboard() {
   const handleAttendanceChange = (studentId: string, day: string, value: boolean) => {
     setAttendanceData(prev => prev.map(att => {
       if (att.userId === studentId) {
-        return { ...att, [day]: value };
+        const updatedAtt = { ...att, [day]: value };
+        
+        // Calculate total days present
+        const daysPresent = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+          .filter(d => updatedAtt[d as keyof typeof updatedAtt] === true).length;
+        
+        // Calculate attendance percentage
+        const percentage = updatedAtt.totalDaysInWeek > 0 ? (daysPresent / updatedAtt.totalDaysInWeek) * 100 : 0;
+        
+        return {
+          ...updatedAtt,
+          totalDaysPresent: daysPresent,
+          attendancePercentage: percentage
+        };
       }
       return att;
     }));
