@@ -22,7 +22,8 @@ import {
   CheckCircle, 
   XCircle,
   ExternalLink,
-  Eye
+  Eye,
+  Edit
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { User } from '@/types';
@@ -561,6 +562,31 @@ export default function AssignmentDetailPage() {
                       <p className="text-sm mt-1">{submission.feedback}</p>
                     </div>
                   )}
+                  
+                  {/* Edit Submission Section */}
+                  <div className="pt-4 border-t">
+                    {canEdit ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          <span className="text-sm text-green-700 font-medium">You can edit your submission</span>
+                        </div>
+                        <p className="text-sm text-gray-600">
+                          Use the form below to update your submission. Your changes will be saved when you click "Update Submission".
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <XCircle className="w-4 h-4 text-red-600" />
+                          <span className="text-sm text-red-700 font-medium">Editing not allowed</span>
+                        </div>
+                        <p className="text-sm text-gray-600">
+                          {editReason || 'You cannot edit this submission at this time.'}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             ) : (
@@ -578,6 +604,18 @@ export default function AssignmentDetailPage() {
                     </Alert>
                   ) : (
                     <form onSubmit={handleSubmit} className="space-y-4">
+                      {submission && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Edit className="w-4 h-4 text-blue-600" />
+                            <span className="text-sm font-medium text-blue-800">Edit Your Submission</span>
+                          </div>
+                          <p className="text-sm text-blue-700">
+                            You have already submitted this assignment. You can modify your submission below and click "Update Submission" to save your changes.
+                          </p>
+                        </div>
+                      )}
+                      
                       <div>
                         <Label htmlFor="submissionType">Submission Type</Label>
                         <select

@@ -111,13 +111,21 @@ export default function AssignmentSubmissionsPage() {
 
     try {
       setMarkingSubmission(true);
-      await api.markSubmission(assignmentId, selectedSubmission.id, {
-        score: markData.score ? parseFloat(markData.score) : undefined,
+      
+      // Prepare the data to send
+      const submissionData: any = {
         feedback: markData.feedback || undefined,
         status: markData.status,
         requestCorrection: markData.requestCorrection,
         correctionComments: markData.correctionComments || undefined
-      });
+      };
+
+      // Only include score if it's provided and valid
+      if (markData.score && markData.score.trim() !== '' && !isNaN(parseFloat(markData.score))) {
+        submissionData.score = parseFloat(markData.score);
+      }
+
+      await api.markSubmission(assignmentId, selectedSubmission.id, submissionData);
       
       toast.success('Submission marked successfully');
       setMarkDialogOpen(false);
@@ -399,7 +407,14 @@ export default function AssignmentSubmissionsPage() {
                 <Label htmlFor="status">Status</Label>
                 <Select
                   value={markData.status}
-                  onValueChange={(value) => setMarkData(prev => ({ ...prev, status: value }))}
+                  onValueChange={(value) => {
+                    setMarkData(prev => ({ 
+                      ...prev, 
+                      status: value,
+                      // Clear score if status is not 'accepted'
+                      score: value !== 'accepted' ? '' : prev.score
+                    }));
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue />

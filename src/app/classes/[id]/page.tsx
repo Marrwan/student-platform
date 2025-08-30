@@ -45,7 +45,8 @@ import {
   Video,
   MessageSquare,
   User,
-  GraduationCap
+  GraduationCap,
+  Award
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -642,26 +643,136 @@ export default function ClassDetailPage() {
           {/* Attendance Tab */}
           <TabsContent value="attendance" className="space-y-6">
             {canManageClass ? (
-              <AttendanceManager 
-                classId={classId}
-                students={classDetails?.enrollments?.map(enrollment => ({
-                  id: enrollment.student.id,
-                  firstName: enrollment.student.firstName,
-                  lastName: enrollment.student.lastName,
-                  email: enrollment.student.email || '',
-                  enrollmentId: enrollment.id,
-                  attendanceScore: enrollment.attendanceScore,
-                  totalAttendance: 0, // This would come from attendance records
-                  lastAttendance: enrollment.enrolledAt
-                })) || []}
-                onAttendanceUpdated={handleAttendanceUpdated}
-              />
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div>
+                    <h2 className="text-xl lg:text-2xl font-bold">Weekly Attendance Management</h2>
+                    <p className="text-gray-600 mt-1">Mark and manage weekly attendance for all students</p>
+                  </div>
+                  <Button 
+                    onClick={() => router.push(`/admin/weekly-attendance`)}
+                    className="w-full sm:w-auto"
+                  >
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Manage Weekly Attendance
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <Users className="w-5 h-5" />
+                        Total Students
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-blue-600">{classDetails.studentCount}</div>
+                      <p className="text-sm text-gray-600">Enrolled students</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <Calendar className="w-5 h-5" />
+                        Weekly Attendance
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-green-600">Weekly</div>
+                      <p className="text-sm text-gray-600">Mark attendance by week</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <Award className="w-5 h-5" />
+                        Attendance Score
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-purple-600">Integrated</div>
+                      <p className="text-sm text-gray-600">Part of leaderboard calculation</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Calendar className="w-5 h-5" />
+                      Quick Actions
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="p-4 border rounded-lg">
+                        <h3 className="font-medium mb-2">Mark This Week's Attendance</h3>
+                        <p className="text-sm text-gray-600 mb-3">
+                          Mark attendance for the current week for all students
+                        </p>
+                        <Button 
+                          onClick={() => router.push(`/admin/weekly-attendance`)}
+                          variant="outline"
+                          className="w-full"
+                        >
+                          <Calendar className="w-4 h-4 mr-2" />
+                          Mark Current Week
+                        </Button>
+                      </div>
+                      
+                      <div className="p-4 border rounded-lg">
+                        <h3 className="font-medium mb-2">View Attendance History</h3>
+                        <p className="text-sm text-gray-600 mb-3">
+                          View and manage attendance records for all weeks
+                        </p>
+                        <Button 
+                          onClick={() => router.push(`/admin/weekly-attendance`)}
+                          variant="outline"
+                          className="w-full"
+                        >
+                          <Calendar className="w-4 h-4 mr-2" />
+                          View History
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Award className="w-5 h-5" />
+                      Attendance in Leaderboard
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Weekly attendance scores are automatically integrated into the class leaderboard. 
+                      Students' attendance performance affects their overall ranking.
+                    </p>
+                    <Button 
+                      onClick={() => setActiveTab('leaderboard')}
+                      variant="outline"
+                    >
+                      <BarChart3 className="w-4 h-4 mr-2" />
+                      View Leaderboard
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
             ) : (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-12">
                   <div className="text-center">
+                    <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">Attendance Management</h3>
-                    <p className="text-gray-600">Only instructors and administrators can manage attendance.</p>
+                    <p className="text-gray-600 mb-4">Only instructors and administrators can manage attendance.</p>
+                    <p className="text-sm text-gray-500">
+                      Your attendance is tracked weekly and contributes to your leaderboard score.
+                    </p>
                   </div>
                 </CardContent>
               </Card>
