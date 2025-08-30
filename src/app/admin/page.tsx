@@ -516,6 +516,12 @@ function AdminDashboard() {
                         label="Leaderboard"
                         gradient="linear-gradient(135deg, #FDE68A 0%, #F59E42 100%)"
                       />
+                      <DashboardActionButton
+                        onClick={() => router.push('/admin/weekly-attendance')}
+                        icon={Calendar}
+                        label="Weekly Attendance"
+                        gradient="linear-gradient(135deg, #6EE7B7 0%, #10B981 100%)"
+                      />
                     </div>
                   </CardContent>
                 </Card>

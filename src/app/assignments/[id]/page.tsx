@@ -70,6 +70,7 @@ interface Submission {
   assignmentId: string;
   userId: string;
   submissionType: 'code' | 'link' | 'zip';
+  githubLink?: string;
   submissionLink?: string;
   codeSubmission?: {
     html: string;
@@ -98,7 +99,7 @@ export default function AssignmentDetailPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [submissionCount, setSubmissionCount] = useState(0);
   const [canEdit, setCanEdit] = useState(true);
-  const [editReason, setEditReason] = useState('');
+  const [editReason, setEditReason] = useState<string>('');
 
   // Submission form data
   const [submissionData, setSubmissionData] = useState({
@@ -141,32 +142,47 @@ export default function AssignmentDetailPage() {
 
   const loadSubmission = async () => {
     try {
-      const { submission } = await api.getMySubmission(assignmentId);
-      setSubmission(submission);
-      if (submission) {
-        const submissionData = submission as any;
-        // Update submission data with existing submission
+      const response = await api.getMySubmission(assignmentId);
+      const submissionData = response.submission || response;
+      setSubmission(submissionData);
+      
+      if (submissionData) {
+        // Check if user can edit this submission
+        const editCheck = await api.canEditSubmission(assignmentId);
+        setCanEdit(editCheck.canEdit);
+        setEditReason(editCheck.reason || '');
+        
+        // Cast to proper type for form data
+        const submission = submissionData as unknown as Submission;
+        
+        // Parse codeSubmission if it's a JSON string
+        let parsedCodeSubmission = submission.codeSubmission;
+        if (parsedCodeSubmission && typeof parsedCodeSubmission === 'string') {
+          try {
+            parsedCodeSubmission = JSON.parse(parsedCodeSubmission);
+          } catch (e) {
+            console.error('Error parsing codeSubmission:', e);
+          }
+        }
+        
+        // Set form data from existing submission
         setSubmissionData({
-          submissionType: submissionData.submissionType as 'github' | 'code' | 'link' | 'zip',
-          githubLink: submissionData.githubLink || '',
-          submissionLink: submissionData.submissionLink || '',
-          codeSubmission: typeof submissionData.codeSubmission === 'string' 
-            ? JSON.parse(submissionData.codeSubmission) 
-            : (submissionData.codeSubmission || { html: '', css: '', javascript: '' }),
+          submissionType: submission.submissionType,
+          githubLink: submission.githubLink || '',
+          submissionLink: submission.submissionLink || '',
+          codeSubmission: parsedCodeSubmission || { html: '', css: '', javascript: '' },
           zipFile: null
         });
+      } else {
+        // No submission exists, user can edit (create new submission)
+        setCanEdit(true);
+        setEditReason('');
       }
-
-      // Check if user can edit submission
-      const editCheck = await api.canEditSubmission(assignmentId);
-      setCanEdit(editCheck.canEdit);
-      setEditReason(editCheck.reason);
     } catch (error) {
       console.error('Error loading submission:', error);
-      setSubmission(null);
       // If no submission exists, user can edit
       setCanEdit(true);
-      setEditReason('No submission exists yet');
+      setEditReason('');
     }
   };
 
