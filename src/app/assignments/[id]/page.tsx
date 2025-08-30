@@ -78,9 +78,10 @@ interface Submission {
   };
   score?: number;
   feedback?: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'reviewed' | 'accepted';
   submittedAt: string;
   reviewedAt?: string;
+  requestCorrection?: boolean;
 }
 
 export default function AssignmentDetailPage() {
@@ -96,6 +97,8 @@ export default function AssignmentDetailPage() {
   const [activeTab, setActiveTab] = useState('details');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [submissionCount, setSubmissionCount] = useState(0);
+  const [canEdit, setCanEdit] = useState(true);
+  const [editReason, setEditReason] = useState('');
 
   // Submission form data
   const [submissionData, setSubmissionData] = useState({
@@ -153,9 +156,17 @@ export default function AssignmentDetailPage() {
           zipFile: null
         });
       }
+
+      // Check if user can edit submission
+      const editCheck = await api.canEditSubmission(assignmentId);
+      setCanEdit(editCheck.canEdit);
+      setEditReason(editCheck.reason);
     } catch (error) {
       console.error('Error loading submission:', error);
       setSubmission(null);
+      // If no submission exists, user can edit
+      setCanEdit(true);
+      setEditReason('No submission exists yet');
     }
   };
 
@@ -196,8 +207,16 @@ export default function AssignmentDetailPage() {
         ...submissionData,
         zipFile: submissionData.zipFile || undefined
       };
-      await api.submitAssignment(assignmentId, submitData);
-      toast.success('Assignment submitted successfully!');
+
+      if (submission && canEdit) {
+        // Update existing submission
+        await api.updateSubmission(assignmentId, submitData);
+        toast.success('Assignment updated successfully!');
+      } else {
+        // Submit new submission
+        await api.submitAssignment(assignmentId, submitData);
+        toast.success('Assignment submitted successfully!');
+      }
       
       // Clear cache and reload submission
       api.clearCache(`my-submission:${assignmentId}`);
@@ -657,9 +676,20 @@ export default function AssignmentDetailPage() {
                         </div>
                       )}
 
-                      <Button type="submit" disabled={submitting} className="w-full">
-                        {submitting ? 'Submitting...' : 'Submit Assignment'}
+                      <Button 
+                        type="submit" 
+                        disabled={submitting || !canEdit} 
+                        className="w-full"
+                      >
+                        {submitting ? 'Submitting...' : 
+                         submission && canEdit ? 'Update Submission' : 'Submit Assignment'}
                       </Button>
+                      
+                      {!canEdit && (
+                        <p className="text-sm text-red-600 mt-2 text-center">
+                          {editReason}
+                        </p>
+                      )}
                     </form>
                   )}
                 </CardContent>

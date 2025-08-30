@@ -46,9 +46,11 @@ interface Submission {
   zipFileUrl?: string;
   score?: number;
   feedback?: string;
-  status: 'pending' | 'reviewed' | 'accepted' | 'rejected';
+  status: 'pending' | 'reviewed' | 'accepted';
   submittedAt: string;
   reviewedAt?: string;
+  requestCorrection?: boolean;
+  correctionComments?: string;
   user: {
     id: string;
     firstName: string;
@@ -79,7 +81,9 @@ export default function AssignmentSubmissionsPage() {
   const [markData, setMarkData] = useState({
     score: '',
     feedback: '',
-    status: 'reviewed'
+    status: 'reviewed',
+    requestCorrection: false,
+    correctionComments: ''
   });
 
   useEffect(() => {
@@ -110,13 +114,15 @@ export default function AssignmentSubmissionsPage() {
       await api.markSubmission(assignmentId, selectedSubmission.id, {
         score: markData.score ? parseFloat(markData.score) : undefined,
         feedback: markData.feedback || undefined,
-        status: markData.status
+        status: markData.status,
+        requestCorrection: markData.requestCorrection,
+        correctionComments: markData.correctionComments || undefined
       });
       
       toast.success('Submission marked successfully');
       setMarkDialogOpen(false);
       setSelectedSubmission(null);
-      setMarkData({ score: '', feedback: '', status: 'reviewed' });
+      setMarkData({ score: '', feedback: '', status: 'reviewed', requestCorrection: false, correctionComments: '' });
       loadSubmissions(); // Reload to get updated data
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to mark submission');
@@ -129,8 +135,6 @@ export default function AssignmentSubmissionsPage() {
     switch (status) {
       case 'accepted':
         return <Badge className="bg-green-100 text-green-800">Accepted</Badge>;
-      case 'rejected':
-        return <Badge className="bg-red-100 text-red-800">Rejected</Badge>;
       case 'reviewed':
         return <Badge className="bg-blue-100 text-blue-800">Reviewed</Badge>;
       case 'pending':
@@ -323,7 +327,9 @@ export default function AssignmentSubmissionsPage() {
                         setMarkData({
                           score: submission.score?.toString() || '',
                           feedback: submission.feedback || '',
-                          status: submission.status
+                          status: submission.status,
+                          requestCorrection: submission.requestCorrection || false,
+                          correctionComments: submission.correctionComments || ''
                         });
                         setMarkDialogOpen(true);
                       }}
@@ -380,7 +386,13 @@ export default function AssignmentSubmissionsPage() {
                   value={markData.score}
                   onChange={(e) => setMarkData(prev => ({ ...prev, score: e.target.value }))}
                   placeholder={`0-${assignment?.maxScore}`}
+                  disabled={markData.status !== 'accepted'}
                 />
+                {markData.status !== 'accepted' && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    Score can only be set when marking as accepted
+                  </p>
+                )}
               </div>
 
               <div>
@@ -396,10 +408,38 @@ export default function AssignmentSubmissionsPage() {
                     <SelectItem value="pending">Pending</SelectItem>
                     <SelectItem value="reviewed">Reviewed</SelectItem>
                     <SelectItem value="accepted">Accepted</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+
+              <div>
+                <Label htmlFor="requestCorrection">Request Correction</Label>
+                <Select
+                  value={markData.requestCorrection ? 'true' : 'false'}
+                  onValueChange={(value) => setMarkData(prev => ({ ...prev, requestCorrection: value === 'true' }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="false">No</SelectItem>
+                    <SelectItem value="true">Yes</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {markData.requestCorrection && (
+                <div>
+                  <Label htmlFor="correctionComments">Correction Comments</Label>
+                  <Textarea
+                    id="correctionComments"
+                    value={markData.correctionComments}
+                    onChange={(e) => setMarkData(prev => ({ ...prev, correctionComments: e.target.value }))}
+                    placeholder="Provide comments for the student..."
+                    rows={4}
+                  />
+                </div>
+              )}
 
               <div>
                 <Label htmlFor="feedback">Feedback</Label>
@@ -684,7 +724,9 @@ export default function AssignmentSubmissionsPage() {
                         setMarkData({
                           score: selectedSubmission.score?.toString() || '',
                           feedback: selectedSubmission.feedback || '',
-                          status: selectedSubmission.status
+                          status: selectedSubmission.status,
+                          requestCorrection: selectedSubmission.requestCorrection || false,
+                          correctionComments: selectedSubmission.correctionComments || ''
                         });
                         setMarkDialogOpen(true);
                       }}

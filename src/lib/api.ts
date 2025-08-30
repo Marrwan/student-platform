@@ -347,6 +347,7 @@ class ApiClient {
     return response.data;
   }
 
+  // Get my submission for an assignment
   async getMySubmission(assignmentId: string): Promise<{ submission: Submission | null }> {
     return this.cachedRequest(
       `my-submission:${assignmentId}`,
@@ -363,6 +364,27 @@ class ApiClient {
       },
       1 * 60 * 1000 // 1 minute cache
     );
+  }
+
+  // Check if user can edit submission
+  async canEditSubmission(assignmentId: string): Promise<{ canEdit: boolean; reason: string }> {
+    return this.cachedRequest(
+      `can-edit-submission:${assignmentId}`,
+      async () => {
+        const response: AxiosResponse<{ canEdit: boolean; reason: string }> = await this.client.get(`/assignments/${assignmentId}/can-edit`);
+        return response.data;
+      },
+      1 * 60 * 1000 // 1 minute cache
+    );
+  }
+
+  // Update submission (for students)
+  async updateSubmission(assignmentId: string, data: any): Promise<{ message: string; submission: Submission }> {
+    const response: AxiosResponse<{ message: string; submission: Submission }> = await this.client.put(`/assignments/${assignmentId}/submission`, data);
+    // Clear submissions cache
+    this.clearCache('submissions');
+    this.clearCache(`my-submission:${assignmentId}`);
+    return response.data;
   }
 
   async getMySubmissions(params?: {
@@ -681,6 +703,8 @@ class ApiClient {
     score?: number;
     feedback?: string;
     status?: string;
+    requestCorrection?: boolean;
+    correctionComments?: string;
   }): Promise<{ message: string; submission: any }> {
     const response: AxiosResponse<{ message: string; submission: any }> = await this.client.put(
       `/assignments/${assignmentId}/submissions/${submissionId}/mark`,
