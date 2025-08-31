@@ -75,13 +75,13 @@ function RegisterPageContent() {
         </div>
 
         {/* Logo */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 sm:mb-8">
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <Code className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">Learning Platform</span>
+            <Code className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+            <span className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Learning Platform</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Join the Platform</h1>
-          <p className="text-gray-600 dark:text-gray-300">Create your account and start your learning journey</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Join the Platform</h1>
+          <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Create your account and start your learning journey</p>
         </div>
 
         {/* Invitation Banner */}

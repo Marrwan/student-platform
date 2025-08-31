@@ -235,9 +235,9 @@ export default function ClassesPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-6 lg:py-8">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 lg:mb-8 gap-4">
+        <div className="flex flex-col space-y-4 mb-6 lg:mb-8">
           <div className="min-w-0 flex-1">
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
               {isAdmin ? 'Class Management' : 'My Classes'}
             </h1>
             <p className="text-gray-600 mt-2 text-sm lg:text-base">
@@ -245,16 +245,17 @@ export default function ClassesPage() {
             </p>
           </div>
           
-          <div className="flex gap-2 w-full lg:w-auto">
+          <div className="flex flex-wrap gap-2">
             {isStudent && (
               <Button 
                 onClick={() => setShowJoinDialog(true)} 
                 variant="outline"
                 size="sm"
-                className="flex-1 lg:flex-none"
+                className="flex-1 sm:flex-none"
               >
                 <UserPlus className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Join Class</span>
+                <span className="sm:hidden">Join</span>
               </Button>
             )}
             
@@ -262,10 +263,11 @@ export default function ClassesPage() {
               <Button 
                 onClick={() => setShowCreateDialog(true)}
                 size="sm"
-                className="flex-1 lg:flex-none"
+                className="flex-1 sm:flex-none"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Create Class</span>
+                <span className="sm:hidden">Create</span>
               </Button>
             )}
           </div>
@@ -310,20 +312,20 @@ export default function ClassesPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
             {filteredClasses.map((cls) => (
               <Card key={cls.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start gap-2">
                     <div className="flex-1 min-w-0">
-                      <CardTitle className="text-base lg:text-lg line-clamp-2">
+                      <CardTitle className="text-sm sm:text-base lg:text-lg line-clamp-2">
                         {cls.name}
                       </CardTitle>
-                      <CardDescription className="mt-2 line-clamp-2">
+                      <CardDescription className="mt-2 line-clamp-2 text-xs sm:text-sm">
                         {cls.description || 'No description provided'}
                       </CardDescription>
                     </div>
-                    <Badge variant={cls.isActive ? "default" : "secondary"} className="shrink-0">
+                    <Badge variant={cls.isActive ? "default" : "secondary"} className="shrink-0 text-xs">
                       {cls.isActive ? 'Active' : 'Inactive'}
                     </Badge>
                   </div>

@@ -46,17 +46,17 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       {/* Navigation */}
-      <nav className="container mx-auto px-4 py-6">
+      <nav className="container mx-auto px-4 py-4 sm:py-6">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-2">
-            <Code className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">Learning Platform</span>
+            <Code className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+            <span className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Learning Platform</span>
           </div>
-          <div className="flex space-x-4">
-            <Button variant="ghost" onClick={() => handleNavigation('/login')}>
+          <div className="flex space-x-2 sm:space-x-4">
+            <Button variant="ghost" onClick={() => handleNavigation('/login')} size="sm" className="text-sm">
               Login
             </Button>
-            <Button onClick={() => handleNavigation('/register')}>
+            <Button onClick={() => handleNavigation('/register')} size="sm" className="text-sm">
               Get Started
             </Button>
           </div>
@@ -64,29 +64,29 @@ export default function HomePage() {
       </nav>
 
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
+      <div className="container mx-auto px-4 py-8 sm:py-16">
+        <div className="text-center mb-8 sm:mb-16">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">
             Master Programming with
             <span className="text-blue-600"> Structured Learning</span>
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-6 sm:mb-8 px-4">
             Join our comprehensive learning platform designed for students. 
             Complete assignments, track progress, and develop real-world skills with expert guidance and automated feedback.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" onClick={() => handleNavigation('/register')}>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
+            <Button size="lg" onClick={() => handleNavigation('/register')} className="w-full sm:w-auto">
               Start Learning
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
-            <Button size="lg" variant="outline" onClick={() => handleNavigation('/rules')}>
+            <Button size="lg" variant="outline" onClick={() => handleNavigation('/rules')} className="w-full sm:w-auto">
               View Rules
             </Button>
           </div>
         </div>
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-8 sm:mb-16">
           <Card className="text-center">
             <CardHeader>
               <div className="mx-auto w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-4">
@@ -137,11 +137,11 @@ export default function HomePage() {
         </div>
 
         {/* How It Works */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
+        <div className="mb-8 sm:mb-16">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 dark:text-white mb-8 sm:mb-12">
             How It Works
           </h2>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-white font-bold text-xl">1</span>
@@ -173,11 +173,11 @@ export default function HomePage() {
         </div>
 
         {/* Key Features */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
+        <div className="mb-8 sm:mb-16">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 dark:text-white mb-8 sm:mb-12">
             Platform Features
           </h2>
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
             <Card>
               <CardHeader>
                 <div className="flex items-center space-x-3">
@@ -237,7 +237,7 @@ export default function HomePage() {
         </div>
 
         {/* Stats */}
-        <div className="grid md:grid-cols-4 gap-8 mb-16">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 mb-8 sm:mb-16">
           <div className="text-center">
             <div className="text-3xl font-bold text-blue-600 mb-2">100%</div>
             <div className="text-gray-600 dark:text-gray-300">Structured Learning</div>
@@ -260,15 +260,15 @@ export default function HomePage() {
         <div className="text-center">
           <Card className="max-w-2xl mx-auto">
             <CardHeader>
-              <CardTitle className="text-2xl">Ready to Start Your Learning Journey?</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-xl sm:text-2xl">Ready to Start Your Learning Journey?</CardTitle>
+              <CardDescription className="text-sm sm:text-base">
                 Join our structured learning platform and master programming with expert guidance
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button size="lg" onClick={() => handleNavigation('/register')}>
+              <Button size="lg" onClick={() => handleNavigation('/register')} className="w-full sm:w-auto">
                 Get Started Now
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
             </CardContent>
           </Card>
@@ -276,9 +276,9 @@ export default function HomePage() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8 mt-16">
+      <footer className="bg-gray-900 text-white py-6 sm:py-8 mt-8 sm:mt-16">
         <div className="container mx-auto px-4 text-center">
-          <p>&copy; 2024 Learning Platform. All rights reserved.</p>
+          <p className="text-sm sm:text-base">&copy; 2024 Learning Platform. All rights reserved.</p>
         </div>
       </footer>
     </div>

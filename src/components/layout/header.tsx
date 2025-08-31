@@ -41,14 +41,14 @@ export default function Header() {
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-14 sm:h-16">
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-white" />
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <BookOpen className="w-3 h-3 sm:w-5 sm:h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-gray-900">Learning Platform</span>
+              <span className="text-lg sm:text-xl font-bold text-gray-900">Learning Platform</span>
             </Link>
           </div>
 
@@ -203,12 +203,12 @@ export default function Header() {
               onClick={toggleMobileMenu}
               variant="ghost"
               size="sm"
-              className="p-2"
+              className="p-2 h-10 w-10"
             >
               {isMobileMenuOpen ? (
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5" />
               ) : (
-                <Menu className="w-6 h-6" />
+                <Menu className="w-5 h-5" />
               )}
             </Button>
           </div>
@@ -218,7 +218,7 @@ export default function Header() {
       {/* Mobile Navigation */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-white border-t border-gray-200">
-          <div className="px-2 pt-2 pb-3 space-y-1">
+          <div className="px-2 pt-2 pb-3 space-y-1 max-h-[calc(100vh-4rem)] overflow-y-auto">
             {user ? (
               <>
                 {isAdmin ? (
@@ -226,7 +226,7 @@ export default function Header() {
                   <>
                     <Link 
                       href="/admin" 
-                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Shield className="w-5 h-5" />
@@ -234,7 +234,7 @@ export default function Header() {
                     </Link>
                     <Link 
                       href="/admin/classes" 
-                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <GraduationCap className="w-5 h-5" />
@@ -242,7 +242,7 @@ export default function Header() {
                     </Link>
                     <Link 
                       href="/admin/assignments" 
-                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <FileText className="w-5 h-5" />
@@ -250,7 +250,7 @@ export default function Header() {
                     </Link>
                     <Link 
                       href="/admin/submissions" 
-                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <ClipboardList className="w-5 h-5" />
@@ -258,7 +258,7 @@ export default function Header() {
                     </Link>
                     <Link 
                       href="/admin/users" 
-                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Users className="w-5 h-5" />
@@ -266,7 +266,7 @@ export default function Header() {
                     </Link>
                     <Link 
                       href="/admin/analytics" 
-                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <BarChart3 className="w-5 h-5" />
@@ -278,7 +278,7 @@ export default function Header() {
                   <>
                     <Link 
                       href="/dashboard" 
-                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Home className="w-5 h-5" />
@@ -286,7 +286,7 @@ export default function Header() {
                     </Link>
                     <Link 
                       href="/projects" 
-                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <BookOpen className="w-5 h-5" />
@@ -294,7 +294,7 @@ export default function Header() {
                     </Link>
                     <Link 
                       href="/leaderboard" 
-                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Trophy className="w-5 h-5" />
@@ -302,7 +302,7 @@ export default function Header() {
                     </Link>
                     <Link 
                       href="/progress" 
-                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Calendar className="w-5 h-5" />
@@ -341,7 +341,7 @@ export default function Header() {
               <>
                 <Link 
                   href="/" 
-                  className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                  className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Home className="w-5 h-5" />
@@ -349,7 +349,7 @@ export default function Header() {
                 </Link>
                 <Link 
                   href="/rules" 
-                  className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                  className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <BookOpen className="w-5 h-5" />

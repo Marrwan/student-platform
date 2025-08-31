@@ -263,24 +263,26 @@ function AdminDashboard() {
         {/* Header */}
         <header className="bg-white dark:bg-gray-800 shadow-sm border-b">
           <div className="container mx-auto px-4 py-4">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-4">
+              <h1 className="text-xl sm:text-2xl font-bold">Admin Dashboard</h1>
               <NotificationCenter />
             </div>
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">
                   Welcome back, {user?.firstName} {user?.lastName}
                 </p>
               </div>
-              <div className="flex items-center space-x-4">
-                <Button variant="outline">
+              <div className="flex flex-wrap gap-2 sm:gap-4">
+                <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
                   <Bell className="h-4 w-4 mr-2" />
-                  Notifications
+                  <span className="hidden sm:inline">Notifications</span>
+                  <span className="sm:hidden">Alerts</span>
                 </Button>
-                <Button variant="outline">
+                <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
                   <Settings className="h-4 w-4 mr-2" />
-                  Settings
+                  <span className="hidden sm:inline">Settings</span>
+                  <span className="sm:hidden">Settings</span>
                 </Button>
               </div>
             </div>
@@ -290,7 +292,7 @@ function AdminDashboard() {
         {/* Main Content */}
         <main className="container mx-auto px-4 py-6 max-w-5xl">
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Users</CardTitle>

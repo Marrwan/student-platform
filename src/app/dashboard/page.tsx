@@ -187,31 +187,38 @@ function StudentDashboard() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Student Dashboard</h1>
-          </div>
-          <div className="flex justify-between items-center">
+        <div className="container mx-auto px-4 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                Student Dashboard
+              </h1>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
                 Welcome back, {user?.firstName}!
               </h1>
-              <p className="text-gray-600 dark:text-gray-300">
+              <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">
                 Continue your learning journey
               </p>
             </div>
-            <div className="flex items-center space-x-4">
-              <Button variant="outline" onClick={() => router.push('/classes')}>
+            <div className="flex flex-wrap gap-2 sm:gap-4">
+              <Button variant="outline" onClick={() => router.push('/classes')} size="sm" className="flex-1 sm:flex-none">
                 <BookOpen className="h-4 w-4 mr-2" />
-                Join Class
+                <span className="hidden sm:inline">Join Class</span>
+                <span className="sm:hidden">Classes</span>
               </Button>
-              <Button variant="outline">
+              <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
                 <Bell className="h-4 w-4 mr-2" />
-                Notifications
+                <span className="hidden sm:inline">Notifications</span>
+                <span className="sm:hidden">Alerts</span>
               </Button>
-              <Button variant="outline">
+              <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
                 <Settings className="h-4 w-4 mr-2" />
-                Settings
+                <span className="hidden sm:inline">Settings</span>
+                <span className="sm:hidden">Settings</span>
               </Button>
             </div>
           </div>
@@ -219,16 +226,16 @@ function StudentDashboard() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-6 max-w-4xl">
+      <main className="container mx-auto px-4 py-4 sm:py-6 max-w-4xl">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Score</CardTitle>
               <Trophy className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{progressStats.totalScore}</div>
+              <div className="text-xl sm:text-2xl font-bold">{progressStats.totalScore}</div>
               <p className="text-xs text-muted-foreground">
                 Rank #{progressStats.rank} of {progressStats.totalStudents}
               </p>
@@ -241,7 +248,7 @@ function StudentDashboard() {
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{progressStats.currentStreak} days</div>
+              <div className="text-xl sm:text-2xl font-bold">{progressStats.currentStreak} days</div>
               <p className="text-xs text-muted-foreground">
                 Keep it up! 🔥
               </p>
@@ -254,7 +261,7 @@ function StudentDashboard() {
               <Target className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{completionRate}%</div>
+              <div className="text-xl sm:text-2xl font-bold">{completionRate}%</div>
               <p className="text-xs text-muted-foreground">
                 {progressStats.completedProjects} of {progressStats.totalProjects} projects
               </p>
@@ -267,7 +274,7 @@ function StudentDashboard() {
               <Star className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{progressStats.averageScore}%</div>
+              <div className="text-xl sm:text-2xl font-bold">{progressStats.averageScore}%</div>
               <p className="text-xs text-muted-foreground">
                 Excellent performance!
               </p>
@@ -278,30 +285,30 @@ function StudentDashboard() {
         {/* Quick Access Section */}
         <div className="mb-6">
           <h2 className="text-lg font-semibold mb-4">Quick Access</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push('/projects')}>
-              <CardContent className="p-6 text-center">
-                <Code className="h-8 w-8 mx-auto mb-3 text-blue-600" />
-                <h3 className="font-semibold mb-2">Programming Projects</h3>
-                <p className="text-sm text-gray-600 mb-3">Complete daily coding challenges and improve your skills</p>
+              <CardContent className="p-4 sm:p-6 text-center">
+                <Code className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-3 text-blue-600" />
+                <h3 className="font-semibold mb-2 text-sm sm:text-base">Programming Projects</h3>
+                <p className="text-xs sm:text-sm text-gray-600 mb-3">Complete daily coding challenges and improve your skills</p>
                 <Button size="sm" className="w-full">View Projects</Button>
               </CardContent>
             </Card>
             
             <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push('/classes')}>
-              <CardContent className="p-6 text-center">
-                <BookOpen className="h-8 w-8 mx-auto mb-3 text-green-600" />
-                <h3 className="font-semibold mb-2">Join Classes</h3>
-                <p className="text-sm text-gray-600 mb-3">Enroll in classes and participate in structured learning</p>
+              <CardContent className="p-4 sm:p-6 text-center">
+                <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-3 text-green-600" />
+                <h3 className="font-semibold mb-2 text-sm sm:text-base">Join Classes</h3>
+                <p className="text-xs sm:text-sm text-gray-600 mb-3">Enroll in classes and participate in structured learning</p>
                 <Button size="sm" className="w-full">Join Classes</Button>
               </CardContent>
             </Card>
             
             <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push('/assignments')}>
-              <CardContent className="p-6 text-center">
-                <FileText className="h-8 w-8 mx-auto mb-3 text-purple-600" />
-                <h3 className="font-semibold mb-2">Class Assignments</h3>
-                <p className="text-sm text-gray-600 mb-3">Submit assignments and track your academic progress</p>
+              <CardContent className="p-4 sm:p-6 text-center">
+                <FileText className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-3 text-purple-600" />
+                <h3 className="font-semibold mb-2 text-sm sm:text-base">Class Assignments</h3>
+                <p className="text-xs sm:text-sm text-gray-600 mb-3">Submit assignments and track your academic progress</p>
                 <Button size="sm" className="w-full">View Assignments</Button>
               </CardContent>
             </Card>
@@ -311,24 +318,24 @@ function StudentDashboard() {
         {/* Join Class Call-to-Action */}
         <div className="mb-6">
           <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-blue-900 mb-2">Ready to Learn?</h3>
-                  <p className="text-blue-700 mb-4">Join a class to get structured learning, assignments, and instructor guidance.</p>
-                  <div className="flex gap-2">
-                    <Button onClick={() => router.push('/classes')} className="bg-blue-600 hover:bg-blue-700">
+                  <h3 className="text-base sm:text-lg font-semibold text-blue-900 mb-2">Ready to Learn?</h3>
+                  <p className="text-blue-700 mb-4 text-sm sm:text-base">Join a class to get structured learning, assignments, and instructor guidance.</p>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button onClick={() => router.push('/classes')} className="bg-blue-600 hover:bg-blue-700" size="sm">
                       <BookOpen className="h-4 w-4 mr-2" />
                       Browse Classes
                     </Button>
-                    <Button variant="outline" onClick={() => router.push('/student-guide')}>
+                    <Button variant="outline" onClick={() => router.push('/student-guide')} size="sm">
                       <Info className="h-4 w-4 mr-2" />
                       Learn How
                     </Button>
                   </div>
                 </div>
-                <div className="hidden md:block">
-                  <BookOpen className="h-16 w-16 text-blue-400" />
+                <div className="hidden sm:block">
+                  <BookOpen className="h-12 w-12 sm:h-16 sm:w-16 text-blue-400" />
                 </div>
               </div>
             </CardContent>
@@ -339,10 +346,10 @@ function StudentDashboard() {
         <div className="mb-6">
           <h2 className="text-lg font-semibold mb-2">Recent Notifications</h2>
           <div className="space-y-2">
-            {recentNotifications.length === 0 && <div className="text-gray-500">No notifications</div>}
+            {recentNotifications.length === 0 && <div className="text-gray-500 text-sm">No notifications</div>}
             {recentNotifications.map(n => (
               <div key={n.id} className={`p-3 rounded border ${!n.isRead ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'}`}>
-                <div className="font-medium">{n.title}</div>
+                <div className="font-medium text-sm sm:text-base">{n.title}</div>
                 <div className="text-sm text-gray-600">{n.content}</div>
                 <div className="text-xs text-gray-400 mt-1">{new Date(n.createdAt).toLocaleString()}</div>
               </div>
@@ -354,10 +361,10 @@ function StudentDashboard() {
         <div className="mb-6">
           <h2 className="text-lg font-semibold mb-2">Recent Payments</h2>
           <div className="space-y-2">
-            {recentPayments.length === 0 && <div className="text-gray-500">No recent payments</div>}
+            {recentPayments.length === 0 && <div className="text-gray-500 text-sm">No recent payments</div>}
             {recentPayments.map(p => (
               <div key={p.id} className={`p-3 rounded border ${p.status === 'successful' ? 'bg-green-50 border-green-200' : p.status === 'pending' ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200'}`}>
-                <div className="font-medium">{p.type === 'late_fee' ? 'Late Fee' : p.type}</div>
+                <div className="font-medium text-sm sm:text-base">{p.type === 'late_fee' ? 'Late Fee' : p.type}</div>
                 <div className="text-sm text-gray-600">Amount: ₦{p.amount}</div>
                 <div className="text-xs text-gray-400 mt-1">{new Date(p.createdAt).toLocaleString()} - {p.status}</div>
               </div>
@@ -365,18 +372,18 @@ function StudentDashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Today's Project */}
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
-                <div className="flex justify-between items-start">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                   <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Calendar className="h-5 w-5" />
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                      <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
                       Current Assignment
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-sm">
                       {todayProject ? 'Your current assignment' : 'No assignment available'}
                     </CardDescription>
                   </div>
@@ -389,28 +396,28 @@ function StudentDashboard() {
               </CardHeader>
               <CardContent>
                 {todayProject ? (
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6">
                     <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-xl font-semibold">{todayProject.title}</h3>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                        <h3 className="text-lg sm:text-xl font-semibold">{todayProject.title}</h3>
                         {todayProject.class && (
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge variant="secondary" className="text-xs w-fit">
                             {todayProject.class}
                           </Badge>
                         )}
                       </div>
-                      <p className="text-gray-600 dark:text-gray-300 mb-4">
+                      <p className="text-gray-600 dark:text-gray-300 mb-4 text-sm sm:text-base">
                         {todayProject.description}
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <Clock className="h-4 w-4 text-muted-foreground" />
                           <span className="text-sm font-medium">Time Remaining</span>
                         </div>
-                        <div className={`text-lg font-bold ${todayProject.isOverdue ? 'text-red-600' : 'text-green-600'}`}>
+                        <div className={`text-base sm:text-lg font-bold ${todayProject.isOverdue ? 'text-red-600' : 'text-green-600'}`}>
                           {todayProject.timeRemaining}
                         </div>
                         {todayProject.isOverdue && (
@@ -430,7 +437,7 @@ function StudentDashboard() {
                     </div>
 
                     <div className="space-y-3">
-                      <h4 className="font-medium">Requirements:</h4>
+                      <h4 className="font-medium text-sm sm:text-base">Requirements:</h4>
                       <ul className="space-y-2">
                         {Array.isArray(todayProject.requirements) ? todayProject.requirements.map((req: string, index: number) => (
                           <li key={index} className="flex items-start gap-2 text-sm">
@@ -446,10 +453,11 @@ function StudentDashboard() {
                       </ul>
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex flex-col sm:flex-row gap-3">
                       <Button 
                         className="flex-1" 
                         onClick={() => router.push(`/assignments/${todayProject.id}`)}
+                        size="sm"
                       >
                         <Eye className="h-4 w-4 mr-2" />
                         View Assignment
@@ -458,6 +466,7 @@ function StudentDashboard() {
                         variant="outline" 
                         className="flex-1"
                         onClick={() => router.push(`/assignments/${todayProject.id}`)}
+                        size="sm"
                       >
                         <Upload className="h-4 w-4 mr-2" />
                         Submit Work
@@ -465,15 +474,15 @@ function StudentDashboard() {
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-8">
-                    <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                  <div className="text-center py-6 sm:py-8">
+                    <BookOpen className="h-8 w-8 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-2">
                       No Assignments Available
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-300 mb-4">
+                    <p className="text-gray-600 dark:text-gray-300 mb-4 text-sm sm:text-base">
                       {(todayProjectData as TodayProjectResponse)?.message || 'Join a class to see assignments'}
                     </p>
-                    <Button onClick={() => router.push('/classes')} className="mt-2">
+                    <Button onClick={() => router.push('/classes')} className="mt-2" size="sm">
                       <BookOpen className="h-4 w-4 mr-2" />
                       Browse Classes
                     </Button>
@@ -488,30 +497,30 @@ function StudentDashboard() {
             {/* Quick Actions */}
             <Card>
               <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/assignments')}>
+                <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/assignments')} size="sm">
                   <Code className="h-4 w-4 mr-2" />
                   View All Assignments
                 </Button>
-                <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/classes')}>
+                <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/classes')} size="sm">
                   <BookOpen className="h-4 w-4 mr-2" />
                   View Classes
                 </Button>
-                <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/assignments')}>
+                <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/assignments')} size="sm">
                   <FileText className="h-4 w-4 mr-2" />
                   View Assignments
                 </Button>
-                <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/leaderboard')}>
+                <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/leaderboard')} size="sm">
                   <Trophy className="h-4 w-4 mr-2" />
                   View Leaderboard
                 </Button>
-                <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/progress')}>
+                <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/progress')} size="sm">
                   <Activity className="h-4 w-4 mr-2" />
                   Track Progress
                 </Button>
-                <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/student-guide')}>
+                <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/student-guide')} size="sm">
                   <BookOpen className="h-4 w-4 mr-2" />
                   Student Guide
                 </Button>
@@ -521,7 +530,7 @@ function StudentDashboard() {
             {/* Progress Overview */}
             <Card>
               <CardHeader>
-                <CardTitle>Progress Overview</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Progress Overview</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -534,19 +543,19 @@ function StudentDashboard() {
 
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div className="text-center">
-                    <div className="text-lg font-bold text-green-600">{progressStats.completedProjects}</div>
+                    <div className="text-base sm:text-lg font-bold text-green-600">{progressStats.completedProjects}</div>
                     <div className="text-muted-foreground">Completed</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-lg font-bold text-yellow-600">{progressStats.pendingProjects}</div>
+                    <div className="text-base sm:text-lg font-bold text-yellow-600">{progressStats.pendingProjects}</div>
                     <div className="text-muted-foreground">Pending</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-lg font-bold text-red-600">{progressStats.missedProjects}</div>
+                    <div className="text-base sm:text-lg font-bold text-red-600">{progressStats.missedProjects}</div>
                     <div className="text-muted-foreground">Missed</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-lg font-bold text-blue-600">{progressStats.averageScore}%</div>
+                    <div className="text-base sm:text-lg font-bold text-blue-600">{progressStats.averageScore}%</div>
                     <div className="text-muted-foreground">Avg Score</div>
                   </div>
                 </div>
@@ -556,11 +565,11 @@ function StudentDashboard() {
         </div>
 
         {/* Recent Submissions */}
-        <div className="mt-8">
+        <div className="mt-6 sm:mt-8">
           <Card>
             <CardHeader>
-              <CardTitle>Recent Submissions</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-base sm:text-lg">Recent Submissions</CardTitle>
+              <CardDescription className="text-sm">
                 Your latest project submissions and feedback
               </CardDescription>
             </CardHeader>
@@ -568,12 +577,12 @@ function StudentDashboard() {
               {recentSubmissions.length > 0 ? (
                 <div className="space-y-4">
                   {recentSubmissions.map((submission) => (
-                    <div key={submission.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div key={submission.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg gap-3">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-medium">{submission.projectTitle}</h4>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
+                          <h4 className="font-medium text-sm sm:text-base">{submission.projectTitle}</h4>
                           {submission.class && (
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline" className="text-xs w-fit">
                               {submission.class}
                             </Badge>
                           )}
@@ -587,14 +596,14 @@ function StudentDashboard() {
                           </p>
                         )}
                       </div>
-                      <div className="flex items-center gap-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                         <Badge className={getStatusColor(submission.status)}>
                           {submission.status.charAt(0).toUpperCase() + submission.status.slice(1)}
                         </Badge>
                         {submission.score && (
                           <Badge variant="secondary">{submission.score}/100</Badge>
                         )}
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" className="w-full sm:w-auto">
                           <Eye className="h-4 w-4" />
                         </Button>
                       </div>
@@ -602,12 +611,12 @@ function StudentDashboard() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8">
-                  <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                <div className="text-center py-6 sm:py-8">
+                  <FileText className="h-8 w-8 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-2">
                     No Submissions Yet
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-300">
+                  <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">
                     Start working on your first project to see submissions here
                   </p>
                 </div>
@@ -617,25 +626,25 @@ function StudentDashboard() {
         </div>
 
         {/* Achievement & Streak */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Award className="h-5 w-5 text-yellow-600" />
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <Award className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600" />
                 Current Streak
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-center">
-                <div className="text-3xl font-bold text-yellow-600 mb-2">
+                <div className="text-2xl sm:text-3xl font-bold text-yellow-600 mb-2">
                   {progressStats.currentStreak} days
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                   Keep it up! You're on fire! 🔥
                 </p>
-                <div className="flex justify-center space-x-2">
-                  <Badge variant="outline">+10 bonus points</Badge>
-                  <Badge variant="outline">7-day streak</Badge>
+                <div className="flex flex-wrap justify-center gap-2">
+                  <Badge variant="outline" className="text-xs">+10 bonus points</Badge>
+                  <Badge variant="outline" className="text-xs">7-day streak</Badge>
                 </div>
               </div>
             </CardContent>
@@ -643,22 +652,22 @@ function StudentDashboard() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-blue-600" />
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                 Leaderboard Rank
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-2">
+                <div className="text-2xl sm:text-3xl font-bold text-blue-600 mb-2">
                   #{progressStats.rank}
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                   Out of {progressStats.totalStudents} students
                 </p>
-                <div className="flex justify-center space-x-2">
-                  <Badge variant="outline">Top 1%</Badge>
-                  <Badge variant="outline">Elite</Badge>
+                <div className="flex flex-wrap justify-center gap-2">
+                  <Badge variant="outline" className="text-xs">Top 1%</Badge>
+                  <Badge variant="outline" className="text-xs">Elite</Badge>
                 </div>
               </div>
             </CardContent>
@@ -667,8 +676,8 @@ function StudentDashboard() {
 
         <div className="mb-6">
           <h2 className="text-lg font-semibold mb-2">Rules & Penalties</h2>
-          <div className="text-gray-600 mb-2">All tasks are time-bound. Late = deduction. Missed = 0. Repeat plagiarism = flagged/disqualified. See full rules for details.</div>
-          <a href="/rules" className="text-blue-600 underline">View Full Rules</a>
+          <div className="text-gray-600 mb-2 text-sm sm:text-base">All tasks are time-bound. Late = deduction. Missed = 0. Repeat plagiarism = flagged/disqualified. See full rules for details.</div>
+          <a href="/rules" className="text-blue-600 underline text-sm sm:text-base">View Full Rules</a>
         </div>
       </main>
     </div>

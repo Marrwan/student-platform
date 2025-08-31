@@ -147,6 +147,9 @@ export default function AssignmentDetailPage() {
       const response = await api.getMySubmission(assignmentId);
       const canEditResponse = await api.canEditSubmission(assignmentId);
       
+      console.log('Submission response:', response);
+      console.log('Can edit response:', canEditResponse);
+      
       if (response && response.submission) {
         // Parse codeSubmission if it's a string
         if (typeof response.submission.codeSubmission === 'string') {
@@ -158,16 +161,22 @@ export default function AssignmentDetailPage() {
         }
         setSubmission(response.submission);
       } else {
+        // No submission exists yet - this is normal for new students
         setSubmission(null);
       }
       
       setCanEdit(canEditResponse.canEdit);
       setEditReason(canEditResponse.reason);
-    } catch (error) {
+      
+      console.log('Final state - submission:', response?.submission || null);
+      console.log('Final state - canEdit:', canEditResponse.canEdit);
+      console.log('Final state - canSubmit():', canSubmit());
+    } catch (error: any) {
       console.error('Error loading submission:', error);
+      // If there's a real error, still allow submission if deadline hasn't passed
       setSubmission(null);
-      setCanEdit(false);
-      setEditReason('Error loading submission');
+      setCanEdit(true);
+      setEditReason('No submission found - you can submit');
     }
   };
 
@@ -348,21 +357,21 @@ export default function AssignmentDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-6 lg:py-8">
+      <div className="container mx-auto px-4 py-4 sm:py-6 lg:py-8">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 lg:mb-8 gap-4">
-          <div className="flex items-center gap-3 lg:gap-4">
+        <div className="flex flex-col space-y-4 mb-6 lg:mb-8">
+          <div className="flex items-center gap-3">
             <Button 
               variant="outline" 
               size="sm"
               onClick={() => router.back()}
-              className="shrink-0"
+              className="shrink-0 h-10 w-10 p-0 sm:h-9 sm:w-auto sm:px-3"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Back</span>
             </Button>
             <div className="min-w-0 flex-1">
-              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 truncate">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 truncate">
                 {assignment.title}
               </h1>
               <p className="text-gray-600 mt-1 text-sm lg:text-base">
@@ -371,7 +380,7 @@ export default function AssignmentDetailPage() {
             </div>
           </div>
           
-          <div className="flex gap-2 w-full lg:w-auto">
+          <div className="flex flex-wrap gap-2">
             {submission && getSubmissionStatusBadge(submission.status)}
             {isDeadlinePassed() && (
               <Badge variant="destructive">
@@ -383,14 +392,14 @@ export default function AssignmentDetailPage() {
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className={`grid w-full h-auto lg:h-10 ${isAdmin() ? 'grid-cols-4' : 'grid-cols-3'}`}>
-            <TabsTrigger value="details" className="text-xs lg:text-sm">Details</TabsTrigger>
-            <TabsTrigger value="sample" className="text-xs lg:text-sm">Sample Output</TabsTrigger>
+          <TabsList className={`grid w-full h-auto ${isAdmin() ? 'grid-cols-4' : 'grid-cols-3'} gap-1 p-1`}>
+            <TabsTrigger value="details" className="text-xs sm:text-sm py-2">Details</TabsTrigger>
+            <TabsTrigger value="sample" className="text-xs sm:text-sm py-2">Sample Output</TabsTrigger>
             {!isAdmin() && (
-              <TabsTrigger value="submit" className="text-xs lg:text-sm">Submit</TabsTrigger>
+              <TabsTrigger value="submit" className="text-xs sm:text-sm py-2">Submit</TabsTrigger>
             )}
             {isAdmin() && (
-              <TabsTrigger value="submissions" className="text-xs lg:text-sm">Submissions</TabsTrigger>
+              <TabsTrigger value="submissions" className="text-xs sm:text-sm py-2">Submissions</TabsTrigger>
             )}
           </TabsList>
 
@@ -403,7 +412,7 @@ export default function AssignmentDetailPage() {
                     <CardTitle>Description</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-700 whitespace-pre-wrap">{assignment.description}</p>
+                    <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base">{assignment.description}</p>
                   </CardContent>
                 </Card>
 
@@ -412,7 +421,7 @@ export default function AssignmentDetailPage() {
                     <CardTitle>Requirements</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-700 whitespace-pre-wrap">{assignment.requirements}</p>
+                    <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base">{assignment.requirements}</p>
                   </CardContent>
                 </Card>
               </div>
@@ -423,26 +432,26 @@ export default function AssignmentDetailPage() {
                     <CardTitle>Assignment Info</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                                          <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm text-gray-600">
-                          Start: {assignment.startDate ? new Date(assignment.startDate).toLocaleDateString() : 'Not set'}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm text-gray-600">
-                          Deadline: {assignment.deadline ? new Date(assignment.deadline).toLocaleDateString() : 'Not set'}
-                        </span>
-                      </div>
                     <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-gray-500" />
+                      <Calendar className="w-4 h-4 text-gray-500 shrink-0" />
+                      <span className="text-sm text-gray-600">
+                        Start: {assignment.startDate ? new Date(assignment.startDate).toLocaleDateString() : 'Not set'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-gray-500 shrink-0" />
+                      <span className="text-sm text-gray-600">
+                        Deadline: {assignment.deadline ? new Date(assignment.deadline).toLocaleDateString() : 'Not set'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-gray-500 shrink-0" />
                       <span className="text-sm text-gray-600">
                         Max Score: {assignment.maxScore} points
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Upload className="w-4 h-4 text-gray-500" />
+                      <Upload className="w-4 h-4 text-gray-500 shrink-0" />
                       <span className="text-sm text-gray-600">
                         Submission: {assignment.submissionMode}
                       </span>
@@ -476,14 +485,14 @@ export default function AssignmentDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-2 mb-4">
-                    <ExternalLink className="w-4 h-4" />
+                    <ExternalLink className="w-4 h-4 shrink-0" />
                     <span className="font-medium">Sample Output URL</span>
                   </div>
                   <a 
                     href={assignment.sampleOutputUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline break-all"
+                    className="text-blue-600 hover:underline break-all text-sm sm:text-base"
                   >
                     {assignment.sampleOutputUrl}
                   </a>
@@ -499,12 +508,13 @@ export default function AssignmentDetailPage() {
                   <CardTitle>Sample Output Preview</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="bg-gray-50 rounded-lg p-4 min-h-[400px]">
+                  <div className="bg-gray-50 rounded-lg p-2 sm:p-4 min-h-[300px] sm:min-h-[400px]">
                     <iframe
                       srcDoc={`
                         <!DOCTYPE html>
                         <html>
                         <head>
+                          <meta name="viewport" content="width=device-width, initial-scale=1">
                           <style>${assignment.sampleOutputCode.css || ''}</style>
                         </head>
                         <body>
@@ -513,7 +523,7 @@ export default function AssignmentDetailPage() {
                         </body>
                         </html>
                       `}
-                      className="w-full h-full min-h-[350px] border rounded"
+                      className="w-full h-full min-h-[250px] sm:min-h-[350px] border rounded"
                       title="Sample Output Preview"
                     />
                   </div>
@@ -521,10 +531,10 @@ export default function AssignmentDetailPage() {
               </Card>
             ) : (
               <Card>
-                <CardContent className="flex flex-col items-center justify-center py-12">
-                  <Eye className="w-12 h-12 text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Sample Output</h3>
-                  <p className="text-gray-600 text-center">
+                <CardContent className="flex flex-col items-center justify-center py-8 sm:py-12">
+                  <Eye className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mb-4" />
+                  <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2 text-center">No Sample Output</h3>
+                  <p className="text-gray-600 text-center text-sm sm:text-base">
                     No sample output has been provided for this assignment.
                   </p>
                   {isAdmin() && (
@@ -532,6 +542,7 @@ export default function AssignmentDetailPage() {
                       <Button 
                         onClick={() => router.push(`/admin/assignments/${assignmentId}/edit`)}
                         variant="outline"
+                        size="sm"
                       >
                         Edit Assignment
                       </Button>
@@ -550,16 +561,16 @@ export default function AssignmentDetailPage() {
                   <CardTitle>Your Submission</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <span className="text-sm text-gray-600">Status</span>
                     {getSubmissionStatusBadge(submission.status)}
                   </div>
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <span className="text-sm text-gray-600">Submitted</span>
                     <span className="text-sm">{new Date(submission.submittedAt).toLocaleString()}</span>
                   </div>
                   {submission.score && (
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                       <span className="text-sm text-gray-600">Score</span>
                       <span className="text-sm font-medium">{submission.score}/{assignment.maxScore}</span>
                     </div>
@@ -574,10 +585,10 @@ export default function AssignmentDetailPage() {
                   {/* Submission Preview */}
                   {submission.submissionType === 'code' && submission.codeSubmission && (
                     <div className="border rounded-lg overflow-hidden">
-                      <div className="bg-gray-100 px-4 py-2 border-b">
+                      <div className="bg-gray-100 px-3 sm:px-4 py-2 border-b">
                         <span className="text-sm font-medium text-gray-700">Your Code Output</span>
                       </div>
-                      <div className="bg-white p-4">
+                      <div className="bg-white p-2 sm:p-4">
                         <iframe
                           key={`submission-preview-${submission.id}`}
                           srcDoc={`
@@ -594,7 +605,7 @@ export default function AssignmentDetailPage() {
                               </body>
                             </html>
                           `}
-                          className="w-full h-64 border-0 rounded"
+                          className="w-full h-48 sm:h-64 border-0 rounded"
                           title="Submission Preview"
                           sandbox="allow-scripts allow-same-origin"
                         />
@@ -604,14 +615,14 @@ export default function AssignmentDetailPage() {
                   
                   {submission.submissionType === 'link' && submission.submissionLink && (
                     <div className="border rounded-lg overflow-hidden">
-                      <div className="bg-gray-100 px-4 py-2 border-b">
+                      <div className="bg-gray-100 px-3 sm:px-4 py-2 border-b">
                         <span className="text-sm font-medium text-gray-700">Your Deployed Site</span>
                       </div>
-                      <div className="bg-white p-4">
+                      <div className="bg-white p-2 sm:p-4">
                         <iframe
                           key={`submission-link-${submission.id}`}
                           src={submission.submissionLink}
-                          className="w-full h-64 border-0 rounded"
+                          className="w-full h-48 sm:h-64 border-0 rounded"
                           title="Link Preview"
                           sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
                         />
@@ -624,7 +635,7 @@ export default function AssignmentDetailPage() {
                     {canEdit ? (
                       <div className="space-y-3">
                         <div className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          <CheckCircle className="w-4 h-4 text-green-600 shrink-0" />
                           <span className="text-sm text-green-700 font-medium">You can edit your submission</span>
                         </div>
                         <p className="text-sm text-gray-600">
@@ -634,7 +645,7 @@ export default function AssignmentDetailPage() {
                     ) : (
                       <div className="space-y-3">
                         <div className="flex items-center gap-2">
-                          <XCircle className="w-4 h-4 text-red-600" />
+                          <XCircle className="w-4 h-4 text-red-600 shrink-0" />
                           <span className="text-sm text-red-700 font-medium">Editing not allowed</span>
                         </div>
                         <p className="text-sm text-gray-600">
@@ -647,8 +658,8 @@ export default function AssignmentDetailPage() {
               </Card>
             )}
 
-            {/* Submission Form - Always show when can submit or can edit */}
-            {(canSubmit() || (submission && canEdit)) ? (
+            {/* Submission Form - Show for new submissions or when can edit existing */}
+            {(canSubmit() || canEdit) ? (
               <Card>
                 <CardHeader>
                   <CardTitle>{submission ? 'Edit Submission' : 'Submit Assignment'}</CardTitle>
@@ -664,9 +675,9 @@ export default function AssignmentDetailPage() {
                   ) : (
                     <form onSubmit={handleSubmit} className="space-y-4">
                       {submission && (
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mb-4">
                           <div className="flex items-center gap-2 mb-2">
-                            <Edit className="w-4 h-4 text-blue-600" />
+                            <Edit className="w-4 h-4 text-blue-600 shrink-0" />
                             <span className="text-sm font-medium text-blue-800">Edit Your Submission</span>
                           </div>
                           <p className="text-sm text-blue-700">
@@ -676,7 +687,7 @@ export default function AssignmentDetailPage() {
                       )}
                       
                       <div>
-                        <Label htmlFor="submissionType">Submission Type</Label>
+                        <Label htmlFor="submissionType" className="text-sm sm:text-base">Submission Type</Label>
                         <select
                           id="submissionType"
                           value={submissionData.submissionType}
@@ -684,7 +695,7 @@ export default function AssignmentDetailPage() {
                             ...prev, 
                             submissionType: e.target.value as 'code' | 'link' | 'zip' 
                           }))}
-                          className="w-full p-2 border rounded-md"
+                          className="w-full p-2 sm:p-3 border rounded-md text-sm sm:text-base"
                         >
                           {assignment.submissionMode === 'both' && (
                             <>
@@ -705,7 +716,7 @@ export default function AssignmentDetailPage() {
                       {submissionData.submissionType === 'code' && (
                         <div className="space-y-4">
                           <div>
-                            <Label htmlFor="html">HTML</Label>
+                            <Label htmlFor="html" className="text-sm sm:text-base">HTML</Label>
                             <Textarea
                               id="html"
                               value={submissionData.codeSubmission.html}
@@ -721,11 +732,12 @@ export default function AssignmentDetailPage() {
                               }}
                               placeholder="Enter your HTML code"
                               rows={6}
+                              className="text-sm sm:text-base"
                               required
                             />
                           </div>
                           <div>
-                            <Label htmlFor="css">CSS</Label>
+                            <Label htmlFor="css" className="text-sm sm:text-base">CSS</Label>
                             <Textarea
                               id="css"
                               value={submissionData.codeSubmission.css}
@@ -741,10 +753,11 @@ export default function AssignmentDetailPage() {
                               }}
                               placeholder="Enter your CSS code"
                               rows={6}
+                              className="text-sm sm:text-base"
                             />
                           </div>
                           <div>
-                            <Label htmlFor="javascript">JavaScript</Label>
+                            <Label htmlFor="javascript" className="text-sm sm:text-base">JavaScript</Label>
                             <Textarea
                               id="javascript"
                               value={submissionData.codeSubmission.javascript}
@@ -760,15 +773,16 @@ export default function AssignmentDetailPage() {
                               }}
                               placeholder="Enter your JavaScript code"
                               rows={6}
+                              className="text-sm sm:text-base"
                             />
                           </div>
                           
                           {/* Live Preview for Code */}
                           <div className="border rounded-lg overflow-hidden">
-                            <div className="bg-gray-100 px-4 py-2 border-b">
+                            <div className="bg-gray-100 px-3 sm:px-4 py-2 border-b">
                               <Label className="text-sm font-medium text-gray-700">Live Preview</Label>
                             </div>
-                            <div className="bg-white p-4">
+                            <div className="bg-white p-2 sm:p-4">
                               <iframe
                                 key={`preview-${previewKey}`}
                                 srcDoc={`
@@ -785,7 +799,7 @@ export default function AssignmentDetailPage() {
                                     </body>
                                   </html>
                                 `}
-                                className="w-full h-64 border-0 rounded"
+                                className="w-full h-48 sm:h-64 border-0 rounded"
                                 title="Code Preview"
                                 sandbox="allow-scripts allow-same-origin"
                               />
@@ -797,7 +811,7 @@ export default function AssignmentDetailPage() {
                       {submissionData.submissionType === 'link' && (
                         <div className="space-y-4">
                           <div>
-                            <Label htmlFor="submissionLink">Submission Link</Label>
+                            <Label htmlFor="submissionLink" className="text-sm sm:text-base">Submission Link</Label>
                             <Input
                               id="submissionLink"
                               type="url"
@@ -807,6 +821,7 @@ export default function AssignmentDetailPage() {
                                 submissionLink: e.target.value 
                               }))}
                               placeholder="https://github.com/your-repo or https://your-demo.com"
+                              className="text-sm sm:text-base"
                               required
                             />
                           </div>
@@ -814,14 +829,14 @@ export default function AssignmentDetailPage() {
                           {/* Live Preview for Link */}
                           {submissionData.submissionLink && (
                             <div className="border rounded-lg overflow-hidden">
-                              <div className="bg-gray-100 px-4 py-2 border-b">
+                              <div className="bg-gray-100 px-3 sm:px-4 py-2 border-b">
                                 <Label className="text-sm font-medium text-gray-700">Live Preview</Label>
                               </div>
-                              <div className="bg-white p-4">
+                              <div className="bg-white p-2 sm:p-4">
                                 <iframe
                                   key={`link-preview-${submissionData.submissionLink}`}
                                   src={submissionData.submissionLink}
-                                  className="w-full h-64 border-0 rounded"
+                                  className="w-full h-48 sm:h-64 border-0 rounded"
                                   title="Link Preview"
                                   sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
                                 />
@@ -833,7 +848,7 @@ export default function AssignmentDetailPage() {
 
                       {submissionData.submissionType === 'zip' && (
                         <div>
-                          <Label htmlFor="zipFile">Upload File</Label>
+                          <Label htmlFor="zipFile" className="text-sm sm:text-base">Upload File</Label>
                           <Input
                             id="zipFile"
                             type="file"
@@ -842,6 +857,7 @@ export default function AssignmentDetailPage() {
                               ...prev, 
                               zipFile: e.target.files?.[0] || null 
                             }))}
+                            className="text-sm sm:text-base"
                             required
                           />
                         </div>
@@ -850,7 +866,7 @@ export default function AssignmentDetailPage() {
                       <Button 
                         type="submit" 
                         disabled={submitting || !canEdit} 
-                        className="w-full"
+                        className="w-full h-11 sm:h-10"
                       >
                         {submitting ? 'Submitting...' : 
                          submission && canEdit ? 'Update Submission' : 'Submit Assignment'}
@@ -867,10 +883,10 @@ export default function AssignmentDetailPage() {
               </Card>
             ) : (
               <Card>
-                <CardContent className="flex flex-col items-center justify-center py-12">
-                  <XCircle className="w-12 h-12 text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Cannot Submit</h3>
-                  <p className="text-gray-600 text-center">
+                <CardContent className="flex flex-col items-center justify-center py-8 sm:py-12">
+                  <XCircle className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mb-4" />
+                  <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2 text-center">Cannot Submit</h3>
+                  <p className="text-gray-600 text-center text-sm sm:text-base">
                     {getSubmissionMessage()}
                   </p>
                 </CardContent>
@@ -887,29 +903,32 @@ export default function AssignmentDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="text-center p-6 border rounded-lg">
-                      <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">Submissions</h3>
-                      <p className="text-gray-600 mb-4">
+                    <div className="text-center p-4 sm:p-6 border rounded-lg">
+                      <FileText className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">Submissions</h3>
+                      <p className="text-gray-600 mb-4 text-sm sm:text-base">
                         View and manage all student submissions for this assignment.
                       </p>
                       <Button 
                         onClick={() => router.push(`/admin/assignments/${assignmentId}/submissions`)}
-                        className="bg-blue-600 hover:bg-blue-700"
+                        className="bg-blue-600 hover:bg-blue-700 w-full"
+                        size="sm"
                       >
                         View Submissions
                       </Button>
                     </div>
                     
-                    <div className="text-center p-6 border rounded-lg">
-                      <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">Edit Assignment</h3>
-                      <p className="text-gray-600 mb-4">
+                    <div className="text-center p-4 sm:p-6 border rounded-lg">
+                      <FileText className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">Edit Assignment</h3>
+                      <p className="text-gray-600 mb-4 text-sm sm:text-base">
                         Modify assignment details, requirements, and settings.
                       </p>
                       <Button 
                         onClick={() => router.push(`/admin/assignments/${assignmentId}/edit`)}
                         variant="outline"
+                        className="w-full"
+                        size="sm"
                       >
                         Edit Assignment
                       </Button>
@@ -918,13 +937,14 @@ export default function AssignmentDetailPage() {
                   
                   <div className="mt-6 pt-6 border-t">
                     <div className="text-center">
-                      <h3 className="text-lg font-medium text-red-900 mb-2">Danger Zone</h3>
-                      <p className="text-gray-600 mb-4">
+                      <h3 className="text-base sm:text-lg font-medium text-red-900 mb-2">Danger Zone</h3>
+                      <p className="text-gray-600 mb-4 text-sm sm:text-base">
                         Permanently delete this assignment and all related data.
                       </p>
                       <Button 
                         onClick={() => setShowDeleteModal(true)}
                         variant="destructive"
+                        size="sm"
                       >
                         Delete Assignment
                       </Button>

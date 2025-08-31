@@ -56,6 +56,34 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Ensure minimum touch target size for mobile */
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Improve text readability on mobile */
+  @media (max-width: 640px) {
+    html {
+      font-size: 14px;
+    }
+  }
+  
+  /* Ensure proper spacing for mobile */
+  .container {
+    @apply px-4;
+  }
+  
+  /* Improve form elements on mobile */
+  input, textarea, select {
+    @apply text-base;
+  }
+  
+  /* Ensure proper line height for readability */
+  p, span, div {
+    line-height: 1.5;
+  }
 }
 
 /* Custom scrollbar */

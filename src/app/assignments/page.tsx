@@ -232,11 +232,11 @@ function AssignmentsList() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-sm border-b">
-        <div className="container mx-auto px-4 py-6">
+        <div className="container mx-auto px-4 py-4 sm:py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Class Assignments</h1>
-              <p className="text-gray-600 dark:text-gray-300">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Class Assignments</h1>
+              <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">
                 View and submit your class assignments
               </p>
             </div>
@@ -297,7 +297,7 @@ function AssignmentsList() {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredAssignments.map((assignment) => (
               <Card 
                 key={assignment.id} 
