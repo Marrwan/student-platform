@@ -213,6 +213,42 @@ export default function AssignmentDetailPage() {
     setSubmitting(true);
 
     try {
+      console.log('Starting submission with data:', submissionData);
+      
+      // Validate form data
+      if (!submissionData.submissionType) {
+        toast.error('Please select a submission type');
+        setSubmitting(false);
+        return;
+      }
+
+      // Validate based on submission type
+      if (submissionData.submissionType === 'code') {
+        if (!submissionData.codeSubmission.html.trim()) {
+          toast.error('HTML code is required for code submissions');
+          setSubmitting(false);
+          return;
+        }
+      } else if (submissionData.submissionType === 'link') {
+        if (!submissionData.submissionLink?.trim()) {
+          toast.error('Submission link is required for link submissions');
+          setSubmitting(false);
+          return;
+        }
+      } else if (submissionData.submissionType === 'github') {
+        if (!submissionData.githubLink?.trim()) {
+          toast.error('GitHub link is required for GitHub submissions');
+          setSubmitting(false);
+          return;
+        }
+      } else if (submissionData.submissionType === 'zip') {
+        if (!submissionData.zipFile) {
+          toast.error('ZIP file is required for file uploads');
+          setSubmitting(false);
+          return;
+        }
+      }
+      
       // Prepare submit data based on submission type
       let submitData: any = {
         submissionType: submissionData.submissionType
@@ -229,13 +265,19 @@ export default function AssignmentDetailPage() {
         submitData.zipFile = submissionData.zipFile || undefined;
       }
 
+      console.log('Prepared submit data:', submitData);
+
       if (submission && canEdit) {
         // Update existing submission
-        await api.updateSubmission(assignmentId, submitData);
+        console.log('Updating existing submission...');
+        const result = await api.updateSubmission(assignmentId, submitData);
+        console.log('Update result:', result);
         toast.success('Assignment updated successfully!');
       } else {
         // Submit new submission
-        await api.submitAssignment(assignmentId, submitData);
+        console.log('Submitting new submission...');
+        const result = await api.submitAssignment(assignmentId, submitData);
+        console.log('Submit result:', result);
         toast.success('Assignment submitted successfully!');
       }
       
@@ -243,7 +285,12 @@ export default function AssignmentDetailPage() {
       api.clearCache(`my-submission:${assignmentId}`);
       await loadSubmission();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to submit assignment');
+      console.error('Submission error:', error);
+      console.error('Error response:', error.response);
+      console.error('Error message:', error.message);
+      
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to submit assignment';
+      toast.error(errorMessage);
     } finally {
       setSubmitting(false);
     }
