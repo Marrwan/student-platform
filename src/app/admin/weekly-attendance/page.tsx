@@ -284,6 +284,31 @@ function WeeklyAttendanceDashboard() {
     }
   };
 
+  const refreshAttendanceScores = async () => {
+    try {
+      setSaving(true);
+      
+      const response = await fetch(`/api/weekly-attendance/classes/${selectedClass}/attendance/refresh`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to refresh attendance scores');
+      }
+
+      const result = await response.json();
+      toast.success(result.message || 'Leaderboard refreshed successfully!');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to refresh leaderboard');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const getDayIcon = (value: boolean) => {
     return value ? (
       <CheckCircle className="w-4 h-4 text-green-600" />
@@ -356,7 +381,7 @@ function WeeklyAttendanceDashboard() {
                   )}
 
                   {selectedClass && selectedWeek && (
-                    <div className="pt-4">
+                    <div className="pt-4 space-y-2">
                       <Button 
                         onClick={saveAttendance} 
                         disabled={saving}
@@ -373,6 +398,16 @@ function WeeklyAttendanceDashboard() {
                             Save Attendance
                           </>
                         )}
+                      </Button>
+                      
+                      <Button 
+                        onClick={refreshAttendanceScores} 
+                        disabled={saving}
+                        variant="outline"
+                        className="w-full"
+                      >
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        Refresh Leaderboard
                       </Button>
                     </div>
                   )}
