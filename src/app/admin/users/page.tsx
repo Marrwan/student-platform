@@ -10,16 +10,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Users, 
-  Search, 
-  Filter, 
-  MoreHorizontal, 
-  Edit, 
-  Trash2, 
-  Eye, 
-  UserCheck, 
-  UserX, 
+import {
+  Users,
+  Search,
+  Filter,
+  MoreHorizontal,
+  Edit,
+  Trash2,
+  Eye,
+  UserCheck,
+  UserX,
   Mail,
   Calendar,
   Target,
@@ -55,7 +55,7 @@ export default function AdminUsersPage() {
     studentUsers: 0,
     newUsersThisMonth: 0
   });
-  
+
   // Filters and pagination
   const [filters, setFilters] = useState({
     search: '',
@@ -93,11 +93,11 @@ export default function AdminUsersPage() {
         role: filters.role === 'all' ? undefined : filters.role,
         status: filters.status === 'all' ? undefined : filters.status
       });
-      
+
       setUsers(response.users);
       setTotalPages(response.totalPages);
       setTotalUsers(response.total);
-      
+
       // Calculate stats
       const activeUsers = response.users.filter((u: UserType) => u.isActive).length;
       const inactiveUsers = response.users.filter((u: UserType) => !u.isActive).length;
@@ -201,7 +201,7 @@ export default function AdminUsersPage() {
       case 'admin':
         return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-200';
       case 'partial_admin':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-200';
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-200'; // Changed color for Staff
       case 'student':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200';
       default:
@@ -209,9 +209,22 @@ export default function AdminUsersPage() {
     }
   };
 
+  const getRoleDisplay = (role: string) => {
+    switch (role) {
+      case 'partial_admin':
+        return 'Staff';
+      case 'admin':
+        return 'Admin';
+      case 'student':
+        return 'Student';
+      default:
+        return role.charAt(0).toUpperCase() + role.slice(1);
+    }
+  };
+
   // Get status color
   const getStatusColor = (isActive: boolean) => {
-    return isActive 
+    return isActive
       ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200'
       : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-200';
   };
@@ -351,7 +364,7 @@ export default function AdminUsersPage() {
                       <SelectItem value="all">All Roles</SelectItem>
                       <SelectItem value="student">Student</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="partial_admin">Partial Admin</SelectItem>
+                      <SelectItem value="partial_admin">Staff</SelectItem>
                     </SelectContent>
                   </Select>
                   <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value, page: 1 })}>
@@ -390,7 +403,7 @@ export default function AdminUsersPage() {
                           </p>
                           <div className="flex gap-2 mt-1">
                             <Badge className={getRoleColor(user.role || 'student')}>
-                              {user.role || 'student'}
+                              {getRoleDisplay(user.role || 'student')}
                             </Badge>
                             <Badge className={getStatusColor(user.isActive || false)}>
                               {user.isActive ? 'Active' : 'Inactive'}
@@ -398,7 +411,7 @@ export default function AdminUsersPage() {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center gap-4">
                         <div className="text-right">
                           <div className="text-sm font-medium">{user.totalScore || 0}</div>
@@ -412,7 +425,7 @@ export default function AdminUsersPage() {
                           <div className="text-sm font-medium">{user.streakCount || 0}</div>
                           <div className="text-xs text-muted-foreground">Streak</div>
                         </div>
-                        
+
                         <div className="flex gap-2">
                           <Button
                             size="sm"
@@ -544,16 +557,16 @@ export default function AdminUsersPage() {
               </div>
               <div>
                 <Label htmlFor="role">Role</Label>
-                                 <Select value={editForm.role} onValueChange={(value) => setEditForm({ ...editForm, role: value as 'student' | 'admin' | 'partial_admin' })}>
-                   <SelectTrigger>
-                     <SelectValue />
-                   </SelectTrigger>
-                   <SelectContent>
-                     <SelectItem value="student">Student</SelectItem>
-                     <SelectItem value="partial_admin">Partial Admin</SelectItem>
-                     <SelectItem value="admin">Admin</SelectItem>
-                   </SelectContent>
-                 </Select>
+                <Select value={editForm.role} onValueChange={(value) => setEditForm({ ...editForm, role: value as 'student' | 'admin' | 'partial_admin' })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="student">Student</SelectItem>
+                    <SelectItem value="partial_admin">Staff</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex items-center space-x-2">
                 <input
@@ -588,8 +601,8 @@ export default function AdminUsersPage() {
                 This action cannot be undone.
               </p>
               <div className="flex gap-2">
-                <Button 
-                  variant="destructive" 
+                <Button
+                  variant="destructive"
                   onClick={() => handleDeleteUser(selectedUser.id)}
                   className="flex-1"
                 >
@@ -623,7 +636,7 @@ export default function AdminUsersPage() {
                   <p className="text-muted-foreground">{selectedUser.email}</p>
                   <div className="flex gap-2 mt-2">
                     <Badge className={getRoleColor(selectedUser.role || 'student')}>
-                      {selectedUser.role || 'student'}
+                      {getRoleDisplay(selectedUser.role || 'student')}
                     </Badge>
                     <Badge className={getStatusColor(selectedUser.isActive || false)}>
                       {selectedUser.isActive ? 'Active' : 'Inactive'}
@@ -645,12 +658,12 @@ export default function AdminUsersPage() {
                   <Label>Current Streak</Label>
                   <p className="text-2xl font-bold">{selectedUser.streakCount || 0}</p>
                 </div>
-                                 <div>
-                   <Label>Member Since</Label>
-                   <p className="text-sm text-muted-foreground">
-                     {selectedUser.createdAt ? new Date(selectedUser.createdAt).toLocaleDateString() : 'Unknown'}
-                   </p>
-                 </div>
+                <div>
+                  <Label>Member Since</Label>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedUser.createdAt ? new Date(selectedUser.createdAt).toLocaleDateString() : 'Unknown'}
+                  </p>
+                </div>
               </div>
 
               <div className="flex gap-2">
@@ -658,7 +671,7 @@ export default function AdminUsersPage() {
                   <Edit className="h-4 w-4 mr-2" />
                   Edit User
                 </Button>
-                <Button 
+                <Button
                   variant={selectedUser.isActive ? "destructive" : "default"}
                   onClick={() => handleToggleUserStatus(selectedUser.id, !selectedUser.isActive)}
                 >

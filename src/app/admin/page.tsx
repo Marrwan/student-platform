@@ -11,12 +11,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select as UISelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Users, 
-  Code, 
-  Trophy, 
-  BarChart3, 
-  Settings, 
+import {
+  Users,
+  Code,
+  Trophy,
+  BarChart3,
+  Settings,
   Plus,
   Eye,
   CheckCircle,
@@ -524,6 +524,12 @@ function AdminDashboard() {
                         label="Weekly Attendance"
                         gradient="linear-gradient(135deg, #6EE7B7 0%, #10B981 100%)"
                       />
+                      <DashboardActionButton
+                        onClick={() => router.push('/hrms/dashboard')}
+                        icon={Users}
+                        label="HRMS Dashboard"
+                        gradient="linear-gradient(135deg, #A5B4FC 0%, #4F46E5 100%)"
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -600,7 +606,7 @@ function AdminDashboard() {
                         </SelectContent>
                       </UISelect>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {allClasses.length === 0 ? (
                         <div className="col-span-3 text-center py-8">
@@ -628,24 +634,24 @@ function AdminDashboard() {
                                   <span>{classItem.completionRate || 0}%</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
-                                  <div 
-                                    className="bg-blue-600 h-2 rounded-full" 
+                                  <div
+                                    className="bg-blue-600 h-2 rounded-full"
                                     style={{ width: `${classItem.completionRate || 0}%` }}
                                   ></div>
                                 </div>
                                 <div className="flex gap-2 mt-4">
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline" 
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
                                     className="flex-1"
                                     onClick={() => router.push('/admin/classes')}
                                   >
                                     <Users className="h-4 w-4 mr-1" />
                                     Students
                                   </Button>
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline" 
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
                                     className="flex-1"
                                     onClick={() => router.push('/admin/classes')}
                                   >
@@ -696,7 +702,7 @@ function AdminDashboard() {
                         </SelectContent>
                       </UISelect>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {allProjects.length === 0 ? (
                         <div className="col-span-3 text-center py-8">
@@ -728,18 +734,18 @@ function AdminDashboard() {
                                   <span>{project.maxScore} points</span>
                                 </div>
                                 <div className="flex gap-2 mt-4">
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline" 
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
                                     className="flex-1"
                                     onClick={() => router.push(`/admin/projects/${project.id}`)}
                                   >
                                     <Eye className="h-4 w-4 mr-1" />
                                     View
                                   </Button>
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline" 
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
                                     className="flex-1"
                                     onClick={() => router.push(`/admin/projects/${project.id}/edit`)}
                                   >
@@ -783,7 +789,7 @@ function AdminDashboard() {
                         </SelectContent>
                       </UISelect>
                     </div>
-                    
+
                     <div className="space-y-4">
                       {quickSubmissions.map((submission) => (
                         <div key={submission.id} className="flex items-center justify-between p-4 border rounded-lg">
@@ -845,7 +851,7 @@ function AdminDashboard() {
                         </SelectContent>
                       </UISelect>
                     </div>
-                    
+
                     <div className="space-y-4">
                       {/* Mock user cards */}
                       <div className="flex items-center justify-between p-4 border rounded-lg">
@@ -899,7 +905,7 @@ function AdminDashboard() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-4">
                       <h3 className="font-semibold">Revenue Analytics</h3>
                       <div className="space-y-2">
@@ -989,9 +995,9 @@ function AdminDashboard() {
               <input type="text" className="w-full mb-2 p-2 border rounded" value={notifTitle} onChange={e => setNotifTitle(e.target.value)} required />
               <label className="block mb-2">Content</label>
               <div className="mb-2">
-                <RichTextEditor 
-                  value={notifContentMd} 
-                  onChange={setNotifContentMd} 
+                <RichTextEditor
+                  value={notifContentMd}
+                  onChange={setNotifContentMd}
                   height={200}
                   placeholder="Enter notification content..."
                 />
