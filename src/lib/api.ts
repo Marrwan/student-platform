@@ -1,38 +1,38 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import Cookies from 'js-cookie';
-import { 
-  User, 
-  Project, 
-  Submission, 
-  LeaderboardEntry, 
+import {
+  User,
+  Project,
+  Submission,
+  LeaderboardEntry,
   ClassLeaderboardEntry,
   ProjectLeaderboardEntry,
-  AuthResponse, 
+  AuthResponse,
   ApiResponse,
   PaginatedResponse,
-  ProjectStats, 
-  LeaderboardStats, 
-  PersonalStats, 
-  UserRank, 
-  LoginFormData, 
-  RegisterFormData, 
-  SubmissionFormData, 
-  ReviewFormData, 
-  ProjectFormData, 
-  Class, 
-  ClassEnrollment, 
-  Assignment, 
-  AssignmentSubmission, 
-  AssignmentGrade, 
-  Challenge, 
-  ChallengeRegistration, 
-  ChallengeLeaderboard, 
-  ChallengeAnnouncement, 
-  Payment, 
-  ClassFormData, 
-  AssignmentFormData, 
-  ChallengeFormData, 
-  PaymentFormData, 
+  ProjectStats,
+  LeaderboardStats,
+  PersonalStats,
+  UserRank,
+  LoginFormData,
+  RegisterFormData,
+  SubmissionFormData,
+  ReviewFormData,
+  ProjectFormData,
+  Class,
+  ClassEnrollment,
+  Assignment,
+  AssignmentSubmission,
+  AssignmentGrade,
+  Challenge,
+  ChallengeRegistration,
+  ChallengeLeaderboard,
+  ChallengeAnnouncement,
+  Payment,
+  ClassFormData,
+  AssignmentFormData,
+  ChallengeFormData,
+  PaymentFormData,
   PaystackResponse
 } from '@/types';
 
@@ -144,8 +144,8 @@ class ApiClient {
 
   // Generic cached request method
   private async cachedRequest<T>(
-    key: string, 
-    requestFn: () => Promise<T>, 
+    key: string,
+    requestFn: () => Promise<T>,
     ttl: number = 5 * 60 * 1000
   ): Promise<T> {
     // Check cache first
@@ -729,19 +729,19 @@ class ApiClient {
   }) {
     const formData = new FormData();
     formData.append('submissionType', data.submissionType);
-    
+
     if (data.githubLink) {
       formData.append('githubLink', data.githubLink);
     }
-    
+
     if (data.submissionLink) {
       formData.append('submissionLink', data.submissionLink);
     }
-    
+
     if (data.codeSubmission) {
       formData.append('codeSubmission', JSON.stringify(data.codeSubmission));
     }
-    
+
     if (data.zipFile) {
       formData.append('zipFile', data.zipFile);
     }
@@ -794,10 +794,63 @@ class ApiClient {
 
 
 
+  // HRMS & Appraisals
+  async getAppraisalCycles() {
+    return this.cachedRequest(
+      'appraisal-cycles',
+      async () => {
+        const response = await this.client.get('/appraisals/cycles');
+        return response.data;
+      },
+      5 * 60 * 1000
+    );
+  }
+
+  async getMyAppraisals() {
+    return this.cachedRequest(
+      'my-appraisals',
+      async () => {
+        const response = await this.client.get('/appraisals/my');
+        return response.data;
+      },
+      2 * 60 * 1000
+    );
+  }
+
+  async createObjective(appraisalId: string, data: any) {
+    const response = await this.client.post(`/appraisals/${appraisalId}/objectives`, data);
+    this.clearCache('my-appraisals');
+    return response.data;
+  }
+
+  // Payroll
+  async getMyPayrollHistory() {
+    return this.cachedRequest(
+      'my-payroll',
+      async () => {
+        const response = await this.client.get('/payroll/my');
+        return response.data;
+      },
+      5 * 60 * 1000
+    );
+  }
+
+  async getPayrollDetails(id: string) {
+    return this.cachedRequest(
+      `payroll:${id}`,
+      async () => {
+        const response = await this.client.get(`/payroll/${id}`);
+        return response.data;
+      },
+      5 * 60 * 1000
+    );
+  }
+
   async checkUserBlockStatus() {
     return this.cachedRequest(
       'user-block-status',
       async () => {
+
         const response = await this.client.get('/assignments/user/block-status');
         return response.data;
       },
