@@ -33,7 +33,7 @@ export default function PayslipPage({ params }: { params: { id: string } }) {
         <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden my-8 border border-gray-200">
             <div className="bg-gray-50 p-8 border-b border-gray-200 flex justify-between items-start">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">AFEX</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">STRANGEDEVLAB</h1>
                     <p className="text-xs text-gray-500 mt-2 max-w-xs">
                         11th Floor, Bank of Industry, Tower 2, House Plot 256, Zone A, Off Herbert Macaulay Way, Abuja
                     </p>
@@ -157,7 +157,7 @@ export default function PayslipPage({ params }: { params: { id: string } }) {
             </div>
 
             <div className="bg-red-600 text-white text-center py-1 text-xs font-bold">
-                AFEX Nigeria. 2024
+                STRANGEDEVLAB Nigeria. 2024
             </div>
         </div>
     );

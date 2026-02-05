@@ -18,7 +18,7 @@ export default function HRMSSidebar() {
     return (
         <aside className="w-64 bg-[#1e1b4b] text-gray-300 flex flex-col h-screen fixed left-0 top-0 overflow-y-auto">
             <div className="p-6">
-                <h1 className="text-2xl font-bold text-white mb-8">AFEX</h1>
+                <h1 className="text-2xl font-bold text-white mb-8">STRANGEDEVLAB</h1>
                 <nav className="space-y-2">
                     {navItems.map((item) => {
                         const isActive = pathname.startsWith(item.href);
