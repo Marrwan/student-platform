@@ -1153,6 +1153,14 @@ class ApiClient {
     return response.data;
   }
 
+  async verifyUser(userId: string): Promise<{ message: string; user: User }> {
+    const response: AxiosResponse<{ message: string; user: User }> = await this.client.patch(`/admin/users/${userId}/verify`, {});
+    // Clear admin users cache
+    this.clearCache('admin-users');
+    this.clearCache(`user-details:${userId}`);
+    return response.data;
+  }
+
   async getUserDetails(userId: string): Promise<{ user: User }> {
     return this.cachedRequest(
       `user-details:${userId}`,

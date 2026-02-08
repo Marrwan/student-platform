@@ -141,6 +141,17 @@ export default function AdminUsersPage() {
     }
   };
 
+  // Handle user verification
+  const handleVerifyUser = async (userId: string) => {
+    try {
+      await api.verifyUser(userId);
+      toast.success('User verified successfully');
+      loadUsers(); // Reload to get updated data
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to verify user');
+    }
+  };
+
   // Handle user deletion
   const handleDeleteUser = async (userId: string) => {
     try {
@@ -448,6 +459,17 @@ export default function AdminUsersPage() {
                           >
                             {user.isActive ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
                           </Button>
+                          {!user.emailVerified && (
+                            <Button
+                              size="sm"
+                              variant="default"
+                              className="bg-green-600 hover:bg-green-700"
+                              onClick={() => handleVerifyUser(user.id)}
+                              title="Verify Email Manually"
+                            >
+                              <Shield className="h-4 w-4" />
+                            </Button>
+                          )}
                           <Button
                             size="sm"
                             variant="destructive"
