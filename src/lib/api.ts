@@ -1269,6 +1269,11 @@ class ApiClient {
     return response.data;
   }
 
+  async resendAssignmentNotification(assignmentId: string): Promise<{ message: string; sentCount: number }> {
+    const response = await this.client.post(`/admin/assignments/${assignmentId}/notify`);
+    return response.data;
+  }
+
   async inviteAdminClassStudents(classId: string, data: { emails: string[]; message: string }): Promise<{ message: string }> {
     const response: AxiosResponse<{ message: string }> = await this.client.post(`/admin/classes/${classId}/invite`, data);
     return response.data;

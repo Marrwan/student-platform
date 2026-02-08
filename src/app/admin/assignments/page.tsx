@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
+import {
   Plus,
   Code,
   Calendar,
@@ -29,7 +29,8 @@ import {
   BookOpen,
   Users,
   TrendingUp,
-  DollarSign
+  DollarSign,
+  Bell
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import toast from 'react-hot-toast';
@@ -82,6 +83,7 @@ function AssignmentsManagement() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [deletingAssignment, setDeletingAssignment] = useState<string | null>(null);
+  const [resendingNotification, setResendingNotification] = useState<string | null>(null);
 
   // Form states
   const [formData, setFormData] = useState({
@@ -132,6 +134,19 @@ function AssignmentsManagement() {
       toast.error(error.response?.data?.message || 'Failed to delete assignment');
     } finally {
       setDeletingAssignment(null);
+    }
+  };
+
+  const handleResendNotification = async (assignmentId: string) => {
+    try {
+      setResendingNotification(assignmentId);
+      const result = await api.resendAssignmentNotification(assignmentId);
+      toast.success(result.message || 'Notification resent successfully!');
+    } catch (error: any) {
+      console.error('Error resending notification:', error);
+      toast.error(error.response?.data?.message || 'Failed to resend notification');
+    } finally {
+      setResendingNotification(null);
     }
   };
 
@@ -381,8 +396,8 @@ function AssignmentsManagement() {
                         <span>{assignment.completionRate}%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-blue-600 h-2 rounded-full" 
+                        <div
+                          className="bg-blue-600 h-2 rounded-full"
                           style={{ width: `${assignment.completionRate}%` }}
                         ></div>
                       </div>
@@ -404,24 +419,24 @@ function AssignmentsManagement() {
                     </div>
 
                     <div className="flex gap-2">
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
+                      <Button
+                        size="sm"
+                        variant="outline"
                         className="flex-1"
                         onClick={() => router.push(`/assignments/${assignment.id}`)}
                       >
                         <Eye className="h-4 w-4 mr-1" />
                         View
                       </Button>
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         variant="outline"
                         onClick={() => router.push(`/admin/assignments/${assignment.id}/edit`)}
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         variant="outline"
                         onClick={() => handleDeleteAssignment(assignment.id)}
                         disabled={deletingAssignment === assignment.id}
@@ -430,6 +445,19 @@ function AssignmentsManagement() {
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600" />
                         ) : (
                           <Trash2 className="h-4 w-4" />
+                        )}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleResendNotification(assignment.id)}
+                        disabled={resendingNotification === assignment.id}
+                        title="Resend Notification"
+                      >
+                        {resendingNotification === assignment.id ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600" />
+                        ) : (
+                          <Bell className="h-4 w-4" />
                         )}
                       </Button>
                     </div>
@@ -581,8 +609,8 @@ function AssignmentsManagement() {
 
                   <div className="space-y-2">
                     <Label htmlFor="classId">Class</Label>
-                    <Select 
-                      value={formData.classId} 
+                    <Select
+                      value={formData.classId}
                       onValueChange={(value) => setFormData({ ...formData, classId: value })}
                     >
                       <SelectTrigger>
@@ -613,8 +641,8 @@ function AssignmentsManagement() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="type">Type</Label>
-                    <Select 
-                      value={formData.type} 
+                    <Select
+                      value={formData.type}
                       onValueChange={(value: any) => setFormData({ ...formData, type: value })}
                     >
                       <SelectTrigger>
@@ -631,8 +659,8 @@ function AssignmentsManagement() {
 
                   <div className="space-y-2">
                     <Label htmlFor="difficulty">Difficulty</Label>
-                    <Select 
-                      value={formData.difficulty} 
+                    <Select
+                      value={formData.difficulty}
                       onValueChange={(value: any) => setFormData({ ...formData, difficulty: value })}
                     >
                       <SelectTrigger>
@@ -720,9 +748,9 @@ function AssignmentsManagement() {
                         placeholder="Enter requirement"
                         required
                       />
-                      <Button 
-                        type="button" 
-                        size="sm" 
+                      <Button
+                        type="button"
+                        size="sm"
                         variant="outline"
                         onClick={() => removeRequirement(index)}
                       >
@@ -748,9 +776,9 @@ function AssignmentsManagement() {
                         placeholder="Enter learning objective"
                         required
                       />
-                      <Button 
-                        type="button" 
-                        size="sm" 
+                      <Button
+                        type="button"
+                        size="sm"
                         variant="outline"
                         onClick={() => removeLearningObjective(index)}
                       >
@@ -764,9 +792,9 @@ function AssignmentsManagement() {
                   <Button type="submit" className="flex-1">
                     Create Assignment
                   </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
+                  <Button
+                    type="button"
+                    variant="outline"
                     onClick={() => setShowCreateModal(false)}
                   >
                     Cancel
