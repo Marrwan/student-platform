@@ -1274,6 +1274,19 @@ class ApiClient {
     return response.data;
   }
 
+  async updateAdminUser(userId: string, data: {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    password?: string;
+    role?: 'student' | 'admin' | 'partial_admin';
+    isActive?: boolean;
+    emailVerified?: boolean;
+  }): Promise<{ message: string; user: any }> {
+    const response = await this.client.put(`/admin/users/${userId}`, data);
+    return response.data;
+  }
+
   async inviteAdminClassStudents(classId: string, data: { emails: string[]; message: string }): Promise<{ message: string }> {
     const response: AxiosResponse<{ message: string }> = await this.client.post(`/admin/classes/${classId}/invite`, data);
     return response.data;

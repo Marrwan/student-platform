@@ -79,7 +79,9 @@ export default function AdminUsersPage() {
     lastName: '',
     email: '',
     role: 'student' as 'student' | 'admin' | 'partial_admin',
-    isActive: true
+    isActive: true,
+    emailVerified: false,
+    password: ''
   });
 
   // Load users
@@ -171,7 +173,22 @@ export default function AdminUsersPage() {
     if (!selectedUser) return;
 
     try {
-      await api.updateUser(selectedUser.id, editForm);
+      // Build update payload - only send password if it's not empty
+      const updatePayload: any = {
+        firstName: editForm.firstName,
+        lastName: editForm.lastName,
+        email: editForm.email,
+        role: editForm.role,
+        isActive: editForm.isActive,
+        emailVerified: editForm.emailVerified
+      };
+
+      // Only include password if it's not empty
+      if (editForm.password && editForm.password.trim() !== '') {
+        updatePayload.password = editForm.password;
+      }
+
+      await api.updateAdminUser(selectedUser.id, updatePayload);
       toast.success('User updated successfully');
       setShowEditModal(false);
       setSelectedUser(null);
@@ -189,7 +206,9 @@ export default function AdminUsersPage() {
       lastName: user.lastName || '',
       email: user.email || '',
       role: (user.role || 'student') as 'student' | 'admin' | 'partial_admin',
-      isActive: user.isActive || false
+      isActive: user.isActive || false,
+      emailVerified: user.emailVerified || false,
+      password: '' // Always start with empty password
     });
     setShowEditModal(true);
   };
@@ -589,6 +608,28 @@ export default function AdminUsersPage() {
                     <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div>
+                <Label htmlFor="password">Reset Password (optional)</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={editForm.password}
+                  onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
+                  placeholder="Leave blank to keep current password"
+                />
+                <p className="text-sm text-muted-foreground mt-1">
+                  Enter a new password to reset the user's password
+                </p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="emailVerified"
+                  checked={editForm.emailVerified}
+                  onChange={(e) => setEditForm({ ...editForm, emailVerified: e.target.checked })}
+                />
+                <Label htmlFor="emailVerified">Email Verified</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <input
