@@ -176,6 +176,11 @@ class ApiClient {
     }
   }
 
+  // Cache management
+  invalidateCache(key: string) {
+    this.cache.delete(key);
+  }
+
   // Auth endpoints
   async login(data: LoginFormData): Promise<AuthResponse> {
     const response: AxiosResponse<AuthResponse> = await this.client.post('/auth/login', data);
@@ -195,6 +200,17 @@ class ApiClient {
   async resendVerification(email: string): Promise<{ message: string }> {
     const response: AxiosResponse<{ message: string }> = await this.client.post('/auth/resend-verification', { email });
     return response.data;
+  }
+
+  async getUsers(): Promise<User[]> {
+    return this.cachedRequest(
+      'users',
+      async () => {
+        const response: AxiosResponse<User[]> = await this.client.get('/users');
+        return response.data;
+      },
+      5 * 60 * 1000 // 5 minutes cache
+    );
   }
 
   async getProfile(): Promise<{ user: User }> {
@@ -853,6 +869,86 @@ class ApiClient {
     );
   }
 
+  // Standup Management
+  async createStandup(data: { title: string; scheduledFor: string; description?: string; teamId?: string }) {
+    const response: AxiosResponse<any> = await this.client.post('/standups', data);
+    return response.data;
+  }
+
+  async getStandups(page: number = 1, limit: number = 10, status?: string, teamId?: string) {
+    const cacheKey = `standups:${page}:${limit}:${status}:${teamId}`;
+    return this.cachedRequest(
+      cacheKey,
+      async () => {
+        const response: AxiosResponse<any> = await this.client.get('/standups', {
+          params: { page, limit, status, teamId }
+        });
+        return response.data;
+      },
+      1 * 60 * 1000
+    );
+  }
+
+  async getStandupById(id: string) {
+    return this.cachedRequest(
+      `standup:${id}`,
+      async () => {
+        const response: AxiosResponse<any> = await this.client.get(`/standups/${id}`);
+        return response.data;
+      },
+      30 * 1000
+    );
+  }
+
+  async submitStandupResponse(standupId: string, data: {
+    whatDidYouDo: string;
+    whatWillYouDo: string;
+    blockers?: string;
+    attendanceStatus: 'present' | 'absent' | 'late';
+  }) {
+    const response: AxiosResponse<any> = await this.client.post(`/standups/${standupId}/respond`, data);
+    this.invalidateCache(`standup:${standupId}`);
+    return response.data;
+  }
+
+  async getStandupAttendance(standupId: string) {
+    const response: AxiosResponse<any> = await this.client.get(`/standups/${standupId}/attendance`);
+    return response.data;
+  }
+
+  async createActionItem(standupId: string, data: {
+    assignedTo: string;
+    description: string;
+    dueDate?: string;
+  }) {
+    const response: AxiosResponse<any> = await this.client.post(`/standups/${standupId}/action-items`, data);
+    this.invalidateCache(`standup:${standupId}`);
+    return response.data;
+  }
+
+  async updateActionItem(actionItemId: string, data: {
+    status?: 'pending' | 'in_progress' | 'completed';
+    description?: string;
+    dueDate?: string;
+  }) {
+    const response: AxiosResponse<any> = await this.client.put(`/standups/action-items/${actionItemId}`, data);
+    return response.data;
+  }
+
+  async getMyActionItems(status?: string) {
+    const cacheKey = `my-action-items:${status}`;
+    return this.cachedRequest(
+      cacheKey,
+      async () => {
+        const response: AxiosResponse<any> = await this.client.get('/standups/my/action-items', {
+          params: { status }
+        });
+        return response.data;
+      },
+      1 * 60 * 1000
+    );
+  }
+
   async getAppraisalCycles() {
     return this.cachedRequest(
       'appraisal-cycles',
@@ -874,6 +970,84 @@ class ApiClient {
       },
       2 * 60 * 1000
     );
+  }
+
+  // Portfolio
+  async createPortfolio(data: any) {
+    const response = await this.client.post('/portfolio', data);
+    return response.data;
+  }
+
+  async getMyPortfolio() {
+    return this.cachedRequest(
+      'my-portfolio',
+      async () => {
+        const response = await this.client.get('/portfolio/me');
+        return response.data;
+      },
+      5 * 60 * 1000
+    );
+  }
+
+  async updatePortfolio(data: any) {
+    const response = await this.client.put('/portfolio', data);
+    this.invalidateCache('my-portfolio');
+    return response.data;
+  }
+
+  async getPublicPortfolio(slug: string) {
+    const response = await this.client.get(`/portfolio/public/${slug}`);
+    return response.data;
+  }
+
+  async addPortfolioProject(data: any) {
+    const response = await this.client.post('/portfolio/projects', data);
+    this.invalidateCache('my-portfolio');
+    return response.data;
+  }
+
+  async updatePortfolioProject(id: string, data: any) {
+    const response = await this.client.put(`/portfolio/projects/${id}`, data);
+    this.invalidateCache('my-portfolio');
+    return response.data;
+  }
+
+  async deletePortfolioProject(id: string) {
+    const response = await this.client.delete(`/portfolio/projects/${id}`);
+    this.invalidateCache('my-portfolio');
+    return response.data;
+  }
+
+  async getAtRiskInterns() {
+    const response = await this.client.get('/performance/analytics/at-risk');
+    return response.data;
+  }
+
+  // Gamification
+  async getUserBadges(userId: string) {
+    const response = await this.client.get(`/gamification/badges/user/${userId}`);
+    return response.data;
+  }
+
+  async getRecognitions(userId?: string) {
+    const url = userId ? `/gamification/recognitions/user/${userId}` : '/gamification/recognitions';
+    const response = await this.client.get(url);
+    return response.data;
+  }
+
+  async getGamificationLeaderboard() {
+    const response = await this.client.get('/gamification/leaderboard');
+    return response.data;
+  }
+
+  async sendRecognition(data: { toUserId: string, message: string, category: string, isPublic: boolean }) {
+    const response = await this.client.post('/gamification/recognitions', data);
+    return response.data;
+  }
+
+  async getInternsOfTheMonth() {
+    const response = await this.client.get('/gamification/intern-of-month');
+    return response.data;
   }
 
   async createObjective(appraisalId: string, data: any) {
@@ -1428,6 +1602,17 @@ class ApiClient {
         return response.data;
       },
       2 * 60 * 1000 // 2 minutes cache
+    );
+  }
+
+  async getUserPerformance(userId: string) {
+    return this.cachedRequest(
+      `performance:${userId}`,
+      async () => {
+        const response = await this.client.get(`/performance/${userId}`);
+        return response.data;
+      },
+      5 * 60 * 1000 // 5 minutes cache
     );
   }
 
