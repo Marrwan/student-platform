@@ -4,8 +4,11 @@ import DonutChart from '@/components/hrms/DonutChart';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import { useSupervisorView } from '@/components/hrms/SupervisorViewContext';
+import SupervisorAppraisalList from '@/components/hrms/SupervisorAppraisalList';
 
 export default function AppraisalPage() {
+    const { isSupervisorView } = useSupervisorView();
     const [cycles, setCycles] = useState<any[]>([]);
     const [appraisals, setAppraisals] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -27,6 +30,10 @@ export default function AppraisalPage() {
         };
         fetchData();
     }, []);
+
+    if (isSupervisorView) {
+        return <SupervisorAppraisalList />;
+    }
 
     if (loading) return <div>Loading...</div>;
 

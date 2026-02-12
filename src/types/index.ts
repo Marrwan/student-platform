@@ -17,7 +17,8 @@ export interface User {
   linkedinUrl?: string;
   emailNotifications?: boolean;
   pushNotifications?: boolean;
-  permissions?: {
+  roles?: string[]; // New RBAC roles
+  permissions?: string[] | { // New RBAC permissions (string[]) or legacy object
     canCreateClasses: boolean;
     canManageStudents: boolean;
     canReviewSubmissions: boolean;

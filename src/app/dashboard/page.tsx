@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { 
+import {
   Calendar,
   Clock,
   Trophy,
@@ -31,12 +31,12 @@ import {
   Info,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { 
-  useTodayProject, 
-  useRecentSubmissions, 
-  useProgressStats, 
-  useNotifications, 
-  usePaymentHistory 
+import {
+  useTodayProject,
+  useRecentSubmissions,
+  useProgressStats,
+  useNotifications,
+  usePaymentHistory
 } from '@/lib/hooks';
 
 interface TodayProject {
@@ -80,10 +80,27 @@ interface ProgressStats {
 }
 
 export default function DashboardPage() {
-  const { user } = useAuth();
-  
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div></div>;
+  }
+
   if (!user) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    router.push('/login');
+    return null;
+  }
+
+  // Role-based redirection
+  if (user.role === 'admin') {
+    router.replace('/admin');
+    return null;
+  }
+
+  if (user.role === 'partial_admin') {
+    router.replace('/hrms/dashboard');
+    return null;
   }
 
   return (
@@ -96,7 +113,7 @@ export default function DashboardPage() {
 function StudentDashboard() {
   const { user } = useAuth();
   const router = useRouter();
-  
+
   // Use optimized hooks for data fetching
   const { data: todayProjectData, isLoading: todayProjectLoading } = useTodayProject();
   const { data: recentSubmissionsData, isLoading: submissionsLoading } = useRecentSubmissions();
@@ -123,13 +140,13 @@ function StudentDashboard() {
 
   // Memoize computed values
   const completionRate = useMemo(() => {
-    return progressStats.totalProjects > 0 
+    return progressStats.totalProjects > 0
       ? Math.round((progressStats.completedProjects / progressStats.totalProjects) * 100)
       : 0;
   }, [progressStats]);
 
   const overallProgress = useMemo(() => {
-    return progressStats.totalProjects > 0 
+    return progressStats.totalProjects > 0
       ? (progressStats.completedProjects / progressStats.totalProjects) * 100
       : 0;
   }, [progressStats]);
@@ -294,7 +311,7 @@ function StudentDashboard() {
                 <Button size="sm" className="w-full">View Projects</Button>
               </CardContent>
             </Card>
-            
+
             <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push('/classes')}>
               <CardContent className="p-4 sm:p-6 text-center">
                 <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-3 text-green-600" />
@@ -303,7 +320,7 @@ function StudentDashboard() {
                 <Button size="sm" className="w-full">Join Classes</Button>
               </CardContent>
             </Card>
-            
+
             <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push('/assignments')}>
               <CardContent className="p-4 sm:p-6 text-center">
                 <FileText className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-3 text-purple-600" />
@@ -454,16 +471,16 @@ function StudentDashboard() {
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3">
-                      <Button 
-                        className="flex-1" 
+                      <Button
+                        className="flex-1"
                         onClick={() => router.push(`/assignments/${todayProject.id}`)}
                         size="sm"
                       >
                         <Eye className="h-4 w-4 mr-2" />
                         View Assignment
                       </Button>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         className="flex-1"
                         onClick={() => router.push(`/assignments/${todayProject.id}`)}
                         size="sm"

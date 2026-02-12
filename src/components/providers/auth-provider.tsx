@@ -36,7 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('🔍 Checking auth...');
       const token = Cookies.get('token');
       console.log('🎫 Token found:', !!token);
-      
+
       if (token) {
         console.log('📞 Calling getProfile...');
         const { user } = await api.getProfile();
@@ -67,38 +67,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (verificationOtp) {
         loginData.verificationOtp = verificationOtp;
       }
-      
+
       const response = await api.login(loginData);
       console.log('✅ Login response:', response);
-      
+
       // Store token securely
-      Cookies.set('token', response.token, { 
+      Cookies.set('token', response.token, {
         expires: 7,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict'
       });
-      
+
       console.log('💾 Token stored in cookies');
-      
+
       // Update user state
       setUser(response.user);
       console.log('👤 User state updated:', response.user);
-      
+
       toast.success('Login successful!');
-      
+
       console.log('🎯 User role:', response.user.role);
-      const redirectPath = response.user.role === 'admin' ? '/admin' : '/dashboard';
+      let redirectPath = '/dashboard';
+
+      if (response.user.role === 'admin') {
+        redirectPath = '/admin';
+      } else if (response.user.role === 'partial_admin') {
+        redirectPath = '/hrms/dashboard';
+      }
       console.log('🚀 Redirecting to:', redirectPath);
-      
+
       // Force a small delay to ensure state updates
       setTimeout(() => {
         console.log('🔄 Executing redirect to:', redirectPath);
         window.location.href = redirectPath;
       }, 500);
-      
+
     } catch (error: any) {
       console.error('❌ Login error:', error);
-      
+
       // Handle specific error cases
       if (error.response?.data?.needsVerification) {
         // Don't redirect to verify-email, let the form handle it
@@ -124,23 +130,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const verifyEmail = async (token: string) => {
     try {
       const response = await api.verifyEmail(token);
-      
+
       // Store token securely
-      Cookies.set('token', response.token, { 
+      Cookies.set('token', response.token, {
         expires: 7,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict'
       });
-      
+
       // Update user state
       setUser(response.user);
-      
+
       toast.success('Email verified successfully!');
-      
+
       // Redirect based on role
-      const redirectPath = response.user.role === 'admin' ? '/admin' : '/dashboard';
+      let redirectPath = '/dashboard';
+      if (response.user.role === 'admin') {
+        redirectPath = '/admin';
+      } else if (response.user.role === 'partial_admin') {
+        redirectPath = '/hrms/dashboard';
+      }
       router.push(redirectPath);
-      
+
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Email verification failed');
       throw error;

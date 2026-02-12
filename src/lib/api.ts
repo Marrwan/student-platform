@@ -795,16 +795,75 @@ class ApiClient {
 
 
   // HRMS & Appraisals
+  async getHRMSDashboardStats() {
+    return this.cachedRequest(
+      'dashboard-stats',
+      async () => {
+        const response: AxiosResponse<any> = await this.client.get('/hrms/dashboard/stats');
+        return response.data;
+      },
+      2 * 60 * 1000 // 2 minutes cache
+    );
+  }
+
+  async getTeamMembers(page: number = 1, limit: number = 10, search: string = '') {
+    const cacheKey = `team-members:${page}:${limit}:${search}`;
+    return this.cachedRequest(
+      cacheKey,
+      async () => {
+        const response: AxiosResponse<any> = await this.client.get('/hrms/team/members', {
+          params: { page, limit, search }
+        });
+        return response.data;
+      },
+      1 * 60 * 1000 // 1 minute cache
+    );
+  }
+
+  async getTeams() {
+    return this.cachedRequest(
+      'teams-list',
+      async () => {
+        const response: AxiosResponse<any> = await this.client.get('/hrms/teams');
+        return response.data;
+      },
+      2 * 60 * 1000 // 2 minutes cache
+    );
+  }
+
+  async getSupervisorAppraisals() {
+    return this.cachedRequest(
+      'supervisor-appraisals',
+      async () => {
+        const response: AxiosResponse<any> = await this.client.get('/hrms/supervisor/appraisals');
+        return response.data;
+      },
+      2 * 60 * 1000
+    );
+  }
+
+  async getDemographics() {
+    return this.cachedRequest(
+      'demographics',
+      async () => {
+        const response: AxiosResponse<any> = await this.client.get('/hrms/dashboard/demographics');
+        return response.data;
+      },
+      2 * 60 * 1000
+    );
+  }
+
   async getAppraisalCycles() {
     return this.cachedRequest(
       'appraisal-cycles',
       async () => {
+        // ... existing logic if any or simple get
         const response = await this.client.get('/appraisals/cycles');
         return response.data;
-      },
-      5 * 60 * 1000
+      }
     );
   }
+
 
   async getMyAppraisals() {
     return this.cachedRequest(
