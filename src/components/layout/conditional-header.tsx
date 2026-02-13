@@ -37,8 +37,8 @@ export default function ConditionalHeader() {
     return null;
   }
 
-  // Don't render global header on Admin or HRMS pages (they have their own layouts)
-  if (pathname?.startsWith('/admin') || pathname?.startsWith('/hrms')) {
+  // Don't render global header on HRMS pages (they have their own layouts)
+  if (pathname?.startsWith('/hrms')) {
     return null;
   }
 
