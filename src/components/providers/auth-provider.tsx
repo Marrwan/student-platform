@@ -42,7 +42,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { user } = await api.getProfile();
         console.log('👤 Profile response:', user);
         setUser(user);
-        console.log('✅ User state set successfully');
+        Cookies.set('user_role', user.role, {
+          expires: 7,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict'
+        });
+        console.log('✅ User state and role cookie set successfully');
       } else {
         console.log('❌ No token found');
       }
@@ -51,7 +56,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Only remove token if it's an auth error
       if (error.response?.status === 401) {
         Cookies.remove('token');
-        console.log('🗑️ Token removed due to 401 error');
+        Cookies.remove('user_role');
+        console.log('🗑️ Token and role cookie removed due to 401 error');
       }
     } finally {
       console.log('🏁 Setting loading to false');
@@ -77,8 +83,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict'
       });
+      Cookies.set('user_role', response.user.role, {
+        expires: 7,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+      });
 
-      console.log('💾 Token stored in cookies');
+      console.log('💾 Token and role stored in cookies');
 
       // Update user state
       setUser(response.user);
@@ -138,8 +149,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         sameSite: 'strict'
       });
 
-      // Update user state
       setUser(response.user);
+      Cookies.set('user_role', response.user.role, {
+        expires: 7,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+      });
 
       toast.success('Email verified successfully!');
 
@@ -170,6 +185,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => {
     Cookies.remove('token');
+    Cookies.remove('user_role');
     setUser(null);
     toast.success('Logged out successfully');
     router.push('/');
@@ -177,6 +193,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateUser = (userData: User) => {
     setUser(userData);
+    Cookies.set('user_role', userData.role, {
+      expires: 7,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    });
   };
 
   const value = {

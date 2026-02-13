@@ -140,6 +140,12 @@ export default function Header() {
                     >
                       Progress
                     </Link>
+                    <Link
+                      href="/gamification"
+                      className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                      Achievements
+                    </Link>
                   </>
                 )}
               </>
@@ -328,6 +334,14 @@ export default function Header() {
                     >
                       <Calendar className="w-5 h-5" />
                       <span>Progress</span>
+                    </Link>
+                    <Link
+                      href="/gamification"
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Award className="w-5 h-5" />
+                      <span>Achievements</span>
                     </Link>
                   </>
                 )}
