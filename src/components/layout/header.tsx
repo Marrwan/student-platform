@@ -4,15 +4,15 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/components/providers/auth-provider';
 import { Button } from '@/components/ui/button';
-import { 
-  Home, 
-  User, 
-  LogOut, 
-  Settings, 
-  Trophy, 
-  Calendar, 
-  BookOpen, 
-  Users, 
+import {
+  Home,
+  User,
+  LogOut,
+  Settings,
+  Trophy,
+  Calendar,
+  BookOpen,
+  Users,
   BarChart3,
   Menu,
   X,
@@ -59,43 +59,43 @@ export default function Header() {
                 {isAdmin ? (
                   // Admin Navigation
                   <>
-                    <Link 
-                      href="/admin" 
+                    <Link
+                      href="/admin"
                       className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
                     >
                       <Shield className="w-4 h-4" />
                       <span>Dashboard</span>
                     </Link>
-                    <Link 
-                      href="/admin/classes" 
+                    <Link
+                      href="/admin/classes"
                       className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
                     >
                       <GraduationCap className="w-4 h-4" />
                       <span>Classes</span>
                     </Link>
-                    <Link 
-                      href="/admin/assignments" 
+                    <Link
+                      href="/admin/assignments"
                       className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
                     >
                       <FileText className="w-4 h-4" />
                       <span>Assignments</span>
                     </Link>
-                    <Link 
-                      href="/admin/submissions" 
+                    <Link
+                      href="/admin/submissions"
                       className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
                     >
                       <ClipboardList className="w-4 h-4" />
                       <span>Submissions</span>
                     </Link>
-                    <Link 
-                      href="/admin/users" 
+                    <Link
+                      href="/admin/users"
                       className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
                     >
                       <Users className="w-4 h-4" />
                       <span>Users</span>
                     </Link>
-                    <Link 
-                      href="/admin/analytics" 
+                    <Link
+                      href="/admin/analytics"
                       className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
                     >
                       <BarChart3 className="w-4 h-4" />
@@ -105,26 +105,26 @@ export default function Header() {
                 ) : (
                   // Student Navigation
                   <>
-                    <Link 
-                      href="/dashboard" 
+                    <Link
+                      href="/dashboard"
                       className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                     >
                       Dashboard
                     </Link>
-                    <Link 
-                      href="/projects" 
+                    <Link
+                      href="/projects"
                       className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                     >
                       Projects
                     </Link>
-                    <Link 
-                      href="/leaderboard" 
+                    <Link
+                      href="/leaderboard"
                       className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                     >
                       Leaderboard
                     </Link>
-                    <Link 
-                      href="/progress" 
+                    <Link
+                      href="/progress"
                       className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                     >
                       Progress
@@ -134,14 +134,14 @@ export default function Header() {
               </>
             ) : (
               <>
-                <Link 
-                  href="/" 
+                <Link
+                  href="/"
                   className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Home
                 </Link>
-                <Link 
-                  href="/rules" 
+                <Link
+                  href="/rules"
                   className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Rules
@@ -166,7 +166,7 @@ export default function Header() {
                     </span>
                     {isAdmin && (
                       <span className="text-xs text-blue-600 font-medium">
-                        Administrator
+                        {user.role === 'admin' ? 'Administrator' : 'Staff'}
                       </span>
                     )}
                   </div>
@@ -224,48 +224,48 @@ export default function Header() {
                 {isAdmin ? (
                   // Admin Mobile Navigation
                   <>
-                    <Link 
-                      href="/admin" 
+                    <Link
+                      href="/admin"
                       className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Shield className="w-5 h-5" />
                       <span>Admin Dashboard</span>
                     </Link>
-                    <Link 
-                      href="/admin/classes" 
+                    <Link
+                      href="/admin/classes"
                       className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <GraduationCap className="w-5 h-5" />
                       <span>Classes</span>
                     </Link>
-                    <Link 
-                      href="/admin/assignments" 
+                    <Link
+                      href="/admin/assignments"
                       className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <FileText className="w-5 h-5" />
                       <span>Assignments</span>
                     </Link>
-                    <Link 
-                      href="/admin/submissions" 
+                    <Link
+                      href="/admin/submissions"
                       className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <ClipboardList className="w-5 h-5" />
                       <span>Submissions</span>
                     </Link>
-                    <Link 
-                      href="/admin/users" 
+                    <Link
+                      href="/admin/users"
                       className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Users className="w-5 h-5" />
                       <span>Users</span>
                     </Link>
-                    <Link 
-                      href="/admin/analytics" 
+                    <Link
+                      href="/admin/analytics"
                       className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
@@ -276,32 +276,32 @@ export default function Header() {
                 ) : (
                   // Student Mobile Navigation
                   <>
-                    <Link 
-                      href="/dashboard" 
+                    <Link
+                      href="/dashboard"
                       className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Home className="w-5 h-5" />
                       <span>Dashboard</span>
                     </Link>
-                    <Link 
-                      href="/projects" 
+                    <Link
+                      href="/projects"
                       className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <BookOpen className="w-5 h-5" />
                       <span>Projects</span>
                     </Link>
-                    <Link 
-                      href="/leaderboard" 
+                    <Link
+                      href="/leaderboard"
                       className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Trophy className="w-5 h-5" />
                       <span>Leaderboard</span>
                     </Link>
-                    <Link 
-                      href="/progress" 
+                    <Link
+                      href="/progress"
                       className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
@@ -322,7 +322,7 @@ export default function Header() {
                         {user.firstName} {user.lastName}
                       </p>
                       <p className="text-xs text-gray-500 capitalize">
-                        {user.role}
+                        {user.role === 'partial_admin' ? 'Staff' : user.role}
                       </p>
                     </div>
                   </div>
@@ -339,16 +339,16 @@ export default function Header() {
               </>
             ) : (
               <>
-                <Link 
-                  href="/" 
+                <Link
+                  href="/"
                   className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Home className="w-5 h-5" />
                   <span>Home</span>
                 </Link>
-                <Link 
-                  href="/rules" 
+                <Link
+                  href="/rules"
                   className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >

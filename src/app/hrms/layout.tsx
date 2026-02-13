@@ -31,7 +31,7 @@ export default function HRMSLayout({ children }: { children: React.ReactNode }) 
                                 <div className="flex items-center gap-3">
                                     <div className="text-right hidden sm:block">
                                         <div className="text-sm font-medium text-gray-900">{user?.firstName} {user?.lastName}</div>
-                                        <div className="text-xs text-gray-500 capitalize">{user?.role?.replace('_', ' ')}</div>
+                                        <div className="text-xs text-gray-500 capitalize">{user?.role === 'partial_admin' ? 'Staff' : user?.role?.replace('_', ' ')}</div>
                                     </div>
                                     <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-bold">
                                         {user?.firstName?.[0]}{user?.lastName?.[0]}

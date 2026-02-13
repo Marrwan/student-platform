@@ -54,7 +54,7 @@ import { useRouter } from 'next/navigation';
 import clsx from 'clsx';
 import dynamic from 'next/dynamic';
 import Select, { MultiValue } from 'react-select';
-import { RichTextEditor } from '@/components/ui/rich-text-editor';
+const RichTextEditor = dynamic(() => import('@/components/ui/rich-text-editor').then((mod) => mod.RichTextEditor), { ssr: false });
 
 interface DashboardStats {
   totalUsers: number;
@@ -157,7 +157,7 @@ function AdminDashboard() {
   const [allClasses, setAllClasses] = useState<any[]>([]);
   const [allProjects, setAllProjects] = useState<any[]>([]);
   const [notifContentMd, setNotifContentMd] = useState('');
-  const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
+
 
   useEffect(() => {
     loadDashboardData();

@@ -2,7 +2,7 @@
 const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
-    serverComponentsExternalPackages: ['@uiw/react-md-editor'],
+    // serverComponentsExternalPackages: ['@uiw/react-md-editor'], // Removed as it was causing issues and package is unused
     // Enable modern JavaScript features
     esmExternals: 'loose',
   },
@@ -62,24 +62,7 @@ const nextConfig = {
       );
     }
 
-    // Optimize bundle splitting
-    config.optimization.splitChunks = {
-      chunks: 'all',
-      cacheGroups: {
-        vendor: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          chunks: 'all',
-          priority: 10,
-        },
-        common: {
-          name: 'common',
-          minChunks: 2,
-          chunks: 'all',
-          priority: 5,
-        },
-      },
-    };
+    // Optimize bundle splitting - Removed custom splitChunks to let Next.js handle it
 
     return config;
   },

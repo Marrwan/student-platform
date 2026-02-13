@@ -22,21 +22,26 @@ const Header = dynamic(() => import('@/components/layout/header'), {
 export default function ConditionalHeader() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
-  
+
   useEffect(() => {
     setMounted(true);
   }, []);
-  
+
   // Don't render anything until mounted to prevent hydration issues
   if (!mounted) {
     return null;
   }
-  
+
   // Don't render header on homepage
   if (pathname === '/') {
     return null;
   }
-  
+
+  // Don't render global header on Admin or HRMS pages (they have their own layouts)
+  if (pathname?.startsWith('/admin') || pathname?.startsWith('/hrms')) {
+    return null;
+  }
+
   try {
     return <Header />;
   } catch (error) {
