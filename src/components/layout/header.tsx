@@ -37,6 +37,8 @@ export default function Header() {
   };
 
   const isAdmin = user?.role === 'admin' || user?.role === 'partial_admin';
+  const isFullAdmin = user?.role === 'admin';
+  const isStaff = user?.role === 'partial_admin';
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
@@ -56,7 +58,7 @@ export default function Header() {
           <nav className="hidden md:flex items-center space-x-8">
             {user ? (
               <>
-                {isAdmin ? (
+                {isFullAdmin ? (
                   // Admin Navigation
                   <>
                     <Link
@@ -103,8 +105,17 @@ export default function Header() {
                     </Link>
                   </>
                 ) : (
-                  // Student Navigation
+                  // Student & Staff Navigation
                   <>
+                    {isStaff && (
+                      <Link
+                        href="/hrms/dashboard"
+                        className="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
+                      >
+                        <Shield className="w-4 h-4" />
+                        <span>HRMS Dashboard</span>
+                      </Link>
+                    )}
                     <Link
                       href="/dashboard"
                       className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
@@ -221,7 +232,7 @@ export default function Header() {
           <div className="px-2 pt-2 pb-3 space-y-1 max-h-[calc(100vh-4rem)] overflow-y-auto">
             {user ? (
               <>
-                {isAdmin ? (
+                {isFullAdmin ? (
                   // Admin Mobile Navigation
                   <>
                     <Link
@@ -276,6 +287,16 @@ export default function Header() {
                 ) : (
                   // Student Mobile Navigation
                   <>
+                    {isStaff && (
+                      <Link
+                        href="/hrms/dashboard"
+                        className="flex items-center space-x-3 text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <Shield className="w-5 h-5" />
+                        <span>HRMS Dashboard</span>
+                      </Link>
+                    )}
                     <Link
                       href="/dashboard"
                       className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 px-3 py-3 rounded-md text-base font-medium transition-colors min-h-[44px]"

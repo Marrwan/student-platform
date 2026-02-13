@@ -40,6 +40,9 @@ export function middleware(request: NextRequest) {
     if (pathname.startsWith('/admin')) {
         if (userRole !== 'admin') {
             // Not an admin, redirect to their dashboard
+            if (userRole === 'partial_admin') {
+                return NextResponse.redirect(new URL('/hrms/dashboard', request.url));
+            }
             return NextResponse.redirect(new URL('/dashboard', request.url));
         }
     }
