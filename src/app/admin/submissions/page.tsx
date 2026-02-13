@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
+import {
   Eye,
   Download,
   Copy,
@@ -90,6 +90,8 @@ function SubmissionsReview() {
   const [error, setError] = useState<string | null>(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [activeTab, setActiveTab] = useState('pending');
+  const [classes, setClasses] = useState<any[]>([]);
+  const [selectedClassId, setSelectedClassId] = useState<string>('all');
 
   // Review form state
   const [reviewData, setReviewData] = useState({
@@ -103,7 +105,17 @@ function SubmissionsReview() {
 
   useEffect(() => {
     loadSubmissions();
+    loadClasses();
   }, []);
+
+  const loadClasses = async () => {
+    try {
+      const response = await api.getClasses();
+      setClasses(response.classes || []);
+    } catch (err) {
+      console.error('Failed to load classes:', err);
+    }
+  };
 
   const loadSubmissions = async () => {
     setLoading(true);
@@ -134,12 +146,12 @@ function SubmissionsReview() {
 
     try {
       const finalScore = Math.max(0, reviewData.score + reviewData.bonusPoints - reviewData.penaltyPoints);
-      
+
       await api.reviewAdminSubmission(selectedSubmission.id, {
         ...reviewData,
         finalScore
       });
-      
+
       toast.success('Submission reviewed successfully!');
       setShowReviewModal(false);
       setReviewData({
@@ -199,8 +211,9 @@ function SubmissionsReview() {
   };
 
   const filteredSubmissions = submissions.filter(sub => {
-    if (activeTab === 'all') return true;
-    return sub.status === activeTab;
+    const matchesTab = activeTab === 'all' || sub.status === activeTab;
+    const matchesClass = selectedClassId === 'all' || sub.className === classes.find(c => c.id === selectedClassId)?.name;
+    return matchesTab && matchesClass;
   });
 
   if (loading) {
@@ -250,14 +263,17 @@ function SubmissionsReview() {
                 {/* Filters */}
                 <div className="space-y-4 mb-6">
                   <Input placeholder="Search submissions..." />
-                  <Select>
+                  <Select value={selectedClassId} onValueChange={setSelectedClassId}>
                     <SelectTrigger>
                       <SelectValue placeholder="Filter by class" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Classes</SelectItem>
-                      <SelectItem value="js-fundamentals">JavaScript Fundamentals</SelectItem>
-                      <SelectItem value="react-advanced">Advanced React</SelectItem>
+                      {classes.map((cls) => (
+                        <SelectItem key={cls.id} value={cls.id}>
+                          {cls.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -277,11 +293,10 @@ function SubmissionsReview() {
                   {filteredSubmissions.map((submission) => (
                     <div
                       key={submission.id}
-                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                        selectedSubmission?.id === submission.id
+                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${selectedSubmission?.id === submission.id
                           ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                           : 'hover:bg-gray-50 dark:hover:bg-gray-800'
-                      }`}
+                        }`}
                       onClick={() => {
                         setSelectedSubmission(submission);
                         loadProject(submission.projectId);
@@ -401,7 +416,7 @@ function SubmissionsReview() {
                         <TabsTrigger value="css">CSS</TabsTrigger>
                         <TabsTrigger value="js">JavaScript</TabsTrigger>
                       </TabsList>
-                      
+
                       <TabsContent value="html" className="mt-4">
                         <div className="relative">
                           <div className="absolute top-2 right-2 flex gap-2">
@@ -425,7 +440,7 @@ function SubmissionsReview() {
                           </pre>
                         </div>
                       </TabsContent>
-                      
+
                       <TabsContent value="css" className="mt-4">
                         <div className="relative">
                           <div className="absolute top-2 right-2 flex gap-2">
@@ -449,7 +464,7 @@ function SubmissionsReview() {
                           </pre>
                         </div>
                       </TabsContent>
-                      
+
                       <TabsContent value="js" className="mt-4">
                         <div className="relative">
                           <div className="absolute top-2 right-2 flex gap-2">
@@ -586,8 +601,8 @@ function SubmissionsReview() {
 
                   <div className="space-y-2">
                     <Label htmlFor="status">Status</Label>
-                    <Select 
-                      value={reviewData.status} 
+                    <Select
+                      value={reviewData.status}
                       onValueChange={(value: any) => setReviewData({ ...reviewData, status: value })}
                     >
                       <SelectTrigger>
@@ -663,9 +678,9 @@ function SubmissionsReview() {
                     <Send className="h-4 w-4 mr-2" />
                     Submit Review
                   </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
+                  <Button
+                    type="button"
+                    variant="outline"
                     onClick={() => setShowReviewModal(false)}
                   >
                     Cancel

@@ -853,25 +853,37 @@ function AdminDashboard() {
                     </div>
 
                     <div className="space-y-4">
-                      {/* Mock user cards */}
-                      <div className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <Users className="h-5 w-5 text-blue-600" />
-                          </div>
-                          <div>
-                            <h4 className="font-medium">John Doe</h4>
-                            <p className="text-sm text-muted-foreground">john.doe@example.com</p>
-                          </div>
+                      {allUsers.length === 0 ? (
+                        <div className="text-center py-8 text-muted-foreground">
+                          No users found.
                         </div>
-                        <div className="flex items-center gap-4">
-                          <Badge variant="secondary">Student</Badge>
-                          <Button size="sm" variant="outline">
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit
-                          </Button>
-                        </div>
-                      </div>
+                      ) : (
+                        allUsers.slice(0, 5).map((u) => (
+                          <div key={u.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <Users className="h-5 w-5 text-blue-600" />
+                              </div>
+                              <div>
+                                <h4 className="font-medium">{u.firstName} {u.lastName}</h4>
+                                <p className="text-sm text-muted-foreground">{u.email}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                              <Badge variant="secondary" className="capitalize">{u.role}</Badge>
+                              <Button size="sm" variant="outline" onClick={() => router.push('/admin/users')}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Manage
+                              </Button>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                      {allUsers.length > 5 && (
+                        <Button variant="ghost" className="w-full text-blue-600" onClick={() => router.push('/admin/users')}>
+                          View All Users
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardContent>
