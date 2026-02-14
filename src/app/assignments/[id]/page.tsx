@@ -32,6 +32,7 @@ import { api } from '@/lib/api';
 import { User } from '@/types';
 import { DeleteAssignmentModal } from '@/components/assignments/delete-assignment-modal';
 import { DeleteSubmissionAlertDialog } from '@/components/assignments/delete-submission-alert-dialog';
+import env from '@/config/env';
 
 interface Assignment {
   id: string;
@@ -255,9 +256,12 @@ export default function AssignmentDetailPage() {
       const { access_code } = initResponse.paystack.data;
       const reference = initResponse.payment.reference;
 
+      // ... (existing imports)
+
+      // In handleLateFeePayment
       // 2. Open Paystack with access code
       console.log('Initializing Paystack with access_code:', access_code);
-      console.log('Paystack public key:', process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY);
+      console.log('Paystack public key:', env.PAYSTACK_PUBLIC_KEY);
 
       if (typeof (window as any).PaystackPop === 'undefined') {
         console.error('PaystackPop is undefined! Script might not be loaded.');
@@ -267,7 +271,7 @@ export default function AssignmentDetailPage() {
       }
 
       const handler = (window as any).PaystackPop.setup({
-        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
+        key: env.PAYSTACK_PUBLIC_KEY,
         access_code: access_code,
         callback: async (response: any) => {
           try {

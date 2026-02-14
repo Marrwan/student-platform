@@ -6,11 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  AlertTriangle, 
-  DollarSign, 
-  Lock, 
-  CheckCircle, 
+import {
+  AlertTriangle,
+  DollarSign,
+  Lock,
+  CheckCircle,
   XCircle,
   Clock,
   FileText,
@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import toast from 'react-hot-toast';
+import env from '@/config/env';
 
 interface OverdueSubmission {
   id: string;
@@ -67,10 +68,20 @@ export function PaymentBlockModal({ open, onOpenChange, onPaymentSuccess }: Paym
 
     try {
       setPaymentLoading(true);
-      
+
       // Initialize Paystack payment
+      console.log('Initializing Paystack Block Payment');
+      console.log('Paystack public key:', env.PAYSTACK_PUBLIC_KEY);
+
+      if (!env.PAYSTACK_PUBLIC_KEY) {
+        console.error('Missing Paystack public key!');
+        toast.error('Payment configuration missing. Please contact support.');
+        setPaymentLoading(false);
+        return;
+      }
+
       const handler = (window as any).PaystackPop.setup({
-        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
+        key: env.PAYSTACK_PUBLIC_KEY,
         email: 'student@example.com', // This should come from user context
         amount: blockStatus.totalAmount * 100, // Convert to kobo
         currency: 'NGN',
@@ -81,7 +92,7 @@ export function PaymentBlockModal({ open, onOpenChange, onPaymentSuccess }: Paym
               paymentReference: response.reference,
               amount: blockStatus.totalAmount
             });
-            
+
             toast.success('Payment processed successfully! Your access has been restored.');
             onPaymentSuccess();
             onOpenChange(false);
@@ -94,7 +105,7 @@ export function PaymentBlockModal({ open, onOpenChange, onPaymentSuccess }: Paym
           toast.error('Payment was cancelled');
         }
       });
-      
+
       handler.openIframe();
     } catch (error: any) {
       toast.error('Failed to initialize payment');
@@ -214,8 +225,8 @@ export function PaymentBlockModal({ open, onOpenChange, onPaymentSuccess }: Paym
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button 
-            onClick={handlePaystackPayment} 
+          <Button
+            onClick={handlePaystackPayment}
             disabled={paymentLoading}
             className="bg-green-600 hover:bg-green-700"
           >

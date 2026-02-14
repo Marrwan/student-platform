@@ -35,6 +35,7 @@ import {
   PaymentFormData,
   PaystackResponse
 } from '@/types';
+import env from '@/config/env';
 
 // Cache interface
 interface CacheEntry<T> {
@@ -100,8 +101,11 @@ class ApiClient {
   private deduplicator: RequestDeduplicator;
 
   constructor() {
+    // ... (existing imports)
+
+    // In ApiClient constructor
     this.client = axios.create({
-      baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
+      baseURL: env.API_URL,
       headers: {
         'Content-Type': 'application/json',
       },
