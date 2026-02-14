@@ -134,9 +134,9 @@ export default function AssignmentDetailPage() {
     }
   }, [assignmentId]);
 
-  // Handle return from Paystack redirect: verify payment when ?reference= is present
+  // Handle return from Paystack redirect: verify payment when ?reference= or ?trxref= is present (Paystack uses trxref)
   useEffect(() => {
-    const reference = searchParams.get('reference');
+    const reference = searchParams.get('reference') ?? searchParams.get('trxref');
     if (!reference || paymentReturnHandled.current) return;
 
     paymentReturnHandled.current = true;
@@ -157,6 +157,7 @@ export default function AssignmentDetailPage() {
         // Clean URL so refreshing doesn't re-trigger verify
         const url = new URL(window.location.href);
         url.searchParams.delete('reference');
+        url.searchParams.delete('trxref');
         window.history.replaceState({}, '', url.pathname + url.search);
       }
     };

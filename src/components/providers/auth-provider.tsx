@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         Cookies.set('user_role', user.role, {
           expires: 7,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict'
+          sameSite: 'lax' // lax so cookie is sent when user returns from external redirect (e.g. Paystack checkout)
         });
         console.log('✅ User state and role cookie set successfully');
       } else {
@@ -82,12 +82,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       Cookies.set('token', response.token, {
         expires: 7,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
+        sameSite: 'lax' // lax so cookie is sent when user returns from external redirect (e.g. Paystack checkout)
       });
       Cookies.set('user_role', response.user.role, {
         expires: 7,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
+        sameSite: 'lax' // lax so cookie is sent when user returns from external redirect (e.g. Paystack checkout)
       });
 
       console.log('💾 Token and role stored in cookies');
@@ -147,14 +147,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       Cookies.set('token', response.token, {
         expires: 7,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
+        sameSite: 'lax' // lax so cookie is sent when user returns from external redirect (e.g. Paystack checkout)
       });
 
       setUser(response.user);
       Cookies.set('user_role', response.user.role, {
         expires: 7,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
+        sameSite: 'lax' // lax so cookie is sent when user returns from external redirect (e.g. Paystack checkout)
       });
 
       toast.success('Email verified successfully!');
@@ -198,7 +198,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     Cookies.set('user_role', userData.role, {
       expires: 7,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict'
+      sameSite: 'lax' // lax so cookie is sent when user returns from external redirect (e.g. Paystack checkout)
     });
   };
 
