@@ -8,7 +8,7 @@ import { PerformanceMonitor } from '@/components/performance/performance-monitor
 import ConditionalHeader from '@/components/layout/conditional-header';
 
 // Optimize font loading
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap', // Optimize font loading
   preload: true,
@@ -104,24 +104,24 @@ export default function RootLayout({
     <html lang="en" className={inter.className}>
       <head>
         {/* Favicon */}
-        <link rel="icon" type="image/jpeg" href="/logo.jpeg" style={{borderRadius : '50%'}} />
-        <link rel="shortcut icon" type="image/jpeg" href="/logo.jpeg" style={{borderRadius : '50%'}} />
-        <link rel="apple-touch-icon" href="/logo.jpeg" style={{borderRadius : '50%'}} />
-        
+        <link rel="icon" type="image/jpeg" href="/logo.jpeg" style={{ borderRadius: '50%' }} />
+        <link rel="shortcut icon" type="image/jpeg" href="/logo.jpeg" style={{ borderRadius: '50%' }} />
+        <link rel="apple-touch-icon" href="/logo.jpeg" style={{ borderRadius: '50%' }} />
+
         {/* Preload critical resources */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        
+
         {/* DNS prefetch for external domains */}
         <link rel="dns-prefetch" href="//via.placeholder.com" />
         <link rel="dns-prefetch" href="//images.unsplash.com" />
-        
+
         {/* Preload critical CSS */}
         <link rel="preload" href="/globals.css" as="style" />
-        
+
         {/* Preload critical images */}
         <link rel="preload" href="/logo.jpeg" as="image" type="image/jpeg" />
-        
+
         {/* Performance monitoring */}
         <script
           dangerouslySetInnerHTML={{
@@ -150,6 +150,8 @@ export default function RootLayout({
             `,
           }}
         />
+        {/* Paystack Inline Script */}
+        <script src="https://js.paystack.co/v1/inline.js"></script>
       </head>
       <body className={`${inter.className} antialiased`}>
         <ErrorBoundaryClient>
@@ -174,7 +176,7 @@ export default function RootLayout({
             <PerformanceMonitor />
           </AuthProvider>
         </ErrorBoundaryClient>
-        
+
         {/* Performance monitoring script */}
         <script
           dangerouslySetInnerHTML={{
