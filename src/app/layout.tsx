@@ -117,9 +117,6 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//via.placeholder.com" />
         <link rel="dns-prefetch" href="//images.unsplash.com" />
 
-        {/* Preload critical CSS */}
-        <link rel="preload" href="/globals.css" as="style" />
-
         {/* Preload critical images */}
         <link rel="preload" href="/logo.jpeg" as="image" type="image/jpeg" />
 
@@ -139,12 +136,16 @@ export default function RootLayout({
                   }, 0);
                 });
               }
-              
-              // Service Worker registration for offline support
+
+              // Unregister any existing Service Workers to fix caching issues
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js').catch(function(err) {
-                    console.log('ServiceWorker registration failed: ', err);
+                  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for(let registration of registrations) {
+                      registration.unregister().then(function(boolean) {
+                        console.log('ServiceWorker unregistered: ', boolean);
+                      });
+                    }
                   });
                 });
               }
