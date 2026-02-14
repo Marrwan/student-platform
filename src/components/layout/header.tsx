@@ -200,16 +200,16 @@ export default function Header() {
               </div>
             ) : (
               <div className="flex items-center space-x-4">
-                <Link href="/login">
-                  <Button variant="outline" size="sm">
+                <Button asChild variant="outline" size="sm">
+                  <Link href="/login">
                     Login
-                  </Button>
-                </Link>
-                <Link href="/register">
-                  <Button size="sm">
+                  </Link>
+                </Button>
+                <Button asChild size="sm">
+                  <Link href="/register">
                     Sign Up
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </div>
             )}
           </div>
@@ -391,16 +391,16 @@ export default function Header() {
                   <span>Rules</span>
                 </Link>
                 <div className="border-t border-gray-200 pt-4 mt-4 space-y-2">
-                  <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button variant="outline" size="sm" className="w-full">
+                  <Button asChild variant="outline" size="sm" className="w-full">
+                    <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
                       Login
-                    </Button>
-                  </Link>
-                  <Link href="/register" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button size="sm" className="w-full">
+                    </Link>
+                  </Button>
+                  <Button asChild size="sm" className="w-full">
+                    <Link href="/register" onClick={() => setIsMobileMenuOpen(false)}>
                       Sign Up
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                 </div>
               </>
             )}

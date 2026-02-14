@@ -740,6 +740,33 @@ export default function AssignmentDetailPage() {
                     </div>
                   )}
 
+                  {/* Delete Submission Section */}
+                  <div className="pt-4 border-t flex justify-end">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={async () => {
+                        if (window.confirm('Are you sure you want to delete your submission? This action cannot be undone.')) {
+                          try {
+                            await api.deleteAssignmentSubmission(assignmentId, submission.id);
+                            toast.success('Submission deleted successfully');
+                            setSubmission(null);
+                            setSubmissionData({
+                              submissionType: 'code',
+                              githubLink: '',
+                              submissionLink: '',
+                              codeSubmission: { html: '', css: '', javascript: '' },
+                              zipFile: null
+                            });
+                          } catch (error: any) {
+                            toast.error(error.response?.data?.message || 'Failed to delete submission');
+                          }
+                        }
+                      }}
+                    >
+                      Delete Submission
+                    </Button>
+                  </div>
                   {/* Edit Submission Section */}
                   <div className="pt-4 border-t">
                     {canEdit ? (

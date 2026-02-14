@@ -772,6 +772,14 @@ class ApiClient {
     return response.data;
   }
 
+  async deleteAssignmentSubmission(assignmentId: string, submissionId: string) {
+    const response = await this.client.delete(`/assignments/${assignmentId}/submissions/${submissionId}`);
+    // Clear submissions cache
+    this.clearCache(`assignment-submissions:${assignmentId}`);
+    this.clearCache(`my-submission:${assignmentId}`);
+    return response.data;
+  }
+
   async getAssignmentSubmissions(assignmentId: string, params?: { page?: number; limit?: number; status?: string }) {
     const cacheKey = `assignment-submissions:${assignmentId}:${JSON.stringify(params)}`;
     return this.cachedRequest(

@@ -12,14 +12,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { 
-  ArrowLeft, 
-  FileText, 
-  User, 
-  Calendar, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
+import {
+  ArrowLeft,
+  FileText,
+  User,
+  Calendar,
+  Clock,
+  CheckCircle,
+  XCircle,
   AlertCircle,
   ExternalLink,
   Code,
@@ -27,7 +27,8 @@ import {
   Eye,
   Copy,
   Globe,
-  FileCode
+  FileCode,
+  Trash2
 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -111,7 +112,7 @@ export default function AssignmentSubmissionsPage() {
 
     try {
       setMarkingSubmission(true);
-      
+
       // Prepare the data to send
       const submissionData: any = {
         feedback: markData.feedback || undefined,
@@ -126,7 +127,7 @@ export default function AssignmentSubmissionsPage() {
       }
 
       await api.markSubmission(assignmentId, selectedSubmission.id, submissionData);
-      
+
       toast.success('Submission marked successfully');
       setMarkDialogOpen(false);
       setSelectedSubmission(null);
@@ -136,6 +137,25 @@ export default function AssignmentSubmissionsPage() {
       toast.error(error.response?.data?.message || 'Failed to mark submission');
     } finally {
       setMarkingSubmission(false);
+    }
+  };
+
+  const handleDeleteSubmission = async (submissionId: string) => {
+    if (!confirm('Are you sure you want to delete this submission? This action cannot be undone.')) return;
+
+    try {
+      await api.deleteAssignmentSubmission(assignmentId, submissionId);
+      toast.success('Submission deleted successfully');
+
+      // Close dialogs if open
+      setDetailDialogOpen(false);
+      setMarkDialogOpen(false);
+      setSelectedSubmission(null);
+
+      // Reload submissions
+      loadSubmissions();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to delete submission');
     }
   };
 
@@ -212,8 +232,8 @@ export default function AssignmentSubmissionsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             onClick={() => router.back()}
           >
@@ -344,7 +364,7 @@ export default function AssignmentSubmissionsPage() {
                     >
                       {submission.status === 'pending' ? 'Mark' : 'Update'}
                     </Button>
-                    
+
                     <Button
                       size="sm"
                       variant="outline"
@@ -356,7 +376,7 @@ export default function AssignmentSubmissionsPage() {
                       <Eye className="w-4 h-4 mr-1" />
                       View Details
                     </Button>
-                    
+
                     {submission.submissionLink && (
                       <Button
                         size="sm"
@@ -367,6 +387,14 @@ export default function AssignmentSubmissionsPage() {
                         Open Link
                       </Button>
                     )}
+
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDeleteSubmission(submission.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -381,7 +409,7 @@ export default function AssignmentSubmissionsPage() {
           <DialogHeader>
             <DialogTitle>Mark Submission</DialogTitle>
           </DialogHeader>
-          
+
           {selectedSubmission && (
             <div className="space-y-4">
               <div>
@@ -408,8 +436,8 @@ export default function AssignmentSubmissionsPage() {
                 <Select
                   value={markData.status}
                   onValueChange={(value) => {
-                    setMarkData(prev => ({ 
-                      ...prev, 
+                    setMarkData(prev => ({
+                      ...prev,
                       status: value,
                       // Clear score if status is not 'accepted'
                       score: value !== 'accepted' ? '' : prev.score
@@ -496,7 +524,7 @@ export default function AssignmentSubmissionsPage() {
               Submission Details - {selectedSubmission?.user.firstName} {selectedSubmission?.user.lastName}
             </DialogTitle>
           </DialogHeader>
-          
+
           {selectedSubmission && (
             <div className="space-y-6">
               {/* Submission Info */}
@@ -547,9 +575,9 @@ export default function AssignmentSubmissionsPage() {
                         </Button>
                       </div>
                       <div className="p-3 bg-gray-50 rounded-lg border">
-                        <a 
-                          href={selectedSubmission.submissionLink} 
-                          target="_blank" 
+                        <a
+                          href={selectedSubmission.submissionLink}
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:underline break-all"
                         >
@@ -573,9 +601,9 @@ export default function AssignmentSubmissionsPage() {
                         </Button>
                       </div>
                       <div className="p-3 bg-gray-50 rounded-lg border">
-                        <a 
-                          href={selectedSubmission.githubLink} 
-                          target="_blank" 
+                        <a
+                          href={selectedSubmission.githubLink}
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:underline break-all"
                         >
@@ -749,7 +777,7 @@ export default function AssignmentSubmissionsPage() {
                     >
                       Mark Submission
                     </Button>
-                    
+
                     {selectedSubmission.submissionLink && (
                       <Button
                         variant="outline"
@@ -760,12 +788,11 @@ export default function AssignmentSubmissionsPage() {
                         Open in New Tab
                       </Button>
                     )}
-                    
-                    {selectedSubmission.submissionType === 'code' && selectedSubmission.codeSubmission && (
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          const fullCode = `
+
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        const fullCode = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -776,21 +803,29 @@ export default function AssignmentSubmissionsPage() {
   <script>${selectedSubmission.codeSubmission?.javascript || ''}</script>
 </body>
 </html>`;
-                          const blob = new Blob([fullCode], { type: 'text/html' });
-                          const url = URL.createObjectURL(blob);
-                          const link = document.createElement('a');
-                          link.href = url;
-                          link.download = `submission-${selectedSubmission.user.firstName}-${selectedSubmission.user.lastName}.html`;
-                          link.click();
-                          URL.revokeObjectURL(url);
-                          toast.success('Code downloaded as HTML file!');
-                        }}
-                        className="w-full"
-                      >
-                        <Download className="w-4 h-4 mr-2" />
-                        Download as HTML
-                      </Button>
-                    )}
+                        const blob = new Blob([fullCode], { type: 'text/html' });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `submission-${selectedSubmission.user.firstName}-${selectedSubmission.user.lastName}.html`;
+                        link.click();
+                        URL.revokeObjectURL(url);
+                        toast.success('Code downloaded as HTML file!');
+                      }}
+                      className="w-full"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Download as HTML
+                    </Button>
+
+                    <Button
+                      variant="destructive"
+                      onClick={() => handleDeleteSubmission(selectedSubmission.id)}
+                      className="w-full col-span-2"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete Submission
+                    </Button>
                   </div>
                 </TabsContent>
               </Tabs>
