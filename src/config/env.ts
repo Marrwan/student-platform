@@ -4,6 +4,7 @@ const env = {
     TINYMCE_API_KEY: process.env.NEXT_PUBLIC_TINYMCE_API_KEY || '',
 } as const;
 
+console.log('Paystack public key:', env.PAYSTACK_PUBLIC_KEY);
 // Optional: Validate critical environment variables
 if (typeof window !== 'undefined') {
     if (!env.PAYSTACK_PUBLIC_KEY) {
