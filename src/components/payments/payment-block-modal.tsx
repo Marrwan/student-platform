@@ -19,6 +19,7 @@ import {
 import { api } from '@/lib/api';
 import toast from 'react-hot-toast';
 import env from '@/config/env';
+import { useAuth } from '@/components/providers/auth-provider';
 
 interface OverdueSubmission {
   id: string;
@@ -43,6 +44,7 @@ export function PaymentBlockModal({ open, onOpenChange, onPaymentSuccess }: Paym
   const [blockStatus, setBlockStatus] = useState<BlockStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     if (open) {
@@ -70,22 +72,48 @@ export function PaymentBlockModal({ open, onOpenChange, onPaymentSuccess }: Paym
       setPaymentLoading(true);
 
       // Initialize Paystack payment
-      console.log('Initializing Paystack Block Payment');
-      console.log('Paystack public key:', env.PAYSTACK_PUBLIC_KEY);
+      console.group('Paystack Block Payment Debug');
 
-      if (!env.PAYSTACK_PUBLIC_KEY) {
-        console.error('Missing Paystack public key!');
+      const publicKey = env.PAYSTACK_PUBLIC_KEY;
+      console.log('Public Key Configured:', !!publicKey);
+      if (publicKey) {
+        console.log('Public Key Preview:', `${publicKey.substring(0, 8)}...${publicKey.substring(publicKey.length - 4)}`);
+        console.log('Public Key Length:', publicKey.length);
+      } else {
+        console.error('CRITICAL: Missing Paystack public key!');
         toast.error('Payment configuration missing. Please contact support.');
         setPaymentLoading(false);
+        console.groupEnd();
+        return;
+      }
+
+      const email = user?.email;
+
+      if (!email) {
+        console.error('CRITICAL: User email not found in auth context');
+        toast.error('User information missing. Please log in again.');
+        setPaymentLoading(false);
+        console.groupEnd();
+        return;
+      }
+
+      console.log('Initializing with Email:', email);
+      console.log('Amount:', blockStatus.totalAmount * 100);
+
+      if (typeof (window as any).PaystackPop === 'undefined') {
+        console.error('CRITICAL: PaystackPop is undefined!');
+        toast.error('Payment system not ready. Reloading...');
+        window.location.reload();
         return;
       }
 
       const handler = (window as any).PaystackPop.setup({
-        key: env.PAYSTACK_PUBLIC_KEY,
-        email: 'student@example.com', // This should come from user context
+        key: publicKey,
+        email: email,
         amount: blockStatus.totalAmount * 100, // Convert to kobo
         currency: 'NGN',
         callback: async (response: any) => {
+          console.log('Paystack Callback:', response);
           try {
             // Process the payment on our backend
             await api.processOverduePayment({
@@ -97,20 +125,25 @@ export function PaymentBlockModal({ open, onOpenChange, onPaymentSuccess }: Paym
             onPaymentSuccess();
             onOpenChange(false);
           } catch (error: any) {
+            console.error('Payment processing error:', error);
             toast.error(error.response?.data?.message || 'Failed to process payment');
           }
         },
         onClose: () => {
+          console.log('Paystack Modal Closed');
           setPaymentLoading(false);
           toast.error('Payment was cancelled');
         }
       });
 
+      console.log('Opening Paystack Iframe...');
       handler.openIframe();
     } catch (error: any) {
+      console.error('CRITICAL: Payment initialization error:', error);
       toast.error('Failed to initialize payment');
       setPaymentLoading(false);
     }
+    console.groupEnd();
   };
 
   if (loading) {

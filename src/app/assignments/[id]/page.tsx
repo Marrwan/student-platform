@@ -256,45 +256,66 @@ export default function AssignmentDetailPage() {
       const { access_code } = initResponse.paystack.data;
       const reference = initResponse.payment.reference;
 
-      // ... (existing imports)
-
-      // In handleLateFeePayment
       // 2. Open Paystack with access code
-      console.log('Initializing Paystack with access_code:', access_code);
-      console.log('Paystack public key:', env.PAYSTACK_PUBLIC_KEY);
+      console.group('Paystack Initialization Debug');
+      console.log('Access Code:', access_code);
+      console.log('Access Code Type:', typeof access_code);
+
+      const publicKey = env.PAYSTACK_PUBLIC_KEY;
+      console.log('Public Key Configured:', !!publicKey);
+      if (publicKey) {
+        // Show first 8 and last 4 chars for verification without full leak
+        console.log('Public Key Preview:', `${publicKey.substring(0, 8)}...${publicKey.substring(publicKey.length - 4)}`);
+        console.log('Public Key Length:', publicKey.length);
+      } else {
+        console.error('CRITICAL: Public Key is empty or undefined');
+      }
 
       if (typeof (window as any).PaystackPop === 'undefined') {
-        console.error('PaystackPop is undefined! Script might not be loaded.');
+        console.error('CRITICAL: PaystackPop is undefined! Script might not be loaded.');
         toast.error('Payment system not ready. Please refresh the page.');
         setPaymentLoading(false);
+        console.groupEnd();
         return;
       }
 
-      const handler = (window as any).PaystackPop.setup({
-        key: env.PAYSTACK_PUBLIC_KEY,
-        access_code: access_code,
-        callback: async (response: any) => {
-          try {
-            // 3. Verify payment using our reference
-            await api.verifyPayment(reference);
+      console.log('PaystackPop is available. Proceeding to setup...');
 
-            toast.success('Payment successful! You can now submit your assignment.');
-            setHasPaid(true);
+      try {
+        const handler = (window as any).PaystackPop.setup({
+          key: publicKey,
+          access_code: access_code,
+          callback: async (response: any) => {
+            console.log('Paystack Callback Received:', response);
+            try {
+              // 3. Verify payment using our reference
+              await api.verifyPayment(reference);
 
-            // Reload submission status
-            await loadSubmission();
-          } catch (error: any) {
-            console.error('Payment verification error:', error);
-            toast.error(error.response?.data?.message || 'Failed to verify payment');
+              toast.success('Payment successful! You can now submit your assignment.');
+              setHasPaid(true);
+
+              // Reload submission status
+              await loadSubmission();
+            } catch (error: any) {
+              console.error('Payment verification error:', error);
+              toast.error(error.response?.data?.message || 'Failed to verify payment');
+            }
+          },
+          onClose: () => {
+            console.log('Paystack Modal Closed');
+            setPaymentLoading(false);
+            toast.error('Payment was cancelled');
           }
-        },
-        onClose: () => {
-          setPaymentLoading(false);
-          toast.error('Payment was cancelled');
-        }
-      });
+        });
 
-      handler.openIframe();
+        console.log('Paystack Handler Setup Complete. Opening Iframe...');
+        handler.openIframe();
+      } catch (err) {
+        console.error('CRITICAL: Error during Paystack setup or openIframe:', err);
+        toast.error('Failed to launch payment window. Please try again.');
+        setPaymentLoading(false);
+      }
+      console.groupEnd();
     } catch (error: any) {
       console.error('Payment initialization error:', error);
       toast.error('Failed to initialize payment');
