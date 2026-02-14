@@ -1,4 +1,4 @@
-const CACHE_NAME = 'learning-platform-v1';
+const CACHE_NAME = 'learning-platform-v2';
 const STATIC_CACHE = 'static-v1';
 const DYNAMIC_CACHE = 'dynamic-v1';
 
@@ -62,6 +62,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Skip cross-origin requests (e.g. Paystack, Google Fonts, etc.)
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
   // Handle API requests
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(handleApiRequest(request));
@@ -105,14 +110,14 @@ async function handleApiRequest(request) {
   try {
     // Try network first for API requests
     const response = await fetch(request);
-    
+
     // Cache successful GET responses
     if (response.status === 200 && request.method === 'GET') {
       const responseClone = response.clone();
       const cache = await caches.open(DYNAMIC_CACHE);
       cache.put(request, responseClone);
     }
-    
+
     return response;
   } catch (error) {
     // Fallback to cache for GET requests
@@ -122,12 +127,12 @@ async function handleApiRequest(request) {
         return cachedResponse;
       }
     }
-    
+
     // Return offline response for API requests
     return new Response(
-      JSON.stringify({ 
-        error: 'Network error', 
-        message: 'Please check your internet connection' 
+      JSON.stringify({
+        error: 'Network error',
+        message: 'Please check your internet connection'
       }),
       {
         status: 503,
@@ -167,14 +172,14 @@ async function handleNavigation(request) {
   try {
     // Try network first
     const response = await fetch(request);
-    
+
     // Cache successful responses
     if (response.status === 200) {
       const responseClone = response.clone();
       const cache = await caches.open(DYNAMIC_CACHE);
       cache.put(request, responseClone);
     }
-    
+
     return response;
   } catch (error) {
     // Fallback to cache
@@ -182,7 +187,7 @@ async function handleNavigation(request) {
     if (cachedResponse) {
       return cachedResponse;
     }
-    
+
     // Return offline page
     return caches.match('/offline.html');
   }
@@ -193,10 +198,10 @@ function isStaticAsset(pathname) {
   const staticExtensions = [
     '.js', '.css', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot'
   ];
-  
+
   return staticExtensions.some(ext => pathname.endsWith(ext)) ||
-         pathname.startsWith('/_next/') ||
-         pathname.startsWith('/static/');
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/static/');
 }
 
 // Background sync for offline actions
@@ -211,7 +216,7 @@ async function doBackgroundSync() {
   try {
     // Get stored offline actions
     const offlineActions = await getOfflineActions();
-    
+
     for (const action of offlineActions) {
       try {
         await performOfflineAction(action);
@@ -260,11 +265,11 @@ async function performOfflineAction(action) {
     headers: action.headers,
     body: action.body
   });
-  
+
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
   }
-  
+
   return response;
 }
 
@@ -272,13 +277,13 @@ async function performOfflineAction(action) {
 async function openDB() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open('LearningPlatformDB', 1);
-    
+
     request.onerror = () => reject(request.error);
     request.onsuccess = () => resolve(request.result);
-    
+
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
-      
+
       // Create offline actions store
       if (!db.objectStoreNames.contains('offlineActions')) {
         const store = db.createObjectStore('offlineActions', { keyPath: 'id' });
@@ -334,7 +339,7 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
-  
+
   if (event.data && event.data.type === 'CACHE_URLS') {
     event.waitUntil(
       caches.open(STATIC_CACHE).then((cache) => {
