@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useState, useEffect, useRef } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -32,7 +32,6 @@ import { api } from '@/lib/api';
 import { User } from '@/types';
 import { DeleteAssignmentModal } from '@/components/assignments/delete-assignment-modal';
 import { DeleteSubmissionAlertDialog } from '@/components/assignments/delete-submission-alert-dialog';
-import env from '@/config/env';
 
 interface Assignment {
   id: string;
@@ -94,7 +93,9 @@ interface Submission {
 export default function AssignmentDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const assignmentId = params.id as string;
+  const paymentReturnHandled = useRef(false);
 
   const [assignment, setAssignment] = useState<Assignment | null>(null);
   const [submission, setSubmission] = useState<any | null>(null);
@@ -132,6 +133,36 @@ export default function AssignmentDetailPage() {
       loadCurrentUser();
     }
   }, [assignmentId]);
+
+  // Handle return from Paystack redirect: verify payment when ?reference= is present
+  useEffect(() => {
+    const reference = searchParams.get('reference');
+    if (!reference || paymentReturnHandled.current) return;
+
+    paymentReturnHandled.current = true;
+
+    const verifyAndUnlock = async () => {
+      try {
+        const result = await api.verifyPayment(reference);
+        if (result.success) {
+          toast.success('Payment successful! You can now submit your assignment.');
+          setHasPaid(true);
+          await loadSubmission();
+        } else {
+          toast.error(result.message || 'Payment verification failed.');
+        }
+      } catch (err: any) {
+        toast.error(err.response?.data?.message || 'Failed to verify payment');
+      } finally {
+        // Clean URL so refreshing doesn't re-trigger verify
+        const url = new URL(window.location.href);
+        url.searchParams.delete('reference');
+        window.history.replaceState({}, '', url.pathname + url.search);
+      }
+    };
+
+    verifyAndUnlock();
+  }, [searchParams, assignmentId]);
 
   const loadAssignment = async () => {
     try {
@@ -247,81 +278,25 @@ export default function AssignmentDetailPage() {
     try {
       setPaymentLoading(true);
 
-      // 1. Initialize payment on backend
+      // 1. Initialize payment on backend (returns authorization_url and sets callback_url for return)
       const initResponse = await api.initializeLateFeePayment({
         assignmentId: assignmentId,
         amount: assignment.paymentAmount,
       });
 
-      const { access_code } = initResponse.paystack.data;
-      const reference = initResponse.payment.reference;
-
-      // 2. Open Paystack with access code
-      console.group('Paystack Initialization Debug');
-      console.log('Access Code:', access_code);
-      console.log('Access Code Type:', typeof access_code);
-
-      const publicKey = env.PAYSTACK_PUBLIC_KEY;
-      console.log('Public Key Configured:', !!publicKey);
-      if (publicKey) {
-        // Show first 8 and last 4 chars for verification without full leak
-        console.log('Public Key Preview:', `${publicKey.substring(0, 8)}...${publicKey.substring(publicKey.length - 4)}`);
-        console.log('Public Key Length:', publicKey.length);
-      } else {
-        console.error('CRITICAL: Public Key is empty or undefined');
-      }
-
-      if (typeof (window as any).PaystackPop === 'undefined') {
-        console.error('CRITICAL: PaystackPop is undefined! Script might not be loaded.');
-        toast.error('Payment system not ready. Please refresh the page.');
+      const authorizationUrl = initResponse.paystack?.data?.authorization_url;
+      if (!authorizationUrl) {
+        toast.error('Payment could not be started. Please try again.');
         setPaymentLoading(false);
-        console.groupEnd();
         return;
       }
 
-      console.log('PaystackPop is available. Proceeding to setup...');
-
-      try {
-        const handler = (window as any).PaystackPop.setup({
-          key: publicKey,
-          access_code: access_code,
-          callback: async (response: any) => {
-            console.log('Paystack Callback Received:', response);
-            try {
-              // 3. Verify payment using our reference
-              await api.verifyPayment(reference);
-
-              toast.success('Payment successful! You can now submit your assignment.');
-              setHasPaid(true);
-
-              // Reload submission status
-              await loadSubmission();
-            } catch (error: any) {
-              console.error('Payment verification error:', error);
-              toast.error(error.response?.data?.message || 'Failed to verify payment');
-            }
-          },
-          onClose: () => {
-            console.log('Paystack Modal Closed');
-            setPaymentLoading(false);
-            toast.error('Payment was cancelled');
-          }
-        });
-
-        console.log('Paystack Handler Setup Complete. Opening Iframe...');
-        handler.openIframe();
-      } catch (err) {
-        console.error('CRITICAL: Error during Paystack setup or openIframe:', err);
-        toast.error('Failed to launch payment window. Please try again.');
-        setPaymentLoading(false);
-      }
-      console.groupEnd();
+      // 2. Redirect to Paystack checkout (no inline/popup script needed; avoids invalid_Key and form errors)
+      window.location.href = authorizationUrl;
     } catch (error: any) {
       console.error('Payment initialization error:', error);
-      toast.error('Failed to initialize payment');
+      toast.error(error.response?.data?.message || 'Failed to initialize payment');
       setPaymentLoading(false);
-    } finally {
-      // paymentLoading is handled in callbacks or if init fails
     }
   };
 

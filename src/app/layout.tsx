@@ -152,8 +152,8 @@ export default function RootLayout({
             `,
           }}
         />
-        {/* Paystack Inline Script */}
-        <Script src="https://js.paystack.co/v1/inline.js" strategy="lazyOnload" />
+        {/* Paystack Popup Script (for modals that use PaystackPop). Assignment late-fee uses redirect, not this script. */}
+        <Script src="https://js.paystack.co/v1/popup.js" strategy="lazyOnload" />
       </head>
       <body className={`${inter.className} antialiased`}>
         <ErrorBoundaryClient>
