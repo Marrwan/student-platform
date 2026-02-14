@@ -11,19 +11,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import { 
-  ArrowLeft, 
-  Calendar, 
-  Clock, 
-  FileText, 
-  Code, 
-  Link, 
-  Upload, 
-  CheckCircle, 
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  FileText,
+  Code,
+  Link,
+  Upload,
+  CheckCircle,
   XCircle,
   ExternalLink,
   Eye,
-  Edit
+  Edit,
+  DollarSign,
+  AlertTriangle,
+  Lock
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { User } from '@/types';
@@ -101,7 +104,10 @@ export default function AssignmentDetailPage() {
   const [submissionCount, setSubmissionCount] = useState(0);
   const [canEdit, setCanEdit] = useState(false);
   const [editReason, setEditReason] = useState('');
+
   const [previewKey, setPreviewKey] = useState(0);
+  const [hasPaid, setHasPaid] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   // Submission form data
   const [submissionData, setSubmissionData] = useState({
@@ -129,7 +135,7 @@ export default function AssignmentDetailPage() {
       const data = await api.getAssignment(assignmentId);
       console.log('Assignment data:', data); // Debug log
       setAssignment(data);
-      
+
       // Load submission count for admin
       if (isAdmin()) {
         await loadSubmissionCount();
@@ -146,10 +152,10 @@ export default function AssignmentDetailPage() {
     try {
       const response = await api.getMySubmission(assignmentId);
       const canEditResponse = await api.canEditSubmission(assignmentId);
-      
+
       console.log('Submission response:', response);
       console.log('Can edit response:', canEditResponse);
-      
+
       if (response && response.submission) {
         // Parse codeSubmission if it's a string
         if (typeof response.submission.codeSubmission === 'string') {
@@ -164,10 +170,15 @@ export default function AssignmentDetailPage() {
         // No submission exists yet - this is normal for new students
         setSubmission(null);
       }
-      
+
+      // Update hasPaid state from response
+      if (response && response.hasPaid) {
+        setHasPaid(true);
+      }
+
       setCanEdit(canEditResponse.canEdit);
       setEditReason(canEditResponse.reason);
-      
+
       console.log('Final state - submission:', response?.submission || null);
       console.log('Final state - canEdit:', canEditResponse.canEdit);
       console.log('Final state - canSubmit():', canSubmit());
@@ -175,6 +186,7 @@ export default function AssignmentDetailPage() {
       console.error('Error loading submission:', error);
       // If there's a real error, still allow submission if deadline hasn't passed
       setSubmission(null);
+      setHasPaid(false);
       setCanEdit(true);
       setEditReason('No submission found - you can submit');
     }
@@ -208,13 +220,64 @@ export default function AssignmentDetailPage() {
     }
   };
 
+  const handleLateFeePayment = async () => {
+    if (!currentUser || !assignment) return;
+
+    try {
+      setPaymentLoading(true);
+
+      // 1. Initialize payment on backend
+      const initResponse = await api.initializeLateFeePayment({
+        assignmentId: assignmentId,
+        amount: assignment.paymentAmount,
+      });
+
+      const { access_code } = initResponse.paystack.data;
+      const reference = initResponse.payment.reference;
+
+      // 2. Open Paystack with access code
+      const handler = (window as any).PaystackPop.setup({
+        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
+        access_code: access_code,
+        callback: async (response: any) => {
+          try {
+            // 3. Verify payment using our reference
+            await api.verifyPayment(reference);
+
+            toast.success('Payment successful! You can now submit your assignment.');
+            setHasPaid(true);
+
+            // Reload submission status
+            await loadSubmission();
+          } catch (error: any) {
+            console.error('Payment verification error:', error);
+            toast.error(error.response?.data?.message || 'Failed to verify payment');
+          }
+        },
+        onClose: () => {
+          setPaymentLoading(false);
+          toast.error('Payment was cancelled');
+        }
+      });
+
+      handler.openIframe();
+    } catch (error: any) {
+      console.error('Payment initialization error:', error);
+      toast.error('Failed to initialize payment');
+      setPaymentLoading(false);
+    } finally {
+      // paymentLoading is handled in callbacks or if init fails
+    }
+  };
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
 
     try {
       console.log('Starting submission with data:', submissionData);
-      
+
       // Validate form data
       if (!submissionData.submissionType) {
         toast.error('Please select a submission type');
@@ -248,7 +311,7 @@ export default function AssignmentDetailPage() {
           return;
         }
       }
-      
+
       // Prepare submit data based on submission type
       let submitData: any = {
         submissionType: submissionData.submissionType
@@ -280,7 +343,7 @@ export default function AssignmentDetailPage() {
         console.log('Submit result:', result);
         toast.success('Assignment submitted successfully!');
       }
-      
+
       // Clear cache and reload submission
       api.clearCache(`my-submission:${assignmentId}`);
       await loadSubmission();
@@ -288,7 +351,7 @@ export default function AssignmentDetailPage() {
       console.error('Submission error:', error);
       console.error('Error response:', error.response);
       console.error('Error message:', error.message);
-      
+
       const errorMessage = error.response?.data?.message || error.message || 'Failed to submit assignment';
       toast.error(errorMessage);
     } finally {
@@ -303,30 +366,30 @@ export default function AssignmentDetailPage() {
 
   const canSubmit = () => {
     if (!assignment) return false;
-    
+
     const now = new Date();
     const startDate = new Date(assignment.startDate);
     const deadline = new Date(assignment.deadline);
-    
+
     // Cannot submit before start time
     if (now < startDate) return false;
-    
+
     // If late submissions are allowed, can submit anytime after start
     if (assignment.allowLateSubmission) {
       return true;
     }
-    
+
     // If late submissions are not allowed, can only submit before deadline
     return now <= deadline;
   };
 
   const getSubmissionMessage = () => {
     if (!assignment) return '';
-    
+
     const now = new Date();
     const startDate = new Date(assignment.startDate);
     const deadline = new Date(assignment.deadline);
-    
+
     if (now < startDate) {
       return `Assignment has not started yet. Start time: ${startDate.toLocaleString()}`;
     } else if (now > deadline && !assignment.allowLateSubmission) {
@@ -334,7 +397,7 @@ export default function AssignmentDetailPage() {
     } else if (now > deadline && assignment.allowLateSubmission) {
       return 'Assignment deadline has passed. Late submission is allowed but may require payment.';
     }
-    
+
     return '';
   };
 
@@ -408,8 +471,8 @@ export default function AssignmentDetailPage() {
         {/* Header */}
         <div className="flex flex-col space-y-4 mb-6 lg:mb-8">
           <div className="flex items-center gap-3">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               onClick={() => router.back()}
               className="shrink-0 h-10 w-10 p-0 sm:h-9 sm:w-auto sm:px-3"
@@ -426,7 +489,7 @@ export default function AssignmentDetailPage() {
               </p>
             </div>
           </div>
-          
+
           <div className="flex flex-wrap gap-2">
             {submission && getSubmissionStatusBadge(submission.status)}
             {isDeadlinePassed() && (
@@ -535,9 +598,9 @@ export default function AssignmentDetailPage() {
                     <ExternalLink className="w-4 h-4 shrink-0" />
                     <span className="font-medium">Sample Output URL</span>
                   </div>
-                  <a 
-                    href={assignment.sampleOutputUrl} 
-                    target="_blank" 
+                  <a
+                    href={assignment.sampleOutputUrl}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:underline break-all text-sm sm:text-base"
                   >
@@ -546,8 +609,8 @@ export default function AssignmentDetailPage() {
                 </CardContent>
               </Card>
             ) : assignment.sampleOutputCode && (
-              assignment.sampleOutputCode.html || 
-              assignment.sampleOutputCode.css || 
+              assignment.sampleOutputCode.html ||
+              assignment.sampleOutputCode.css ||
               assignment.sampleOutputCode.javascript
             ) ? (
               <Card>
@@ -586,7 +649,7 @@ export default function AssignmentDetailPage() {
                   </p>
                   {isAdmin() && (
                     <div className="mt-4">
-                      <Button 
+                      <Button
                         onClick={() => router.push(`/admin/assignments/${assignmentId}/edit`)}
                         variant="outline"
                         size="sm"
@@ -628,7 +691,7 @@ export default function AssignmentDetailPage() {
                       <p className="text-sm mt-1">{submission.feedback}</p>
                     </div>
                   )}
-                  
+
                   {/* Submission Preview */}
                   {submission.submissionType === 'code' && submission.codeSubmission && (
                     <div className="border rounded-lg overflow-hidden">
@@ -659,7 +722,7 @@ export default function AssignmentDetailPage() {
                       </div>
                     </div>
                   )}
-                  
+
                   {submission.submissionType === 'link' && submission.submissionLink && (
                     <div className="border rounded-lg overflow-hidden">
                       <div className="bg-gray-100 px-3 sm:px-4 py-2 border-b">
@@ -676,7 +739,7 @@ export default function AssignmentDetailPage() {
                       </div>
                     </div>
                   )}
-                  
+
                   {/* Edit Submission Section */}
                   <div className="pt-4 border-t">
                     {canEdit ? (
@@ -706,7 +769,50 @@ export default function AssignmentDetailPage() {
             )}
 
             {/* Submission Form - Show for new submissions or when can edit existing */}
-            {(canSubmit() || canEdit) ? (
+            {isDeadlinePassed() && assignment?.paymentRequired && !hasPaid && !submission ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Lock className="w-5 h-5 text-red-500" />
+                    Late Submission Fee Required
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription>
+                      The deadline for this assignment has passed. To submit your work, you are required to pay a late fee.
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="flex flex-col items-center justify-center p-6 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-lg font-medium text-gray-700 mb-2">Late Fee Amount</p>
+                    <p className="text-3xl font-bold text-green-600 mb-6">₦{assignment.paymentAmount?.toLocaleString()}</p>
+
+                    <Button
+                      onClick={handleLateFeePayment}
+                      disabled={paymentLoading}
+                      className="w-full sm:w-auto min-w-[200px] bg-green-600 hover:bg-green-700"
+                    >
+                      {paymentLoading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <DollarSign className="w-4 h-4 mr-2" />
+                          Pay Now
+                        </>
+                      )}
+                    </Button>
+                    <p className="text-sm text-gray-500 mt-4 text-center">
+                      After successful payment, the submission form will be unlocked immediately.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (canSubmit() || canEdit) ? (
               <Card>
                 <CardHeader>
                   <CardTitle>{submission ? 'Edit Submission' : 'Submit Assignment'}</CardTitle>
@@ -732,15 +838,15 @@ export default function AssignmentDetailPage() {
                           </p>
                         </div>
                       )}
-                      
+
                       <div>
                         <Label htmlFor="submissionType" className="text-sm sm:text-base">Submission Type</Label>
                         <select
                           id="submissionType"
                           value={submissionData.submissionType}
-                          onChange={(e) => setSubmissionData(prev => ({ 
-                            ...prev, 
-                            submissionType: e.target.value as 'code' | 'link' | 'zip' 
+                          onChange={(e) => setSubmissionData(prev => ({
+                            ...prev,
+                            submissionType: e.target.value as 'code' | 'link' | 'zip'
                           }))}
                           className="w-full p-2 sm:p-3 border rounded-md text-sm sm:text-base"
                         >
@@ -768,12 +874,12 @@ export default function AssignmentDetailPage() {
                               id="html"
                               value={submissionData.codeSubmission.html}
                               onChange={(e) => {
-                                setSubmissionData(prev => ({ 
-                                  ...prev, 
-                                  codeSubmission: { 
-                                    ...prev.codeSubmission, 
-                                    html: e.target.value 
-                                  } 
+                                setSubmissionData(prev => ({
+                                  ...prev,
+                                  codeSubmission: {
+                                    ...prev.codeSubmission,
+                                    html: e.target.value
+                                  }
                                 }));
                                 setPreviewKey(prev => prev + 1);
                               }}
@@ -789,12 +895,12 @@ export default function AssignmentDetailPage() {
                               id="css"
                               value={submissionData.codeSubmission.css}
                               onChange={(e) => {
-                                setSubmissionData(prev => ({ 
-                                  ...prev, 
-                                  codeSubmission: { 
-                                    ...prev.codeSubmission, 
-                                    css: e.target.value 
-                                  } 
+                                setSubmissionData(prev => ({
+                                  ...prev,
+                                  codeSubmission: {
+                                    ...prev.codeSubmission,
+                                    css: e.target.value
+                                  }
                                 }));
                                 setPreviewKey(prev => prev + 1);
                               }}
@@ -809,12 +915,12 @@ export default function AssignmentDetailPage() {
                               id="javascript"
                               value={submissionData.codeSubmission.javascript}
                               onChange={(e) => {
-                                setSubmissionData(prev => ({ 
-                                  ...prev, 
-                                  codeSubmission: { 
-                                    ...prev.codeSubmission, 
-                                    javascript: e.target.value 
-                                  } 
+                                setSubmissionData(prev => ({
+                                  ...prev,
+                                  codeSubmission: {
+                                    ...prev.codeSubmission,
+                                    javascript: e.target.value
+                                  }
                                 }));
                                 setPreviewKey(prev => prev + 1);
                               }}
@@ -823,7 +929,7 @@ export default function AssignmentDetailPage() {
                               className="text-sm sm:text-base"
                             />
                           </div>
-                          
+
                           {/* Live Preview for Code */}
                           <div className="border rounded-lg overflow-hidden">
                             <div className="bg-gray-100 px-3 sm:px-4 py-2 border-b">
@@ -863,16 +969,16 @@ export default function AssignmentDetailPage() {
                               id="submissionLink"
                               type="url"
                               value={submissionData.submissionLink}
-                              onChange={(e) => setSubmissionData(prev => ({ 
-                                ...prev, 
-                                submissionLink: e.target.value 
+                              onChange={(e) => setSubmissionData(prev => ({
+                                ...prev,
+                                submissionLink: e.target.value
                               }))}
                               placeholder="https://github.com/your-repo or https://your-demo.com"
                               className="text-sm sm:text-base"
                               required
                             />
                           </div>
-                          
+
                           {/* Live Preview for Link */}
                           {submissionData.submissionLink && (
                             <div className="border rounded-lg overflow-hidden">
@@ -900,9 +1006,9 @@ export default function AssignmentDetailPage() {
                             id="zipFile"
                             type="file"
                             accept=".zip,.html,.js,.css,.txt,.md"
-                            onChange={(e) => setSubmissionData(prev => ({ 
-                              ...prev, 
-                              zipFile: e.target.files?.[0] || null 
+                            onChange={(e) => setSubmissionData(prev => ({
+                              ...prev,
+                              zipFile: e.target.files?.[0] || null
                             }))}
                             className="text-sm sm:text-base"
                             required
@@ -910,15 +1016,15 @@ export default function AssignmentDetailPage() {
                         </div>
                       )}
 
-                      <Button 
-                        type="submit" 
-                        disabled={submitting || !canEdit} 
+                      <Button
+                        type="submit"
+                        disabled={submitting || !canEdit}
                         className="w-full h-11 sm:h-10"
                       >
-                        {submitting ? 'Submitting...' : 
-                         submission && canEdit ? 'Update Submission' : 'Submit Assignment'}
+                        {submitting ? 'Submitting...' :
+                          submission && canEdit ? 'Update Submission' : 'Submit Assignment'}
                       </Button>
-                      
+
                       {!canEdit && (
                         <p className="text-sm text-red-600 mt-2 text-center">
                           {editReason}
@@ -956,7 +1062,7 @@ export default function AssignmentDetailPage() {
                       <p className="text-gray-600 mb-4 text-sm sm:text-base">
                         View and manage all student submissions for this assignment.
                       </p>
-                      <Button 
+                      <Button
                         onClick={() => router.push(`/admin/assignments/${assignmentId}/submissions`)}
                         className="bg-blue-600 hover:bg-blue-700 w-full"
                         size="sm"
@@ -964,14 +1070,14 @@ export default function AssignmentDetailPage() {
                         View Submissions
                       </Button>
                     </div>
-                    
+
                     <div className="text-center p-4 sm:p-6 border rounded-lg">
                       <FileText className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-4" />
                       <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">Edit Assignment</h3>
                       <p className="text-gray-600 mb-4 text-sm sm:text-base">
                         Modify assignment details, requirements, and settings.
                       </p>
-                      <Button 
+                      <Button
                         onClick={() => router.push(`/admin/assignments/${assignmentId}/edit`)}
                         variant="outline"
                         className="w-full"
@@ -981,14 +1087,14 @@ export default function AssignmentDetailPage() {
                       </Button>
                     </div>
                   </div>
-                  
+
                   <div className="mt-6 pt-6 border-t">
                     <div className="text-center">
                       <h3 className="text-base sm:text-lg font-medium text-red-900 mb-2">Danger Zone</h3>
                       <p className="text-gray-600 mb-4 text-sm sm:text-base">
                         Permanently delete this assignment and all related data.
                       </p>
-                      <Button 
+                      <Button
                         onClick={() => setShowDeleteModal(true)}
                         variant="destructive"
                         size="sm"

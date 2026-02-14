@@ -364,7 +364,7 @@ class ApiClient {
   }
 
   // Get my submission for an assignment
-  async getMySubmission(assignmentId: string): Promise<{ submission: Submission | null }> {
+  async getMySubmission(assignmentId: string): Promise<{ submission: Submission | null; hasPaid?: boolean }> {
     return this.cachedRequest(
       `my-submission:${assignmentId}`,
       async () => {

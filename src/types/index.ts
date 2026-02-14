@@ -620,7 +620,8 @@ export interface Notification {
 }
 
 export interface PaymentFormData {
-  submissionId: string;
+  submissionId?: string;
+  assignmentId?: string;
   amount: number;
 }
 

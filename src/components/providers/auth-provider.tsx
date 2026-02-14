@@ -57,7 +57,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error.response?.status === 401) {
         Cookies.remove('token');
         Cookies.remove('user_role');
-        console.log('🗑️ Token and role cookie removed due to 401 error');
+        api.clearCache();
+        console.log('🗑️ Token and role cookie removed due to 401 error, cache cleared');
       }
     } finally {
       console.log('🏁 Setting loading to false');
@@ -186,6 +187,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     Cookies.remove('token');
     Cookies.remove('user_role');
+    api.clearCache();
     setUser(null);
     toast.success('Logged out successfully');
     router.push('/');
