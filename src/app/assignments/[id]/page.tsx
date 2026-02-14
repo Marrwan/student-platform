@@ -256,6 +256,16 @@ export default function AssignmentDetailPage() {
       const reference = initResponse.payment.reference;
 
       // 2. Open Paystack with access code
+      console.log('Initializing Paystack with access_code:', access_code);
+      console.log('Paystack public key:', process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY);
+
+      if (typeof (window as any).PaystackPop === 'undefined') {
+        console.error('PaystackPop is undefined! Script might not be loaded.');
+        toast.error('Payment system not ready. Please refresh the page.');
+        setPaymentLoading(false);
+        return;
+      }
+
       const handler = (window as any).PaystackPop.setup({
         key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
         access_code: access_code,

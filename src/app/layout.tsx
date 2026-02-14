@@ -6,6 +6,7 @@ import { AuthProvider } from '@/components/providers/auth-provider'
 import ErrorBoundaryClient from '@/components/ErrorBoundaryClient';
 import { PerformanceMonitor } from '@/components/performance/performance-monitor';
 import ConditionalHeader from '@/components/layout/conditional-header';
+import Script from 'next/script';
 
 // Optimize font loading
 const inter = Inter({
@@ -151,7 +152,7 @@ export default function RootLayout({
           }}
         />
         {/* Paystack Inline Script */}
-        <script src="https://js.paystack.co/v1/inline.js"></script>
+        <Script src="https://js.paystack.co/v1/inline.js" strategy="lazyOnload" />
       </head>
       <body className={`${inter.className} antialiased`}>
         <ErrorBoundaryClient>
