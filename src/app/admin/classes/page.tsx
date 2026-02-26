@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { 
+import {
   Plus,
   Users,
   BookOpen,
@@ -241,7 +241,7 @@ function ClassesManagement() {
   const handleEditClass = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedClass) return;
-    
+
     try {
       await api.updateClass(selectedClass.id, formData);
       toast.success('Class updated successfully!');
@@ -266,7 +266,7 @@ function ClassesManagement() {
 
   const handleSendInvitations = async () => {
     if (!selectedClass) return;
-    
+
     try {
       const validEmails = inviteData.outsiderEmails.filter(email => email.trim());
       if (validEmails.length === 0 && inviteData.selectedUsers.length === 0) {
@@ -278,14 +278,14 @@ function ClassesManagement() {
         emails: validEmails,
         message: inviteData.message
       });
-      
+
       toast.success('Invitations sent successfully!');
       setShowInviteModal(false);
-      setInviteData({ 
-        emails: '', 
-        message: '', 
-        selectedUsers: [], 
-        outsiderEmails: [] 
+      setInviteData({
+        emails: '',
+        message: '',
+        selectedUsers: [],
+        outsiderEmails: []
       });
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to send invitations');
@@ -295,7 +295,7 @@ function ClassesManagement() {
   const handleAddSchedule = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedClass) return;
-    
+
     try {
       await api.createClassSchedule({
         ...scheduleData,
@@ -337,7 +337,7 @@ function ClassesManagement() {
   const handleUserSelection = (userId: string, checked: boolean) => {
     setInviteData({
       ...inviteData,
-      selectedUsers: checked 
+      selectedUsers: checked
         ? [...inviteData.selectedUsers, userId]
         : inviteData.selectedUsers.filter(id => id !== userId)
     });
@@ -346,79 +346,75 @@ function ClassesManagement() {
   const getLevelColor = (level: string) => {
     switch (level) {
       case 'beginner':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200';
+        return 'bg-neon-emerald/10 text-neon-emerald border-neon-emerald/20';
       case 'intermediate':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-200';
+        return 'bg-neon-amber/10 text-neon-amber border-neon-amber/20';
       case 'advanced':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-200';
+        return 'bg-neon-pink/10 text-neon-pink border-neon-pink/20';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-200';
+        return 'bg-white/10 text-foreground border-white/20';
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200';
+        return 'bg-neon-emerald/10 text-neon-emerald border-neon-emerald/20';
       case 'inactive':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-200';
+        return 'bg-neon-pink/10 text-neon-pink border-neon-pink/20';
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-200';
+        return 'bg-neon-amber/10 text-neon-amber border-neon-amber/20';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-200';
+        return 'bg-white/10 text-foreground border-white/20';
     }
   };
 
   // Filter classes based on search and filters
   const filteredClasses = classes.filter(cls => {
     const matchesSearch = cls.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         cls.description.toLowerCase().includes(searchTerm.toLowerCase());
-    
+      cls.description.toLowerCase().includes(searchTerm.toLowerCase());
+
     const matchesLevel = levelFilter === 'all' || cls.level === levelFilter;
-    const matchesStatus = statusFilter === 'all' || 
-                         (statusFilter === 'active' && cls.isActive) ||
-                         (statusFilter === 'inactive' && !cls.isActive);
-    
+    const matchesStatus = statusFilter === 'all' ||
+      (statusFilter === 'active' && cls.isActive) ||
+      (statusFilter === 'inactive' && !cls.isActive);
+
     return matchesSearch && matchesLevel && matchesStatus;
   });
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-neon-cyan" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="flex flex-col items-center justify-center h-64">
-          <h1 className="text-2xl font-bold mb-4 text-red-800">Classes Error</h1>
-          <p className="text-red-600 mb-4">{error}</p>
-          <Button onClick={loadClasses}>Retry</Button>
-        </div>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <h1 className="text-2xl font-bold mb-4 text-destructive">Classes Error</h1>
+        <p className="text-muted-foreground mb-4">{error}</p>
+        <Button onClick={loadClasses} variant="outline" className="border-white/10">Retry</Button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background text-foreground selection:bg-neon-cyan/30">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-6">
+      <header className="sticky top-0 z-40 w-full border-b border-white/5 bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-4 py-4 sm:py-6">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div>
-              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">
                 Class Management
               </h1>
-              <p className="text-gray-600 mt-2">
+              <p className="text-muted-foreground mt-1">
                 Create and manage classes, invite students, and track progress
               </p>
             </div>
-            <Button onClick={() => setShowCreateModal(true)} size="sm">
+            <Button onClick={() => setShowCreateModal(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Create Class
             </Button>
@@ -427,7 +423,7 @@ function ClassesManagement() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-6 lg:py-8">
+      <main className="container mx-auto px-4 py-8 max-w-7xl">
         <Tabs defaultValue="classes" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="classes">Classes</TabsTrigger>
@@ -437,14 +433,14 @@ function ClassesManagement() {
 
           <TabsContent value="classes" className="space-y-6">
             {/* Search and Filters */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 mb-8">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input 
-                  placeholder="Search classes..." 
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input
+                  placeholder="Search classes..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10" 
+                  className="pl-10 h-11 bg-background border-white/10 focus-visible:ring-neon-cyan"
                 />
               </div>
               <Select value={levelFilter} onValueChange={setLevelFilter}>
@@ -472,14 +468,16 @@ function ClassesManagement() {
 
             {/* Classes Grid */}
             {filteredClasses.length === 0 ? (
-              <Card>
-                <CardContent className="flex flex-col items-center justify-center py-12">
-                  <BookOpen className="w-12 h-12 text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2 text-center">No classes found</h3>
-                  <p className="text-gray-600 text-center max-w-md">
+              <Card className="border-dashed border-white/20 bg-background/50">
+                <CardContent className="flex flex-col items-center justify-center py-16">
+                  <div className="h-12 w-12 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                    <BookOpen className="w-6 h-6 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-lg font-medium mb-2 text-center text-foreground">No classes found</h3>
+                  <p className="text-muted-foreground text-center max-w-sm">
                     {searchTerm || levelFilter !== 'all' || statusFilter !== 'all'
-                      ? 'Try adjusting your search or filters'
-                      : 'Create your first class to get started'
+                      ? 'Try adjusting your search or filters to find what you are looking for.'
+                      : 'Create your first class to get started adding students and assignments.'
                     }
                   </p>
                 </CardContent>
@@ -487,60 +485,60 @@ function ClassesManagement() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
                 {filteredClasses.map((classItem) => (
-                  <Card key={classItem.id} className="hover:shadow-lg transition-shadow">
-                    <CardHeader className="pb-3">
-                      <div className="flex justify-between items-start gap-2">
+                  <Card key={classItem.id} className="hover:shadow-2xl transition-all duration-300 hover:border-white/10 hover:-translate-y-1 bg-card/60 backdrop-blur-md">
+                    <CardHeader className="pb-4">
+                      <div className="flex justify-between items-start gap-4">
                         <div className="flex-1 min-w-0">
-                          <CardTitle className="text-base lg:text-lg line-clamp-2">
+                          <CardTitle className="text-lg font-bold tracking-tight line-clamp-1">
                             {classItem.name}
                           </CardTitle>
-                          <CardDescription className="mt-2 line-clamp-2">
+                          <CardDescription className="mt-1.5 line-clamp-2 text-sm leading-relaxed">
                             {classItem.description}
                           </CardDescription>
                         </div>
-                        <Badge className={getLevelColor(classItem.level || 'beginner')}>
+                        <Badge variant="outline" className={getLevelColor(classItem.level || 'beginner')}>
                           {(classItem.level || 'beginner').charAt(0).toUpperCase() + (classItem.level || 'beginner').slice(1)}
                         </Badge>
                       </div>
                     </CardHeader>
-                    
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4 text-sm">
+
+                    <CardContent className="space-y-6">
+                      <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-sm border-t border-white/5 pt-4 mt-2">
                         <div>
-                          <span className="text-muted-foreground">Students</span>
-                          <p className="font-medium">{classItem.studentCount || 0}/{classItem.maxStudents}</p>
+                          <span className="text-muted-foreground/70 text-xs uppercase tracking-wider block mb-1">Students</span>
+                          <p className="font-medium text-foreground">{classItem.studentCount || 0}/{classItem.maxStudents}</p>
                         </div>
                         <div>
-                          <span className="text-muted-foreground">Assignments</span>
-                          <p className="font-medium">{classItem.assignments?.length || 0}</p>
+                          <span className="text-muted-foreground/70 text-xs uppercase tracking-wider block mb-1">Assignments</span>
+                          <p className="font-medium text-foreground">{classItem.assignments?.length || 0}</p>
                         </div>
                         <div>
-                          <span className="text-muted-foreground">Completion</span>
-                          <p className="font-medium">{classItem.completionRate || 0}%</p>
+                          <span className="text-muted-foreground/70 text-xs uppercase tracking-wider block mb-1">Completion</span>
+                          <p className="font-medium text-neon-emerald">{classItem.completionRate || 0}%</p>
                         </div>
                         <div>
-                          <span className="text-muted-foreground">Avg Score</span>
-                          <p className="font-medium">{classItem.averageScore || 0}%</p>
+                          <span className="text-muted-foreground/70 text-xs uppercase tracking-wider block mb-1">Avg Score</span>
+                          <p className="font-medium text-neon-cyan">{classItem.averageScore || 0}%</p>
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <div className="flex justify-between text-xs text-muted-foreground">
-                          <span>Progress</span>
-                          <span>{classItem.completionRate || 0}%</span>
+                        <div className="flex justify-between text-xs font-medium">
+                          <span className="text-muted-foreground">Class Progress</span>
+                          <span className="text-foreground">{classItem.completionRate || 0}%</span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-blue-600 h-2 rounded-full" 
+                        <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
+                          <div
+                            className="bg-neon-cyan h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(0,229,255,0.5)]"
                             style={{ width: `${classItem.completionRate || 0}%` }}
-                          ></div>
+                          />
                         </div>
                       </div>
 
                       <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button
+                          variant="outline"
+                          size="sm"
                           className="flex-1"
                           onClick={() => {
                             setSelectedClass(classItem);
@@ -550,9 +548,9 @@ function ClassesManagement() {
                           <Eye className="h-4 w-4 mr-2" />
                           <span className="hidden sm:inline">View Details</span>
                         </Button>
-                        
-                        <Button 
-                          size="sm" 
+
+                        <Button
+                          size="sm"
                           className="flex-1"
                           onClick={() => {
                             setSelectedClass(classItem);
@@ -578,11 +576,11 @@ function ClassesManagement() {
                 Invite Students
               </Button>
             </div>
-            
+
             <Card>
               <CardContent className="pt-6">
                 <p className="text-gray-600 text-center py-8">
-                  Student management features will be implemented here. 
+                  Student management features will be implemented here.
                   You can view and manage all students across classes.
                 </p>
               </CardContent>
@@ -591,7 +589,7 @@ function ClassesManagement() {
 
           <TabsContent value="analytics" className="space-y-6">
             <h2 className="text-xl lg:text-2xl font-bold">Class Analytics</h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
               <Card>
                 <CardContent className="pt-6">
@@ -603,7 +601,7 @@ function ClassesManagement() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardContent className="pt-6">
                   <div className="text-center">
@@ -614,7 +612,7 @@ function ClassesManagement() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardContent className="pt-6">
                   <div className="text-center">
@@ -625,7 +623,7 @@ function ClassesManagement() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardContent className="pt-6">
                   <div className="text-center">
@@ -637,7 +635,7 @@ function ClassesManagement() {
                 </CardContent>
               </Card>
             </div>
-            
+
             <Card>
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
@@ -659,7 +657,7 @@ function ClassesManagement() {
               Create a new class and generate an enrollment code for students.
             </DialogDescription>
           </DialogHeader>
-          
+
           <form onSubmit={handleCreateClass} className="space-y-4">
             <div>
               <Label htmlFor="name">Class Name</Label>
@@ -671,7 +669,7 @@ function ClassesManagement() {
                 required
               />
             </div>
-            
+
             <div>
               <Label htmlFor="description">Description</Label>
               <Textarea
@@ -683,7 +681,7 @@ function ClassesManagement() {
                 required
               />
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="level">Level</Label>
@@ -698,7 +696,7 @@ function ClassesManagement() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div>
                 <Label htmlFor="maxStudents">Max Students</Label>
                 <Input
@@ -712,7 +710,7 @@ function ClassesManagement() {
                 />
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="startDate">Start Date</Label>
@@ -724,7 +722,7 @@ function ClassesManagement() {
                   required
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="endDate">End Date</Label>
                 <Input
@@ -737,7 +735,7 @@ function ClassesManagement() {
               </div>
             </div>
           </form>
-          
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCreateModal(false)}>
               Cancel
@@ -758,7 +756,7 @@ function ClassesManagement() {
               Detailed class information and management options
             </DialogDescription>
           </DialogHeader>
-          
+
           {selectedClass && (
             <div className="space-y-6">
               {/* Basic Information */}
@@ -775,7 +773,7 @@ function ClassesManagement() {
                       <Label className="text-sm font-medium text-gray-600">Description</Label>
                       <p className="text-sm">{selectedClass.description}</p>
                     </div>
-                    
+
                     <div>
                       <Label className="text-sm font-medium text-gray-600">Instructor</Label>
                       <p className="font-medium">
@@ -783,12 +781,12 @@ function ClassesManagement() {
                       </p>
                       <p className="text-sm text-gray-600">{selectedClass.instructor?.email}</p>
                     </div>
-                    
+
                     <div>
                       <Label className="text-sm font-medium text-gray-600">Enrollment</Label>
                       <p className="font-medium">{selectedClass.studentCount} / {selectedClass.maxStudents} students</p>
                     </div>
-                    
+
                     <div>
                       <Label className="text-sm font-medium text-gray-600">Enrollment Code</Label>
                       <p className="font-mono bg-gray-100 p-2 rounded text-sm break-all">
@@ -820,7 +818,7 @@ function ClassesManagement() {
                         <div className="text-sm text-gray-600">Completion</div>
                       </div>
                     </div>
-                    
+
                     <div className="text-center">
                       <div className="text-2xl font-bold text-purple-600">
                         {selectedClass.averageScore || 0}%
@@ -839,7 +837,7 @@ function ClassesManagement() {
                       <CalendarDays className="w-5 h-5" />
                       Class Schedule
                     </CardTitle>
-                    <Button 
+                    <Button
                       size="sm"
                       onClick={() => {
                         setShowClassDetailsModal(false);
@@ -930,7 +928,7 @@ function ClassesManagement() {
               </div>
             </div>
           )}
-          
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowClassDetailsModal(false)}>
               Close
@@ -948,7 +946,7 @@ function ClassesManagement() {
               Send invitations to students to join this class.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             <div>
               <Label>Existing Students</Label>
@@ -967,7 +965,7 @@ function ClassesManagement() {
                 ))}
               </div>
             </div>
-            
+
             <div>
               <Label>External Email Addresses</Label>
               <div className="flex gap-2 mt-2">
@@ -981,7 +979,7 @@ function ClassesManagement() {
                   Add
                 </Button>
               </div>
-              
+
               {inviteData.outsiderEmails.length > 0 && (
                 <div className="mt-2 space-y-2">
                   {inviteData.outsiderEmails.map((email, index) => (
@@ -1000,7 +998,7 @@ function ClassesManagement() {
                 </div>
               )}
             </div>
-            
+
             <div>
               <Label htmlFor="message">Message (Optional)</Label>
               <Textarea
@@ -1012,7 +1010,7 @@ function ClassesManagement() {
               />
             </div>
           </div>
-          
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowInviteModal(false)}>
               Cancel
@@ -1033,7 +1031,7 @@ function ClassesManagement() {
               Add a new schedule entry for {selectedClass?.name}.
             </DialogDescription>
           </DialogHeader>
-          
+
           <form onSubmit={handleAddSchedule} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -1053,7 +1051,7 @@ function ClassesManagement() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div>
                 <Label htmlFor="type">Type</Label>
                 <Select value={scheduleData.type} onValueChange={(value: any) => setScheduleData(prev => ({ ...prev, type: value }))}>
@@ -1067,7 +1065,7 @@ function ClassesManagement() {
                 </Select>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="startTime">Start Time</Label>
@@ -1079,7 +1077,7 @@ function ClassesManagement() {
                   required
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="endTime">End Time</Label>
                 <Input
@@ -1091,7 +1089,7 @@ function ClassesManagement() {
                 />
               </div>
             </div>
-            
+
             {scheduleData.type === 'virtual' ? (
               <div>
                 <Label htmlFor="meetingLink">Meeting Link</Label>
@@ -1115,7 +1113,7 @@ function ClassesManagement() {
               </div>
             )}
           </form>
-          
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowScheduleModal(false)}>
               Cancel
@@ -1136,7 +1134,7 @@ function ClassesManagement() {
               Update class information and settings.
             </DialogDescription>
           </DialogHeader>
-          
+
           <form onSubmit={handleEditClass} className="space-y-4">
             <div>
               <Label htmlFor="edit-name">Class Name</Label>
@@ -1148,7 +1146,7 @@ function ClassesManagement() {
                 required
               />
             </div>
-            
+
             <div>
               <Label htmlFor="edit-description">Description</Label>
               <Textarea
@@ -1160,7 +1158,7 @@ function ClassesManagement() {
                 required
               />
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="edit-level">Level</Label>
@@ -1175,7 +1173,7 @@ function ClassesManagement() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div>
                 <Label htmlFor="edit-maxStudents">Max Students</Label>
                 <Input
@@ -1189,7 +1187,7 @@ function ClassesManagement() {
                 />
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="edit-startDate">Start Date</Label>
@@ -1201,7 +1199,7 @@ function ClassesManagement() {
                   required
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="edit-endDate">End Date</Label>
                 <Input
@@ -1214,7 +1212,7 @@ function ClassesManagement() {
               </div>
             </div>
           </form>
-          
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowEditModal(false)}>
               Cancel

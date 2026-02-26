@@ -97,33 +97,27 @@ function DashboardActionButton({
   onClick,
   icon: Icon,
   label,
-  gradient,
   className
 }: {
   onClick: () => void;
   icon: any;
   label: string;
-  gradient: string;
   className?: string;
 }) {
   return (
     <button
       onClick={onClick}
       className={clsx(
-        'group relative flex flex-col items-center justify-center h-28 w-full rounded-2xl p-0.5 shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400',
+        'group relative flex flex-col items-center justify-center h-28 w-full rounded-xl border border-white/[0.08] bg-white/[0.02] backdrop-blur-md transition-all duration-300 hover:bg-white/[0.06] hover:border-white/[0.15] hover:shadow-[0_0_20px_rgba(0,229,255,0.1)] hover:-translate-y-1',
         className
       )}
-      style={{ background: gradient }}
       tabIndex={0}
       aria-label={label}
     >
-      <div className="flex flex-col items-center justify-center h-full w-full bg-white/90 dark:bg-gray-900/90 rounded-2xl p-4 transition-all group-hover:bg-white/80 group-active:scale-95">
-        <Icon className="h-8 w-8 mb-2 text-blue-700 group-hover:text-blue-900 transition-colors" />
-        <span className="text-base font-semibold text-gray-900 dark:text-white group-hover:text-blue-900 tracking-tight">
-          {label}
-        </span>
-      </div>
-      <span className="absolute inset-0 rounded-2xl pointer-events-none group-hover:shadow-2xl group-hover:scale-105 transition-all" />
+      <Icon className="h-7 w-7 mb-3 text-muted-foreground group-hover:text-neon-cyan transition-colors duration-300" />
+      <span className="text-sm font-medium text-foreground tracking-wide group-hover:text-white transition-colors">
+        {label}
+      </span>
     </button>
   );
 }
@@ -259,9 +253,9 @@ function AdminDashboard() {
 
   return (
     <ErrorBoundary fallback={<div className="bg-red-100 text-red-800 p-4 rounded">Something went wrong. Please refresh or contact support.</div>}>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-background text-foreground selection:bg-neon-cyan/30">
         {/* Header */}
-        <header className="bg-white dark:bg-gray-800 shadow-sm border-b">
+        <header className="sticky top-0 z-40 w-full border-b border-white/5 bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
           <div className="container mx-auto px-4 py-4">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-4">
               <h1 className="text-xl sm:text-2xl font-bold">Admin Dashboard</h1>
@@ -269,8 +263,8 @@ function AdminDashboard() {
             </div>
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
-                <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">
-                  Welcome back, {user?.firstName} {user?.lastName}
+                <p className="text-muted-foreground text-sm sm:text-base">
+                  Welcome back, <span className="text-foreground tracking-tight">{user?.firstName} {user?.lastName}</span>
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 sm:gap-4">
@@ -474,61 +468,51 @@ function AdminDashboard() {
                         onClick={() => router.push('/admin/classes')}
                         icon={Users}
                         label="Create Class"
-                        gradient="linear-gradient(135deg, #6EE7B7 0%, #3B82F6 100%)"
                       />
                       <DashboardActionButton
                         onClick={() => router.push('/admin/projects')}
                         icon={Code}
                         label="Add Project"
-                        gradient="linear-gradient(135deg, #FDE68A 0%, #F59E42 100%)"
                       />
                       <DashboardActionButton
                         onClick={() => router.push('/admin/submissions')}
                         icon={FileText}
                         label="Review Submissions"
-                        gradient="linear-gradient(135deg, #FCA5A5 0%, #F43F5E 100%)"
                       />
                       <DashboardActionButton
                         onClick={() => setShowNotificationModal(true)}
                         icon={Bell}
                         label="Send Notifications"
-                        gradient="linear-gradient(135deg, #A5B4FC 0%, #6366F1 100%)"
                       />
                       <DashboardActionButton
                         onClick={() => router.push('/admin/classes')}
                         icon={Settings}
                         label="Manage Classes"
-                        gradient="linear-gradient(135deg, #FBC2EB 0%, #A6C1EE 100%)"
                       />
                       <DashboardActionButton
                         onClick={() => router.push('/admin/analytics')}
                         icon={BarChart3}
                         label="View Analytics"
-                        gradient="linear-gradient(135deg, #FDE68A 0%, #F59E42 100%)"
                       />
                       <DashboardActionButton
                         onClick={() => router.push('/admin/users')}
                         icon={UserCheck}
                         label="Manage Users"
-                        gradient="linear-gradient(135deg, #C7D2FE 0%, #818CF8 100%)"
                       />
                       <DashboardActionButton
                         onClick={() => router.push('/admin/leaderboard')}
                         icon={Trophy}
                         label="Leaderboard"
-                        gradient="linear-gradient(135deg, #FDE68A 0%, #F59E42 100%)"
                       />
                       <DashboardActionButton
                         onClick={() => router.push('/admin/weekly-attendance')}
                         icon={Calendar}
                         label="Weekly Attendance"
-                        gradient="linear-gradient(135deg, #6EE7B7 0%, #10B981 100%)"
                       />
                       <DashboardActionButton
                         onClick={() => router.push('/hrms/dashboard')}
                         icon={Users}
                         label="HRMS Dashboard"
-                        gradient="linear-gradient(135deg, #A5B4FC 0%, #4F46E5 100%)"
                       />
                     </div>
                   </CardContent>
@@ -941,60 +925,86 @@ function AdminDashboard() {
             </TabsContent>
           </Tabs>
 
-          {/* Add links or cards for class management, assignment management, student analytics, and progress overview */}
-          <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <a href="/admin/classes" className="block p-4 bg-white rounded shadow hover:bg-blue-50">
-              <div className="font-bold text-lg mb-1">Class Management</div>
-              <div className="text-gray-600">Create, edit, and manage classes and enrollments</div>
+          {/* Quick Links */}
+          <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <a href="/admin/classes" className="block p-5 rounded-xl border border-white/5 bg-card/60 backdrop-blur-md transition-all hover:bg-white/[0.04] hover:border-white/10 hover:shadow-lg">
+              <div className="font-semibold text-lg text-foreground mb-1 flex items-center gap-2"><BookOpen className="h-5 w-5 text-neon-cyan" /> Class Management</div>
+              <div className="text-sm text-muted-foreground">Create, edit, and manage classes and enrollments</div>
             </a>
-            <a href="/admin/assignments" className="block p-4 bg-white rounded shadow hover:bg-blue-50">
-              <div className="font-bold text-lg mb-1">Assignment Management</div>
-              <div className="text-gray-600">Create, edit, and manage assignments</div>
+            <a href="/admin/assignments" className="block p-5 rounded-xl border border-white/5 bg-card/60 backdrop-blur-md transition-all hover:bg-white/[0.04] hover:border-white/10 hover:shadow-lg">
+              <div className="font-semibold text-lg text-foreground mb-1 flex items-center gap-2"><FileText className="h-5 w-5 text-neon-violet" /> Assignment Management</div>
+              <div className="text-sm text-muted-foreground">Create, edit, and manage assignments</div>
             </a>
-            <a href="/admin/submissions" className="block p-4 bg-white rounded shadow hover:bg-blue-50">
-              <div className="font-bold text-lg mb-1">Submission Review</div>
-              <div className="text-gray-600">Review, score, and provide feedback on submissions</div>
+            <a href="/admin/submissions" className="block p-5 rounded-xl border border-white/5 bg-card/60 backdrop-blur-md transition-all hover:bg-white/[0.04] hover:border-white/10 hover:shadow-lg">
+              <div className="font-semibold text-lg text-foreground mb-1 flex items-center gap-2"><CheckCircle className="h-5 w-5 text-neon-emerald" /> Submission Review</div>
+              <div className="text-sm text-muted-foreground">Review, score, and provide feedback on submissions</div>
             </a>
-            <a href="/admin/leaderboard" className="block p-4 bg-white rounded shadow hover:bg-blue-50">
-              <div className="font-bold text-lg mb-1">Leaderboard & Analytics</div>
-              <div className="text-gray-600">View leaderboard, analytics, and student progress</div>
+            <a href="/admin/leaderboard" className="block p-5 rounded-xl border border-white/5 bg-card/60 backdrop-blur-md transition-all hover:bg-white/[0.04] hover:border-white/10 hover:shadow-lg">
+              <div className="font-semibold text-lg text-foreground mb-1 flex items-center gap-2"><Trophy className="h-5 w-5 text-neon-amber" /> Leaderboard & Analytics</div>
+              <div className="text-sm text-muted-foreground">View leaderboard, analytics, and student progress</div>
             </a>
           </div>
 
-          {/* Below the header, show recent notifications */}
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold mb-2">Recent Notifications</h2>
-            <div className="space-y-2">
-              {recentNotifications.length === 0 && <div className="text-gray-500">No notifications</div>}
-              {recentNotifications.map(n => (
-                <div key={n.id} className={`p-3 rounded border ${!n.isRead ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'}`}>
-                  <div className="font-medium">{n.title}</div>
-                  <div className="text-sm text-gray-600">{n.content}</div>
-                  <div className="text-xs text-gray-400 mt-1">{new Date(n.createdAt).toLocaleString()}</div>
+          {/* Below the header, show recent notifications and payments in a grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {/* Recent Notifications */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2"><Bell className="h-5 w-5" /> Recent Notifications</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {recentNotifications.length === 0 && <div className="text-muted-foreground text-sm">No notifications</div>}
+                  {recentNotifications.map(n => (
+                    <div key={n.id} className={`p-4 rounded-lg border transition-colors ${!n.isRead ? 'bg-primary/5 border-primary/20' : 'bg-background/50 border-border'}`}>
+                      <div className="font-medium text-foreground">{n.title}</div>
+                      <div className="text-sm text-muted-foreground mt-1 line-clamp-2">{n.content}</div>
+                      <div className="text-xs text-muted-foreground/60 mt-2 flex items-center gap-1">
+                        <Clock className="h-3 w-3" /> {new Date(n.createdAt).toLocaleString()}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
+              </CardContent>
+            </Card>
 
-          {/* Below notifications, show recent payments */}
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold mb-2">Recent Payments</h2>
-            <div className="space-y-2">
-              {recentPayments.length === 0 && <div className="text-gray-500">No recent payments</div>}
-              {recentPayments.map(p => (
-                <div key={p.id} className={`p-3 rounded border ${p.status === 'success' ? 'bg-green-50 border-green-200' : p.status === 'pending' ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200'}`}>
-                  <div className="font-medium">{p.type === 'late_fee' ? 'Late Fee' : p.type}</div>
-                  <div className="text-sm text-gray-600">Amount: ₦{p.amount}</div>
-                  <div className="text-xs text-gray-400 mt-1">{new Date(p.createdAt).toLocaleString()} - {p.status}</div>
-                </div>
-              ))}
-            </div>
-          </div>
+            <div className="space-y-6">
+              {/* Recent Payments */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2"><DollarSign className="h-5 w-5" /> Recent Payments</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {recentPayments.length === 0 && <div className="text-muted-foreground text-sm">No recent payments</div>}
+                    {recentPayments.map(p => (
+                      <div key={p.id} className={`p-4 rounded-lg border flex justify-between items-center ${p.status === 'success' ? 'bg-green-500/5 border-green-500/20' : p.status === 'pending' ? 'bg-yellow-500/5 border-yellow-500/20' : 'bg-red-500/5 border-red-500/20'}`}>
+                        <div>
+                          <div className="font-medium text-foreground">{p.type === 'late_fee' ? 'Late Fee' : p.type}</div>
+                          <div className="text-xs text-muted-foreground mt-1">{new Date(p.createdAt).toLocaleDateString()}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-bold text-foreground">₦{p.amount?.toLocaleString()}</div>
+                          <Badge variant="outline" className={`mt-1 capitalize text-[10px] ${p.status === 'success' ? 'text-green-500 border-green-500/30' : p.status === 'pending' ? 'text-yellow-500 border-yellow-500/30' : 'text-red-500 border-red-500/30'}`}>
+                            {p.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
 
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold mb-2">Rules & Penalties</h2>
-            <div className="text-gray-600 mb-2">All tasks are time-bound. Late = deduction. Missed = 0. Repeat plagiarism = flagged/disqualified. See full rules for details.</div>
-            <a href="/rules" className="text-blue-600 underline">View Full Rules</a>
+              <Card className="border-neon-cyan/20 bg-neon-cyan/5">
+                <CardContent className="p-6">
+                  <h2 className="text-lg font-semibold mb-2 text-foreground flex items-center gap-2"><AlertCircle className="h-5 w-5 text-neon-cyan" /> Rules & Penalties</h2>
+                  <p className="text-sm text-muted-foreground mb-4 leading-relaxed">All tasks are time-bound. Late = deduction. Missed = 0. Repeat plagiarism = flagged/disqualified. See full rules for details.</p>
+                  <Button variant="outline" size="sm" asChild className="border-neon-cyan/50 text-neon-cyan hover:bg-neon-cyan/10 hover:text-neon-cyan">
+                    <a href="/rules">View Full Rules</a>
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </main>
       </div>
