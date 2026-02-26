@@ -14,16 +14,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Calendar, 
-  Clock, 
-  Users, 
-  BookOpen, 
-  Plus, 
-  Search, 
-  Filter, 
-  UserPlus, 
-  Mail, 
+import {
+  Calendar,
+  Clock,
+  Users,
+  BookOpen,
+  Plus,
+  Search,
+  Filter,
+  UserPlus,
+  Mail,
   Loader2,
   Eye,
   GraduationCap,
@@ -98,7 +98,7 @@ export default function ClassesPage() {
     createAccounts: false
   });
 
-  const isAdmin = user?.role === 'admin' || user?.role === 'partial_admin';
+  const isAdmin = user?.role === 'admin' || user?.role === 'instructor' || user?.role === 'staff';
   const isStudent = user?.role === 'student';
 
   useEffect(() => {
@@ -173,7 +173,7 @@ export default function ClassesPage() {
         message: inviteData.message,
         createAccounts: inviteData.createAccounts
       });
-      
+
       toast.success('Invitations sent successfully!');
       setShowInviteDialog(false);
       setInviteData({
@@ -210,12 +210,12 @@ export default function ClassesPage() {
   // Filter classes based on search and status
   const filteredClasses = classes.filter(cls => {
     const matchesSearch = cls.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         cls.description.toLowerCase().includes(searchTerm.toLowerCase());
-    
+      cls.description.toLowerCase().includes(searchTerm.toLowerCase());
+
     const matchesStatus = statusFilter === 'all' ||
-                         (statusFilter === 'active' && cls.isActive) ||
-                         (statusFilter === 'enrolled' && cls.isEnrolled);
-    
+      (statusFilter === 'active' && cls.isActive) ||
+      (statusFilter === 'enrolled' && cls.isEnrolled);
+
     return matchesSearch && matchesStatus;
   });
 
@@ -244,11 +244,11 @@ export default function ClassesPage() {
               {isAdmin ? 'Manage all classes and enrollments' : 'View your enrolled classes and join new ones'}
             </p>
           </div>
-          
+
           <div className="flex flex-wrap gap-2">
             {isStudent && (
-              <Button 
-                onClick={() => setShowJoinDialog(true)} 
+              <Button
+                onClick={() => setShowJoinDialog(true)}
                 variant="outline"
                 size="sm"
                 className="flex-1 sm:flex-none"
@@ -258,9 +258,9 @@ export default function ClassesPage() {
                 <span className="sm:hidden">Join</span>
               </Button>
             )}
-            
+
             {isAdmin && (
-              <Button 
+              <Button
                 onClick={() => setShowCreateDialog(true)}
                 size="sm"
                 className="flex-1 sm:flex-none"
@@ -284,7 +284,7 @@ export default function ClassesPage() {
               className="pl-10"
             />
           </div>
-          
+
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-full sm:w-48">
               <SelectValue placeholder="Filter by status" />
@@ -304,7 +304,7 @@ export default function ClassesPage() {
               <BookOpen className="w-12 h-12 text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2 text-center">No classes found</h3>
               <p className="text-gray-600 text-center max-w-md">
-                {isAdmin 
+                {isAdmin
                   ? 'Create your first class to get started'
                   : 'Join a class using an enrollment code or wait for an invitation'
                 }
@@ -330,62 +330,62 @@ export default function ClassesPage() {
                     </Badge>
                   </div>
                 </CardHeader>
-                
+
                 <CardContent className="space-y-3">
                   <div className="flex items-center text-sm text-gray-600">
                     <Users className="w-4 h-4 mr-2 shrink-0" />
                     <span>{cls.studentCount} / {cls.maxStudents} students</span>
                   </div>
-                  
+
                   <div className="flex items-center text-sm text-gray-600">
                     <Calendar className="w-4 h-4 mr-2 shrink-0" />
                     <span className="truncate">
                       {cls.startDate ? new Date(cls.startDate).toLocaleDateString() : 'No start date'}
                     </span>
                   </div>
-                  
+
                   {cls.endDate && (
                     <div className="flex items-center text-sm text-gray-600">
                       <Clock className="w-4 h-4 mr-2 shrink-0" />
                       <span className="truncate">Ends {new Date(cls.endDate).toLocaleDateString()}</span>
                     </div>
                   )}
-                  
+
                   <div className="text-sm text-gray-600">
                     <strong>Instructor:</strong> {cls.instructor.firstName} {cls.instructor.lastName}
                   </div>
-                  
+
                   {isAdmin && cls.enrollmentCode && (
                     <div className="text-sm text-gray-600">
-                      <strong>Enrollment Code:</strong> 
+                      <strong>Enrollment Code:</strong>
                       <span className="font-mono bg-gray-100 px-2 py-1 rounded ml-1 text-xs">
                         {cls.enrollmentCode}
                       </span>
                     </div>
                   )}
-                  
+
                   {cls.isEnrolled && (
                     <Badge variant="outline" className="text-green-600 border-green-600 text-sm">
                       Enrolled
                     </Badge>
                   )}
                 </CardContent>
-                
+
                 <CardContent className="pt-0">
                   <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       className="flex-1"
                       onClick={() => router.push(`/classes/${cls.id}`)}
                     >
                       <Eye className="w-4 h-4 mr-2" />
                       <span className="hidden sm:inline">View Details</span>
                     </Button>
-                    
+
                     {isAdmin && (
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={() => {
                           setSelectedClass(cls);
@@ -396,10 +396,10 @@ export default function ClassesPage() {
                         <Mail className="w-4 h-4" />
                       </Button>
                     )}
-                    
+
                     {cls.isEnrolled && isStudent && (
-                      <Button 
-                        variant="destructive" 
+                      <Button
+                        variant="destructive"
                         size="sm"
                         onClick={() => handleLeaveClass(cls.id)}
                       >
@@ -422,7 +422,7 @@ export default function ClassesPage() {
                 Create a new class and generate an enrollment code for students.
               </DialogDescription>
             </DialogHeader>
-            
+
             <div className="space-y-4">
               <div>
                 <Label htmlFor="name">Class Name</Label>
@@ -433,7 +433,7 @@ export default function ClassesPage() {
                   placeholder="Enter class name"
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="description">Description</Label>
                 <Textarea
@@ -444,7 +444,7 @@ export default function ClassesPage() {
                   rows={3}
                 />
               </div>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="maxStudents">Max Students</Label>
@@ -457,7 +457,7 @@ export default function ClassesPage() {
                     max="200"
                   />
                 </div>
-                
+
                 <div>
                   <Label htmlFor="startDate">Start Date</Label>
                   <Input
@@ -468,7 +468,7 @@ export default function ClassesPage() {
                   />
                 </div>
               </div>
-              
+
               <div>
                 <Label htmlFor="endDate">End Date</Label>
                 <Input
@@ -479,7 +479,7 @@ export default function ClassesPage() {
                 />
               </div>
             </div>
-            
+
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
                 Cancel
@@ -500,7 +500,7 @@ export default function ClassesPage() {
                 Enter the enrollment code provided by your instructor to join a class.
               </DialogDescription>
             </DialogHeader>
-            
+
             <div className="space-y-4">
               <div>
                 <Label htmlFor="enrollmentCode">Enrollment Code</Label>
@@ -513,7 +513,7 @@ export default function ClassesPage() {
                 />
               </div>
             </div>
-            
+
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowJoinDialog(false)}>
                 Cancel
@@ -534,7 +534,7 @@ export default function ClassesPage() {
                 Send invitations to students to join {selectedClass?.name}.
               </DialogDescription>
             </DialogHeader>
-            
+
             <div className="space-y-4">
               <div>
                 <Label>Email Addresses</Label>
@@ -566,7 +566,7 @@ export default function ClassesPage() {
                   Add Another Email
                 </Button>
               </div>
-              
+
               <div>
                 <Label htmlFor="message">Message (Optional)</Label>
                 <Textarea
@@ -578,7 +578,7 @@ export default function ClassesPage() {
                 />
               </div>
             </div>
-            
+
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowInviteDialog(false)}>
                 Cancel

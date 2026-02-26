@@ -1,6 +1,14 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// Centralized role → default redirect mapping
+const ROLE_REDIRECTS: Record<string, string> = {
+    admin: '/admin',
+    instructor: '/hrms/dashboard',
+    staff: '/hrms/dashboard',
+    student: '/dashboard',
+};
+
 export function middleware(request: NextRequest) {
     const token = request.cookies.get('token')?.value;
     const userRole = request.cookies.get('user_role')?.value;
@@ -12,10 +20,7 @@ export function middleware(request: NextRequest) {
     // Paths reserved for unauthenticated users (login, register, etc.)
     const authPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email'];
 
-    // Check if the current path is protected
     const isProtectedPath = protectedPaths.some(path => pathname.startsWith(path));
-
-    // Check if the current path is an auth path
     const isAuthPath = authPaths.some(path => pathname.startsWith(path));
 
     // If user is NOT authenticated and tries to access a protected path -> Redirect to Login
@@ -25,32 +30,23 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(url);
     }
 
-    // If user IS authenticated and tries to access an auth path -> Redirect to Dashboard (or Admin)
+    // If user IS authenticated and tries to access an auth path -> Redirect to their dashboard
     if (token && isAuthPath) {
-        if (userRole === 'admin') {
-            return NextResponse.redirect(new URL('/admin', request.url));
-        } else if (userRole === 'partial_admin') {
-            return NextResponse.redirect(new URL('/hrms/dashboard', request.url));
-        } else {
-            return NextResponse.redirect(new URL('/dashboard', request.url));
-        }
+        const redirectPath = (userRole && ROLE_REDIRECTS[userRole]) || '/dashboard';
+        return NextResponse.redirect(new URL(redirectPath, request.url));
     }
 
     // Role-based protection: Admin only routes
     if (pathname.startsWith('/admin')) {
         if (userRole !== 'admin') {
-            // Not an admin, redirect to their dashboard
-            if (userRole === 'partial_admin') {
-                return NextResponse.redirect(new URL('/hrms/dashboard', request.url));
-            }
-            return NextResponse.redirect(new URL('/dashboard', request.url));
+            const redirectPath = (userRole && ROLE_REDIRECTS[userRole]) || '/dashboard';
+            return NextResponse.redirect(new URL(redirectPath, request.url));
         }
     }
 
-    // Role-based protection: HRMS only routes
+    // Role-based protection: HRMS routes (staff, instructor, admin)
     if (pathname.startsWith('/hrms')) {
-        if (userRole !== 'partial_admin' && userRole !== 'admin') {
-            // Not authorized, redirect
+        if (!userRole || !['staff', 'instructor', 'admin'].includes(userRole)) {
             return NextResponse.redirect(new URL('/dashboard', request.url));
         }
     }
@@ -60,14 +56,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        /*
-         * Match all request paths except for the ones starting with:
-         * - api (API routes)
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         * - public files (images, etc)
-         */
         '/((?!api|_next/static|_next/image|favicon.ico|logo.jpeg|globals.css).*)',
     ],
 };

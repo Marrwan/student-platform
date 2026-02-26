@@ -4,10 +4,12 @@ import { useAuth } from '@/components/providers/auth-provider';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
+type AppRole = 'admin' | 'student' | 'instructor' | 'staff';
+
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'admin' | 'student' | 'partial_admin'; // Deprecated in favor of allowedRoles
-  allowedRoles?: ('admin' | 'student' | 'partial_admin')[];
+  requiredRole?: AppRole;
+  allowedRoles?: AppRole[];
   redirectTo?: string;
 }
 
@@ -22,14 +24,12 @@ export function ProtectedRoute({ children, requiredRole, allowedRoles, redirectT
         return;
       }
 
-      // Check requiredRole (legacy/single)
       if (requiredRole && user.role !== requiredRole) {
         router.replace(redirectTo);
         return;
       }
 
-      // Check allowedRoles (array)
-      if (allowedRoles && !allowedRoles.includes(user.role as any)) {
+      if (allowedRoles && !allowedRoles.includes(user.role as AppRole)) {
         router.replace(redirectTo);
         return;
       }
@@ -41,10 +41,9 @@ export function ProtectedRoute({ children, requiredRole, allowedRoles, redirectT
     return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div></div>;
   }
 
-  // Render check
   if (!user) return null;
   if (requiredRole && user.role !== requiredRole) return null;
-  if (allowedRoles && !allowedRoles.includes(user.role as any)) return null;
+  if (allowedRoles && !allowedRoles.includes(user.role as AppRole)) return null;
 
   return <>{children}</>;
 } 

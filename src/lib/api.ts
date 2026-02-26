@@ -1524,7 +1524,7 @@ class ApiClient {
     lastName?: string;
     email?: string;
     password?: string;
-    role?: 'student' | 'admin' | 'partial_admin';
+    role?: 'student' | 'admin' | 'instructor' | 'staff';
     isActive?: boolean;
     emailVerified?: boolean;
   }): Promise<{ message: string; user: any }> {

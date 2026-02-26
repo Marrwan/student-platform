@@ -55,8 +55,8 @@ export const metadata: Metadata = {
   },
   // Performance hints
   other: {
-    'theme-color': '#3B82F6',
-    'color-scheme': 'light dark',
+    'theme-color': '#0a0b10',
+    'color-scheme': 'dark',
   },
 }
 
@@ -65,7 +65,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-  themeColor: '#3B82F6',
+  themeColor: '#0a0b10',
 }
 
 // Error fallback component
@@ -102,7 +102,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={inter.className}>
+    <html lang="en" className={`dark ${inter.className}`}>
       <head>
         {/* Favicon */}
         <link rel="icon" type="image/jpeg" href="/logo.jpeg" style={{ borderRadius: '50%' }} />

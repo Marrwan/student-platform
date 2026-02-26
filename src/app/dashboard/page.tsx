@@ -98,7 +98,7 @@ export default function DashboardPage() {
     return null;
   }
 
-  if (user.role === 'partial_admin') {
+  if (user.role === 'staff' || user.role === 'instructor') {
     router.replace('/hrms/dashboard');
     return null;
   }

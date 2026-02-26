@@ -78,7 +78,7 @@ export default function AdminUsersPage() {
     firstName: '',
     lastName: '',
     email: '',
-    role: 'student' as 'student' | 'admin' | 'partial_admin',
+    role: 'student' as 'student' | 'admin' | 'instructor' | 'staff',
     isActive: true,
     emailVerified: false,
     password: ''
@@ -205,7 +205,7 @@ export default function AdminUsersPage() {
       firstName: user.firstName || '',
       lastName: user.lastName || '',
       email: user.email || '',
-      role: (user.role || 'student') as 'student' | 'admin' | 'partial_admin',
+      role: (user.role || 'student') as 'student' | 'admin' | 'instructor' | 'staff',
       isActive: user.isActive || false,
       emailVerified: user.emailVerified || false,
       password: '' // Always start with empty password
@@ -230,8 +230,10 @@ export default function AdminUsersPage() {
     switch (role) {
       case 'admin':
         return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-200';
-      case 'partial_admin':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-200'; // Changed color for Staff
+      case 'instructor':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-200';
+      case 'staff':
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-200';
       case 'student':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200';
       default:
@@ -240,16 +242,7 @@ export default function AdminUsersPage() {
   };
 
   const getRoleDisplay = (role: string) => {
-    switch (role) {
-      case 'partial_admin':
-        return 'Staff';
-      case 'admin':
-        return 'Admin';
-      case 'student':
-        return 'Student';
-      default:
-        return role.charAt(0).toUpperCase() + role.slice(1);
-    }
+    return role.charAt(0).toUpperCase() + role.slice(1);
   };
 
   // Get status color
@@ -394,7 +387,8 @@ export default function AdminUsersPage() {
                       <SelectItem value="all">All Roles</SelectItem>
                       <SelectItem value="student">Student</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="partial_admin">Staff</SelectItem>
+                      <SelectItem value="instructor">Instructor</SelectItem>
+                      <SelectItem value="staff">Staff</SelectItem>
                     </SelectContent>
                   </Select>
                   <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value, page: 1 })}>
@@ -598,13 +592,14 @@ export default function AdminUsersPage() {
               </div>
               <div>
                 <Label htmlFor="role">Role</Label>
-                <Select value={editForm.role} onValueChange={(value) => setEditForm({ ...editForm, role: value as 'student' | 'admin' | 'partial_admin' })}>
+                <Select value={editForm.role} onValueChange={(value) => setEditForm({ ...editForm, role: value as 'student' | 'admin' | 'instructor' | 'staff' })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="student">Student</SelectItem>
-                    <SelectItem value="partial_admin">Staff</SelectItem>
+                    <SelectItem value="instructor">Instructor</SelectItem>
+                    <SelectItem value="staff">Staff</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>

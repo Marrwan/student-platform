@@ -468,7 +468,7 @@ export default function AssignmentDetailPage() {
   };
 
   const isAdmin = () => {
-    return currentUser?.role === 'admin' || currentUser?.role === 'partial_admin';
+    return currentUser?.role === 'admin' || currentUser?.role === 'instructor' || currentUser?.role === 'staff';
   };
 
   if (loading) {

@@ -10,12 +10,12 @@ const env = {
     TINYMCE_API_KEY: sanitize(process.env.NEXT_PUBLIC_TINYMCE_API_KEY),
 } as const;
 
-console.log('Paystack public key:', env.PAYSTACK_PUBLIC_KEY);
-// Optional: Validate critical environment variables
+// Validate critical environment variables (client-side only)
 if (typeof window !== 'undefined') {
     if (!env.PAYSTACK_PUBLIC_KEY) {
-        console.warn('Missing NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY environment variable');
+        console.warn('[env] Missing NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY — payment features will be unavailable');
     }
 }
 
 export default env;
+

@@ -19,21 +19,21 @@ import { AttendanceManager } from '@/components/assignments/attendance-manager';
 import { ClassLeaderboard } from '@/components/assignments/class-leaderboard';
 import { PaymentBlockModal } from '@/components/payments/payment-block-modal';
 import { CreateScheduleModal } from '@/components/classes/create-schedule-modal';
-import { 
-  Calendar, 
-  Clock, 
-  Users, 
-  BookOpen, 
-  Plus, 
-  Search, 
-  Filter, 
-  UserPlus, 
-  Mail, 
-  Loader2, 
-  MapPin, 
-  Link, 
-  Edit, 
-  Trash2, 
+import {
+  Calendar,
+  Clock,
+  Users,
+  BookOpen,
+  Plus,
+  Search,
+  Filter,
+  UserPlus,
+  Mail,
+  Loader2,
+  MapPin,
+  Link,
+  Edit,
+  Trash2,
   Eye,
   FileText,
   CheckCircle,
@@ -122,7 +122,7 @@ export default function ClassDetailPage() {
   const router = useRouter();
   const { user } = useAuth();
   const classId = params.id as string;
-  
+
   const [classDetails, setClassDetails] = useState<ClassDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
@@ -130,7 +130,7 @@ export default function ClassDetailPage() {
   const [showPaymentBlock, setShowPaymentBlock] = useState(false);
   const [showCreateSchedule, setShowCreateSchedule] = useState(false);
 
-  const isAdmin = user?.role === 'admin' || user?.role === 'partial_admin';
+  const isAdmin = user?.role === 'admin' || user?.role === 'instructor' || user?.role === 'staff';
   const isInstructor = classDetails?.instructor?.id === user?.id;
   const isStudent = user?.role === 'student';
   const canManageClass = isAdmin || isInstructor;
@@ -201,8 +201,8 @@ export default function ClassDetailPage() {
         {/* Header */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 lg:mb-8 gap-4">
           <div className="flex items-center gap-3 lg:gap-4">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               onClick={() => router.back()}
               className="shrink-0"
@@ -219,7 +219,7 @@ export default function ClassDetailPage() {
               </p>
             </div>
           </div>
-          
+
           <div className="flex gap-2 w-full lg:w-auto">
             {canManageClass && (
               <Button variant="outline" size="sm" className="flex-1 lg:flex-none">
@@ -279,12 +279,12 @@ export default function ClassDetailPage() {
                       <p className="text-sm text-gray-600">{classDetails.instructor.email}</p>
                     )}
                   </div>
-                  
+
                   <div>
                     <Label className="text-sm font-medium text-gray-600">Enrollment</Label>
                     <p className="font-medium">{classDetails.studentCount} / {classDetails.maxStudents} students</p>
                   </div>
-                  
+
                   <div>
                     <Label className="text-sm font-medium text-gray-600">Duration</Label>
                     <p className="font-medium text-sm">
@@ -292,7 +292,7 @@ export default function ClassDetailPage() {
                       {classDetails.endDate && ` - ${new Date(classDetails.endDate).toLocaleDateString()}`}
                     </p>
                   </div>
-                  
+
                   {isAdmin && (
                     <div>
                       <Label className="text-sm font-medium text-gray-600">Enrollment Code</Label>
@@ -317,9 +317,9 @@ export default function ClassDetailPage() {
                     <div>
                       <Label className="text-sm font-medium text-gray-600">Meeting Link</Label>
                       {classDetails.meetingLink ? (
-                        <a 
-                          href={classDetails.meetingLink} 
-                          target="_blank" 
+                        <a
+                          href={classDetails.meetingLink}
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:underline break-all text-sm"
                         >
@@ -361,7 +361,7 @@ export default function ClassDetailPage() {
                       <div className="text-sm text-gray-600">Active</div>
                     </div>
                   </div>
-                  
+
                   <div className="text-center">
                     <div className="text-2xl font-bold text-purple-600">
                       {classDetails.averageScore || 0}%
@@ -378,8 +378,8 @@ export default function ClassDetailPage() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="text-xl lg:text-2xl font-bold">Assignments</h2>
               {canManageClass && (
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   className="w-full sm:w-auto"
                   onClick={() => setShowCreateAssignment(true)}
                 >
@@ -388,7 +388,7 @@ export default function ClassDetailPage() {
                 </Button>
               )}
             </div>
-            
+
             {classDetails.assignments && classDetails.assignments.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
                 {classDetails.assignments.map((assignment) => {
@@ -396,12 +396,12 @@ export default function ClassDetailPage() {
                   const now = new Date();
                   const deadline = assignment.deadline ? new Date(assignment.deadline) : null;
                   const startDate = assignment.startDate ? new Date(assignment.startDate) : null;
-                  
+
                   // Determine assignment status using backend methods or local calculation
                   let status = 'active';
                   let statusText = 'Active';
                   let statusVariant: "default" | "destructive" | "outline" | "secondary" = 'default';
-                  
+
                   if (assignment.getStatus) {
                     // Use backend model method
                     status = assignment.getStatus;
@@ -450,11 +450,11 @@ export default function ClassDetailPage() {
                       statusVariant = 'destructive';
                     }
                   }
-                  
+
                   const isLocked = status === 'locked';
                   const isActive = status === 'active';
                   const canSubmit = assignment.canSubmit !== undefined ? assignment.canSubmit : false;
-                  
+
                   return (
                     <Card key={assignment.id} className="hover:shadow-lg transition-shadow">
                       <CardHeader className="pb-3">
@@ -472,7 +472,7 @@ export default function ClassDetailPage() {
                           {assignment.description}
                         </CardDescription>
                       </CardHeader>
-                      
+
                       <CardContent className="space-y-3">
                         <div className="flex items-center text-sm text-gray-600">
                           <Calendar className="w-4 h-4 mr-2 shrink-0" />
@@ -483,18 +483,18 @@ export default function ClassDetailPage() {
                             {!startDate && !deadline && 'No dates set'}
                           </span>
                         </div>
-                        
+
                         {assignment.submissionCount !== undefined && canManageClass && (
                           <div className="flex items-center text-sm text-gray-600">
                             <FileText className="w-4 h-4 mr-2 shrink-0" />
                             <span>{assignment.submissionCount} / {assignment.totalStudents} submissions</span>
                           </div>
                         )}
-                        
+
                         <div className="flex gap-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
+                          <Button
+                            variant="outline"
+                            size="sm"
                             className="flex-1"
                             onClick={() => router.push(`/assignments/${assignment.id}`)}
                             disabled={isLocked && !canManageClass}
@@ -504,9 +504,9 @@ export default function ClassDetailPage() {
                               {isLocked && !canManageClass ? 'Locked' : 'View Details'}
                             </span>
                           </Button>
-                          
+
                           {canManageClass && (
-                            <Button 
+                            <Button
                               variant={isLocked ? "default" : "secondary"}
                               size="sm"
                               onClick={async () => {
@@ -535,7 +535,7 @@ export default function ClassDetailPage() {
                   <FileText className="w-12 h-12 text-gray-400 mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2 text-center">No assignments yet</h3>
                   <p className="text-gray-600 text-center mb-4 max-w-md">
-                    {canManageClass 
+                    {canManageClass
                       ? 'Create your first assignment to get started'
                       : 'No assignments have been created for this class yet'
                     }
@@ -564,13 +564,13 @@ export default function ClassDetailPage() {
                 </Button>
               )}
             </div>
-            
+
             {classDetails.enrollments && classDetails.enrollments.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
                 {classDetails.enrollments.map((enrollment) => {
                   const isCurrentUser = enrollment.student.id === user?.id;
                   const showProgress = canManageClass || isCurrentUser;
-                  
+
                   return (
                     <Card key={enrollment.id}>
                       <CardContent className="pt-6">
@@ -594,7 +594,7 @@ export default function ClassDetailPage() {
                             </Badge>
                           )}
                         </div>
-                        
+
                         {showProgress ? (
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
@@ -630,7 +630,7 @@ export default function ClassDetailPage() {
                     {isStudent ? 'No students enrolled yet' : 'No students enrolled'}
                   </h3>
                   <p className="text-gray-600 text-center max-w-md">
-                    {canManageClass 
+                    {canManageClass
                       ? 'Invite students to get started with this class'
                       : 'No students have enrolled in this class yet'
                     }
@@ -649,7 +649,7 @@ export default function ClassDetailPage() {
                     <h2 className="text-xl lg:text-2xl font-bold">Weekly Attendance Management</h2>
                     <p className="text-gray-600 mt-1">Mark and manage weekly attendance for all students</p>
                   </div>
-                  <Button 
+                  <Button
                     onClick={() => router.push(`/admin/weekly-attendance`)}
                     className="w-full sm:w-auto"
                   >
@@ -713,7 +713,7 @@ export default function ClassDetailPage() {
                         <p className="text-sm text-gray-600 mb-3">
                           Mark attendance for the current week for all students
                         </p>
-                        <Button 
+                        <Button
                           onClick={() => router.push(`/admin/weekly-attendance`)}
                           variant="outline"
                           className="w-full"
@@ -722,13 +722,13 @@ export default function ClassDetailPage() {
                           Mark Current Week
                         </Button>
                       </div>
-                      
+
                       <div className="p-4 border rounded-lg">
                         <h3 className="font-medium mb-2">View Attendance History</h3>
                         <p className="text-sm text-gray-600 mb-3">
                           View and manage attendance records for all weeks
                         </p>
-                        <Button 
+                        <Button
                           onClick={() => router.push(`/admin/weekly-attendance`)}
                           variant="outline"
                           className="w-full"
@@ -750,10 +750,10 @@ export default function ClassDetailPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-gray-600 mb-4">
-                      Weekly attendance scores are automatically integrated into the class leaderboard. 
+                      Weekly attendance scores are automatically integrated into the class leaderboard.
                       Students' attendance performance affects their overall ranking.
                     </p>
-                    <Button 
+                    <Button
                       onClick={() => setActiveTab('leaderboard')}
                       variant="outline"
                     >
@@ -789,8 +789,8 @@ export default function ClassDetailPage() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="text-xl lg:text-2xl font-bold">Class Schedule</h2>
               {canManageClass && (
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   className="w-full sm:w-auto"
                   onClick={() => setShowCreateSchedule(true)}
                 >
@@ -799,7 +799,7 @@ export default function ClassDetailPage() {
                 </Button>
               )}
             </div>
-            
+
             {classDetails.schedule && classDetails.schedule.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
                 {classDetails.schedule.map((schedule) => (
@@ -810,20 +810,20 @@ export default function ClassDetailPage() {
                         {schedule.dayOfWeek}
                       </CardTitle>
                     </CardHeader>
-                    
+
                     <CardContent className="space-y-3">
                       <div className="flex items-center text-sm text-gray-600">
                         <Clock className="w-4 h-4 mr-2 shrink-0" />
                         <span>{schedule.startTime} - {schedule.endTime}</span>
                       </div>
-                      
+
                       {schedule.type === 'virtual' ? (
                         <div>
                           <Label className="text-sm font-medium text-gray-600">Meeting Link</Label>
                           {schedule.meetingLink ? (
-                            <a 
-                              href={schedule.meetingLink} 
-                              target="_blank" 
+                            <a
+                              href={schedule.meetingLink}
+                              target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-600 hover:underline text-sm break-all"
                             >
@@ -849,7 +849,7 @@ export default function ClassDetailPage() {
                   <CalendarDays className="w-12 h-12 text-gray-400 mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2 text-center">No schedule set</h3>
                   <p className="text-gray-600 text-center mb-4 max-w-md">
-                    {canManageClass 
+                    {canManageClass
                       ? 'Add a class schedule to help students know when to attend'
                       : 'No class schedule has been set yet'
                     }
@@ -869,7 +869,7 @@ export default function ClassDetailPage() {
           {canManageClass && (
             <TabsContent value="analytics" className="space-y-6">
               <h2 className="text-xl lg:text-2xl font-bold">Class Analytics</h2>
-              
+
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                 <Card>
                   <CardContent className="pt-6">
@@ -879,7 +879,7 @@ export default function ClassDetailPage() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card>
                   <CardContent className="pt-6">
                     <div className="text-center">
@@ -890,7 +890,7 @@ export default function ClassDetailPage() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card>
                   <CardContent className="pt-6">
                     <div className="text-center">
@@ -901,7 +901,7 @@ export default function ClassDetailPage() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card>
                   <CardContent className="pt-6">
                     <div className="text-center">
@@ -913,7 +913,7 @@ export default function ClassDetailPage() {
                   </CardContent>
                 </Card>
               </div>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle>Recent Activity</CardTitle>

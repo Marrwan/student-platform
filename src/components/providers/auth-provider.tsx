@@ -33,35 +33,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      console.log('🔍 Checking auth...');
       const token = Cookies.get('token');
-      console.log('🎫 Token found:', !!token);
 
       if (token) {
-        console.log('📞 Calling getProfile...');
         const { user } = await api.getProfile();
-        console.log('👤 Profile response:', user);
         setUser(user);
         Cookies.set('user_role', user.role, {
           expires: 7,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax' // lax so cookie is sent when user returns from external redirect (e.g. Paystack checkout)
+          sameSite: 'lax'
         });
-        console.log('✅ User state and role cookie set successfully');
-      } else {
-        console.log('❌ No token found');
       }
     } catch (error: any) {
-      console.error('❌ Auth check failed:', error);
-      // Only remove token if it's an auth error
       if (error.response?.status === 401) {
         Cookies.remove('token');
         Cookies.remove('user_role');
         api.clearCache();
-        console.log('🗑️ Token and role cookie removed due to 401 error, cache cleared');
       }
     } finally {
-      console.log('🏁 Setting loading to false');
       setLoading(false);
       setRehydrated(true);
     }
@@ -69,58 +58,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string, verificationOtp?: string) => {
     try {
-      console.log('🔐 Attempting login for:', email);
       const loginData: any = { email, password };
       if (verificationOtp) {
         loginData.verificationOtp = verificationOtp;
       }
 
       const response = await api.login(loginData);
-      console.log('✅ Login response:', response);
 
-      // Store token securely
       Cookies.set('token', response.token, {
         expires: 7,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax' // lax so cookie is sent when user returns from external redirect (e.g. Paystack checkout)
+        sameSite: 'lax'
       });
       Cookies.set('user_role', response.user.role, {
         expires: 7,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax' // lax so cookie is sent when user returns from external redirect (e.g. Paystack checkout)
+        sameSite: 'lax'
       });
 
-      console.log('💾 Token and role stored in cookies');
-
-      // Update user state
       setUser(response.user);
-      console.log('👤 User state updated:', response.user);
-
       toast.success('Login successful!');
 
-      console.log('🎯 User role:', response.user.role);
-      let redirectPath = '/dashboard';
+      // Role-based redirect using centralized mapping
+      const roleRedirects: Record<string, string> = {
+        admin: '/admin',
+        instructor: '/hrms/dashboard',
+        staff: '/hrms/dashboard',
+        student: '/dashboard',
+      };
+      const redirectPath = roleRedirects[response.user.role] || '/dashboard';
 
-      if (response.user.role === 'admin') {
-        redirectPath = '/admin';
-      } else if (response.user.role === 'partial_admin') {
-        redirectPath = '/hrms/dashboard';
-      }
-      console.log('🚀 Redirecting to:', redirectPath);
-
-      // Force a small delay to ensure state updates
-      setTimeout(() => {
-        console.log('🔄 Executing redirect to:', redirectPath);
-        window.location.href = redirectPath;
-      }, 500);
+      // Use window.location for a full page reload to ensure middleware runs
+      window.location.href = redirectPath;
 
     } catch (error: any) {
-      console.error('❌ Login error:', error);
-
-      // Handle specific error cases
       if (error.response?.data?.needsVerification) {
-        // Don't redirect to verify-email, let the form handle it
-        throw error; // Re-throw to let the form handle the verification flow
+        throw error;
       } else {
         toast.error(error.response?.data?.message || 'Login failed');
         throw error;
@@ -160,12 +133,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       toast.success('Email verified successfully!');
 
       // Redirect based on role
-      let redirectPath = '/dashboard';
-      if (response.user.role === 'admin') {
-        redirectPath = '/admin';
-      } else if (response.user.role === 'partial_admin') {
-        redirectPath = '/hrms/dashboard';
-      }
+      const roleRedirects: Record<string, string> = {
+        admin: '/admin',
+        instructor: '/hrms/dashboard',
+        staff: '/hrms/dashboard',
+        student: '/dashboard',
+      };
+      const redirectPath = roleRedirects[response.user.role] || '/dashboard';
       router.push(redirectPath);
 
     } catch (error: any) {
