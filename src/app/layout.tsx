@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from '@/components/providers/auth-provider'
@@ -14,6 +14,12 @@ const inter = Inter({
   display: 'swap', // Optimize font loading
   preload: true,
   fallback: ['system-ui', 'arial'],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-jetbrains-mono',
 });
 
 export const metadata: Metadata = {
@@ -102,7 +108,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`dark ${inter.className}`}>
+    <html lang="en" className={`dark ${inter.className} ${jetbrainsMono.variable}`}>
       <head>
         {/* Favicon */}
         <link rel="icon" type="image/jpeg" href="/logo.jpeg" style={{ borderRadius: '50%' }} />

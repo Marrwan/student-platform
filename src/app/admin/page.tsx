@@ -43,7 +43,8 @@ import {
   Activity,
   DollarSign,
   UserCheck,
-  Star
+  Star,
+  Shield
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import toast from 'react-hot-toast';
@@ -109,15 +110,16 @@ function DashboardActionButton({
     <button
       onClick={onClick}
       className={clsx(
-        'group relative flex flex-col items-center justify-center h-28 w-full rounded-xl border border-white/[0.08] bg-white/[0.02] backdrop-blur-md transition-all duration-300 hover:bg-white/[0.06] hover:border-white/[0.15] hover:shadow-[0_0_20px_rgba(0,229,255,0.1)] hover:-translate-y-1',
+        'group relative flex flex-col items-center justify-center h-28 w-full rounded-xl border border-white/5 bg-black/20 backdrop-blur-md transition-all duration-300 hover:bg-white/5 hover:border-white/20 hover-glow-cyan overflow-hidden',
         className
       )}
       tabIndex={0}
       aria-label={label}
     >
-      <Icon className="h-7 w-7 mb-3 text-muted-foreground group-hover:text-neon-cyan transition-colors duration-300" />
-      <span className="text-sm font-medium text-foreground tracking-wide group-hover:text-white transition-colors">
-        {label}
+      <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <Icon className="h-6 w-6 mb-3 text-muted-foreground group-hover:text-neon-cyan transition-colors duration-300 relative z-10" />
+      <span className="text-[10px] font-bold text-muted-foreground tracking-widest group-hover:text-white transition-colors mono-font uppercase relative z-10">
+        {label.replace(' ', '_')}
       </span>
     </button>
   );
@@ -262,28 +264,38 @@ function AdminDashboard() {
     <ErrorBoundary fallback={<div className="bg-red-100 text-red-800 p-4 rounded">Something went wrong. Please refresh or contact support.</div>}>
       <div className="min-h-screen bg-background text-foreground selection:bg-neon-cyan/30">
         {/* Header */}
-        <header className="sticky top-0 z-40 w-full border-b border-white/5 bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-4">
-              <h1 className="text-xl sm:text-2xl font-bold">Admin Dashboard</h1>
-              <NotificationCenter />
+        <header className="sticky top-0 z-40 w-full border-b border-white/5 bg-background/40 backdrop-blur-xl supports-[backdrop-filter]:bg-background/40">
+          <div className="container mx-auto px-4 py-6 max-w-5xl">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] uppercase tracking-widest text-neon-violet mb-3 mono-font">
+                  <Activity className="h-3 w-3" />
+                  <span>Admin Terminal</span>
+                </div>
+                <h1 className="text-3xl font-bold tracking-tighter">System <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-violet to-neon-cyan">Overview</span></h1>
+              </div>
+              <div className="flex items-center gap-4">
+                <NotificationCenter />
+                <div className="hidden sm:flex items-center gap-2 p-1.5 bg-black/20 border border-white/5 rounded-lg mono-font text-[10px]">
+                  <span className="w-2 h-2 rounded-full bg-neon-emerald animate-pulse"></span>
+                  <span className="text-muted-foreground uppercase">System_Active</span>
+                </div>
+              </div>
             </div>
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
-                <p className="text-muted-foreground text-sm sm:text-base">
-                  Welcome back, <span className="text-foreground tracking-tight">{user?.firstName} {user?.lastName}</span>
+                <p className="text-muted-foreground text-sm flex items-center gap-2">
+                  <span className="mono-font text-neon-cyan">&gt;</span> AUTH_SESSION: <span className="text-foreground font-bold mono-font">{user?.firstName?.toUpperCase()}_{user?.lastName?.toUpperCase()}</span>
                 </p>
               </div>
-              <div className="flex flex-wrap gap-2 sm:gap-4">
-                <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
-                  <Bell className="h-4 w-4 mr-2" />
-                  <span className="hidden sm:inline">Notifications</span>
-                  <span className="sm:hidden">Alerts</span>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" size="sm" className="bg-white/5 border-white/10 mono-font text-[10px] tracking-widest hover:bg-neon-violet/10 transition-colors">
+                  <Bell className="h-4 w-4 mr-2 text-neon-violet" />
+                  ALERTS
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
-                  <Settings className="h-4 w-4 mr-2" />
-                  <span className="hidden sm:inline">Settings</span>
-                  <span className="sm:hidden">Settings</span>
+                <Button variant="outline" size="sm" className="bg-white/5 border-white/10 mono-font text-[10px] tracking-widest hover:bg-neon-cyan/10 transition-colors">
+                  <Settings className="h-4 w-4 mr-2 text-neon-cyan" />
+                  CONFIG
                 </Button>
               </div>
             </div>
@@ -293,97 +305,70 @@ function AdminDashboard() {
         {/* Main Content */}
         <main className="container mx-auto px-4 py-6 max-w-5xl">
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{(stats.totalUsers || 0).toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground">
-                  Registered students
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+            <div className="glass-card p-6 flex flex-col justify-between group hover-glow-violet transition-all relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-neon-violet/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-neon-violet/10 transition-colors"></div>
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mono-font">Total Users</span>
+                <div className="p-2 bg-white/5 rounded-lg border border-white/10 group-hover:border-neon-violet/30 transition-colors">
+                  <Users className="h-4 w-4 text-neon-violet" />
+                </div>
+              </div>
+              <div className="relative z-10">
+                <div className="text-3xl font-bold mb-1 mono-font">{(stats.totalUsers || 0).toLocaleString()}</div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-tight mono-font">
+                  +12.5% vs PREV_CYCLE
                 </p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Classes</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.totalClasses || 0}</div>
-                <p className="text-xs text-muted-foreground">
-                  Active learning groups
+            <div className="glass-card p-6 flex flex-col justify-between group hover-glow-cyan transition-all relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-neon-cyan/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-neon-cyan/10 transition-colors"></div>
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mono-font">Pending Revs</span>
+                <div className="p-2 bg-white/5 rounded-lg border border-white/10 group-hover:border-neon-cyan/30 transition-colors">
+                  <Clock className="h-4 w-4 text-neon-cyan" />
+                </div>
+              </div>
+              <div className="relative z-10">
+                <div className="text-3xl font-bold mb-1 mono-font">{stats.pendingSubmissions || 0}</div>
+                <p className="text-[10px] text-neon-cyan/70 uppercase tracking-tight mono-font animate-pulse">
+                  ACTION_REQUIRED
                 </p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
-                <Clock className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.pendingSubmissions || 0}</div>
-                <p className="text-xs text-muted-foreground">
-                  Submissions awaiting review
-                </p>
-              </CardContent>
-            </Card>
+            <div className="glass-card p-6 flex flex-col justify-between group hover-glow-emerald transition-all relative overflow-hidden trace-border-active">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-neon-emerald/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-neon-emerald/10 transition-colors"></div>
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mono-font">Completion</span>
+                <div className="p-2 bg-white/5 rounded-lg border border-white/10 group-hover:border-neon-emerald/30 transition-colors">
+                  <TrendingUp className="h-4 w-4 text-neon-emerald" />
+                </div>
+              </div>
+              <div className="relative z-10">
+                <div className="text-3xl font-bold mb-1 mono-font">{(stats.completionRate || 0).toFixed(1)}%</div>
+                <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden mt-1">
+                  <div className="bg-neon-emerald h-full" style={{ width: `${stats.completionRate || 0}%` }}></div>
+                </div>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{(stats.completionRate || 0).toFixed(1)}%</div>
-                <p className="text-xs text-muted-foreground">
-                  Average project completion
+            <div className="glass-card p-6 flex flex-col justify-between group hover-glow-amber transition-all relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-neon-amber/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-neon-amber/10 transition-colors"></div>
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mono-font">Revenue_Stream</span>
+                <div className="p-2 bg-white/5 rounded-lg border border-white/10 group-hover:border-neon-amber/30 transition-colors">
+                  <DollarSign className="h-4 w-4 text-neon-amber" />
+                </div>
+              </div>
+              <div className="relative z-10">
+                <div className="text-2xl font-bold mb-1 mono-font">₦{(stats.totalRevenue || 0).toLocaleString()}</div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-tight mono-font">
+                  LATE_FEE_PENALTIES
                 </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Average Score</CardTitle>
-                <Trophy className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{(stats.averageScore || 0).toFixed(1)}%</div>
-                <p className="text-xs text-muted-foreground">
-                  Across all submissions
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">₦{(stats.totalRevenue || 0).toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground">
-                  From late fees and penalties
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
-                <Target className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.totalProjects || 0}</div>
-                <p className="text-xs text-muted-foreground">
-                  Across all challenges
-                </p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
 
           {/* Revenue & Performance Cards */}
@@ -428,142 +413,131 @@ function AdminDashboard() {
 
             <TabsContent value="overview" className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Recent Activity */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Activity className="h-5 w-5" />
-                      Recent Activity
-                    </CardTitle>
-                    <CardDescription>
-                      Latest submissions and user activity
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {recentActivity.map((activity) => (
-                        <div key={activity.id} className="flex items-center space-x-4">
-                          {getActivityIcon(activity.type)}
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">{activity.message}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {activity.project && `${activity.project} • `}
-                              {activity.user && `${activity.user} • `}
-                              {new Date(activity.timestamp).toLocaleString()}
-                            </p>
+                {/* Recent Activity / System Logs */}
+                <div className="glass-card flex flex-col h-full overflow-hidden">
+                  <div className="p-6 border-b border-white/5 flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-bold flex items-center gap-2">
+                        <Activity className="h-4 w-4 text-neon-cyan" />
+                        System_Logs
+                      </h3>
+                      <p className="text-[10px] text-muted-foreground uppercase mono-font tracking-tight">Real-time event stream</p>
+                    </div>
+                    <Badge variant="outline" className="border-neon-cyan/30 text-neon-cyan mono-font text-[9px]">LIVE</Badge>
+                  </div>
+                  <div className="flex-1 overflow-y-auto max-h-[400px] p-6 space-y-4">
+                    {recentActivity.length === 0 ? (
+                      <div className="text-center py-12 text-muted-foreground mono-font text-xs">NO_RECENT_EVENTS</div>
+                    ) : (
+                      recentActivity.map((activity) => (
+                        <div key={activity.id} className="flex gap-4 group">
+                          <div className="mt-1">
+                            {getActivityIcon(activity.type)}
+                          </div>
+                          <div className="flex-1 pb-4 border-b border-white/5 last:border-0">
+                            <div className="flex justify-between items-start mb-1">
+                              <p className="text-xs font-bold group-hover:text-neon-cyan transition-colors leading-relaxed">
+                                {activity.message}
+                              </p>
+                              <span className="text-[9px] text-muted-foreground mono-font tabular-nums">
+                                {new Date(activity.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-[9px] text-muted-foreground mono-font">
+                              {activity.user && <span className="text-neon-violet/70">@{activity.user.replace(' ', '_').toLowerCase()}</span>}
+                              {activity.project && <span className="px-1 bg-white/5 rounded">OBJ: {activity.project}</span>}
+                              <span className="opacity-50">{new Date(activity.timestamp).toLocaleDateString()}</span>
+                            </div>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                      ))
+                    )}
+                  </div>
+                </div>
 
-                {/* Quick Actions */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Plus className="h-5 w-5" />
-                      Quick Actions
-                    </CardTitle>
-                    <CardDescription>
-                      Common administrative tasks
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                      <DashboardActionButton
-                        onClick={() => router.push('/admin/classes')}
-                        icon={Users}
-                        label="Create Class"
-                      />
-                      <DashboardActionButton
-                        onClick={() => router.push('/admin/projects')}
-                        icon={Code}
-                        label="Add Project"
-                      />
-                      <DashboardActionButton
-                        onClick={() => router.push('/admin/submissions')}
-                        icon={FileText}
-                        label="Review Submissions"
-                      />
-                      <DashboardActionButton
-                        onClick={() => setShowNotificationModal(true)}
-                        icon={Bell}
-                        label="Send Notifications"
-                      />
-                      <DashboardActionButton
-                        onClick={() => router.push('/admin/classes')}
-                        icon={Settings}
-                        label="Manage Classes"
-                      />
-                      <DashboardActionButton
-                        onClick={() => router.push('/admin/analytics')}
-                        icon={BarChart3}
-                        label="View Analytics"
-                      />
-                      <DashboardActionButton
-                        onClick={() => router.push('/admin/users')}
-                        icon={UserCheck}
-                        label="Manage Users"
-                      />
-                      <DashboardActionButton
-                        onClick={() => router.push('/admin/leaderboard')}
-                        icon={Trophy}
-                        label="Leaderboard"
-                      />
-                      <DashboardActionButton
-                        onClick={() => router.push('/admin/weekly-attendance')}
-                        icon={Calendar}
-                        label="Weekly Attendance"
-                      />
-                      <DashboardActionButton
-                        onClick={() => router.push('/hrms/dashboard')}
-                        icon={Users}
-                        label="HRMS Dashboard"
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
+                {/* Quick Actions Grid */}
+                <div className="glass-card p-6 h-full">
+                  <div className="mb-6">
+                    <h3 className="text-lg font-bold flex items-center gap-2">
+                      <Plus className="h-4 w-4 text-neon-violet" />
+                      Command_Center
+                    </h3>
+                    <p className="text-[10px] text-muted-foreground uppercase mono-font tracking-tight">Administrative operation shortcuts</p>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <DashboardActionButton onClick={() => router.push('/admin/classes')} icon={Users} label="Create Class" />
+                    <DashboardActionButton onClick={() => router.push('/admin/projects')} icon={Code} label="Add Project" />
+                    <DashboardActionButton onClick={() => router.push('/admin/submissions')} icon={FileText} label="Review Subs" />
+                    <DashboardActionButton onClick={() => setShowNotificationModal(true)} icon={Bell} label="Broadcast" />
+                    <DashboardActionButton onClick={() => router.push('/admin/analytics')} icon={BarChart3} label="Telemetry" />
+                    <DashboardActionButton onClick={() => router.push('/admin/users')} icon={UserCheck} label="Users" />
+                    <DashboardActionButton onClick={() => router.push('/admin/weekly-attendance')} icon={Calendar} label="Logs" />
+                    <DashboardActionButton onClick={() => router.push('/hrms/dashboard')} icon={Shield} label="HRMS" className="border-neon-cyan/20" />
+                  </div>
+                </div>
               </div>
 
-              {/* Quick Submissions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
-                    Recent Submissions
-                  </CardTitle>
-                  <CardDescription>
-                    Latest submissions requiring review
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {quickSubmissions.map((submission) => (
-                      <div key={submission.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex-1">
-                          <h4 className="font-medium">{submission.projectTitle}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            {submission.studentName} • {new Date(submission.submittedAt).toLocaleString()}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <Badge className={getStatusColor(submission.status)}>
-                            {submission.status.charAt(0).toUpperCase() + submission.status.slice(1)}
-                          </Badge>
-                          {submission.score && (
-                            <Badge variant="secondary">{submission.score}/100</Badge>
-                          )}
-                          <Button size="sm" variant="outline">
-                            <Eye className="h-4 w-4 mr-2" />
-                            Review
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+              {/* Recent Submissions Queue */}
+              <div className="glass-card overflow-hidden">
+                <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                  <div>
+                    <h3 className="text-lg font-bold flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-neon-violet" />
+                      Pending_Submissions_Queue
+                    </h3>
+                    <p className="text-[10px] text-muted-foreground uppercase mono-font tracking-tight">Awaiting manual verification and grading</p>
                   </div>
-                </CardContent>
-              </Card>
+                  <Button variant="ghost" size="sm" className="mono-font text-[10px] text-neon-cyan hover:text-neon-cyan hover:bg-neon-cyan/5">
+                    VIEW_ALL_QUEUE
+                  </Button>
+                </div>
+                <div className="relative">
+                  <div className="scan-line opacity-20"></div>
+                  <div className="divide-y divide-white/5">
+                    {quickSubmissions.length === 0 ? (
+                      <div className="text-center py-12 text-muted-foreground mono-font text-xs">QUEUE_EMPTY</div>
+                    ) : (
+                      quickSubmissions.map((submission) => (
+                        <div key={submission.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-6 hover:bg-white/[0.02] transition-colors group relative overflow-hidden">
+                          <div className="flex-1 mb-4 sm:mb-0 relative z-10">
+                            <div className="flex items-center gap-3 mb-1">
+                              <h4 className="font-bold text-sm group-hover:text-neon-cyan transition-colors">{submission.projectTitle}</h4>
+                              <Badge className={`${getStatusColor(submission.status)} mono-font text-[8px] tracking-widest uppercase h-4 px-1 border-0`}>
+                                {submission.status}
+                              </Badge>
+                            </div>
+                            <div className="flex items-center gap-4 text-[10px] text-muted-foreground mono-font uppercase">
+                              <span className="flex items-center gap-1">
+                                <Users className="h-3 w-3" />
+                                {submission.studentName.replace(' ', '_')}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                {new Date(submission.submittedAt).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 relative z-10">
+                            {submission.score && (
+                              <div className="px-3 py-1 bg-neon-emerald/5 border border-neon-emerald/20 rounded-md text-neon-emerald mono-font text-[10px] font-bold">
+                                {submission.score}/100
+                              </div>
+                            )}
+                            <Button 
+                              size="sm" 
+                              className="bg-neon-cyan/10 border border-neon-cyan/30 text-neon-cyan hover:bg-neon-cyan/20 mono-font text-[10px] tracking-widest"
+                              onClick={() => router.push(`/admin/submissions/${submission.id}`)}
+                            >
+                              <Eye className="h-3 w-3 mr-2" />
+                              VERIFY_PAYLOAD
+                            </Button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
             </TabsContent>
 
             <TabsContent value="classes" className="space-y-6">

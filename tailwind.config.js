@@ -58,6 +58,9 @@ module.exports = {
           rose: "hsl(var(--neon-rose))",
         },
       },
+      fontFamily: {
+        mono: ['var(--font-jetbrains-mono)', 'monospace'],
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",

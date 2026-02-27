@@ -241,62 +241,66 @@ function StudentDashboard() {
 
           {/* Stats Cards */}
           <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
-            <div className="glass-card p-6 flex flex-col justify-between group hover:border-neon-cyan/30 transition-colors">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium text-muted-foreground">Total Score</span>
-                <div className="p-2 bg-neon-cyan/10 rounded-lg group-hover:bg-neon-cyan/20 transition-colors">
+            <div className="glass-card p-6 flex flex-col justify-between group hover-glow-cyan transition-colors relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-neon-cyan/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-neon-cyan/10 transition-colors duration-500"></div>
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mono-font">Total Score</span>
+                <div className="p-2 bg-white/5 rounded-lg border border-white/10 group-hover:border-neon-cyan/30 group-hover:bg-neon-cyan/10 transition-colors duration-300">
                   <Trophy className="h-4 w-4 text-neon-cyan" />
                 </div>
               </div>
-              <div>
-                <div className="text-3xl font-bold mb-1">{progressStats.totalScore}</div>
-                <p className="text-xs text-muted-foreground truncate">
-                  Rank #{progressStats.rank} of {progressStats.totalStudents}
+              <div className="relative z-10">
+                <div className="text-4xl font-bold mb-1 mono-font bg-clip-text text-transparent bg-gradient-to-r from-neon-cyan to-white">{progressStats.totalScore}</div>
+                <p className="text-xs text-muted-foreground truncate mono-font">
+                  RANK #{progressStats.rank} / {progressStats.totalStudents}
                 </p>
               </div>
             </div>
 
-            <div className="glass-card p-6 flex flex-col justify-between group hover:border-neon-violet/30 transition-colors">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium text-muted-foreground">Current Streak</span>
-                <div className="p-2 bg-neon-violet/10 rounded-lg group-hover:bg-neon-violet/20 transition-colors">
+            <div className="glass-card p-6 flex flex-col justify-between group hover-glow-violet transition-colors relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-neon-violet/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-neon-violet/10 transition-colors duration-500"></div>
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mono-font">Current Streak</span>
+                <div className="p-2 bg-white/5 rounded-lg border border-white/10 group-hover:border-neon-violet/30 group-hover:bg-neon-violet/10 transition-colors duration-300">
                   <TrendingUp className="h-4 w-4 text-neon-violet" />
                 </div>
               </div>
-              <div>
-                <div className="text-3xl font-bold mb-1">{progressStats.currentStreak} <span className="text-xl">days</span></div>
-                <p className="text-xs text-neon-violet/80">
-                  Keep it up! 🔥
+              <div className="relative z-10">
+                <div className="text-4xl font-bold mb-1 mono-font bg-clip-text text-transparent bg-gradient-to-r from-neon-violet to-white">{progressStats.currentStreak} <span className="text-xl">DAYS</span></div>
+                <p className="text-xs text-neon-violet/80 mono-font">
+                  KEEP IT UP! 🔥
                 </p>
               </div>
             </div>
 
-            <div className="glass-card p-6 flex flex-col justify-between group hover:border-neon-emerald/30 transition-colors">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium text-muted-foreground">Completion Rate</span>
-                <div className="p-2 bg-neon-emerald/10 rounded-lg group-hover:bg-neon-emerald/20 transition-colors">
+            <div className="glass-card p-6 flex flex-col justify-between group hover-glow-emerald transition-colors relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-neon-emerald/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-neon-emerald/10 transition-colors duration-500"></div>
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mono-font">Completion Rate</span>
+                <div className="p-2 bg-white/5 rounded-lg border border-white/10 group-hover:border-neon-emerald/30 group-hover:bg-neon-emerald/10 transition-colors duration-300">
                   <Target className="h-4 w-4 text-neon-emerald" />
                 </div>
               </div>
-              <div>
-                <div className="text-3xl font-bold mb-1">{completionRate}%</div>
-                <p className="text-xs text-muted-foreground">
-                  {progressStats.completedProjects} of {progressStats.totalProjects} projects
+              <div className="relative z-10">
+                <div className="text-4xl font-bold mb-1 mono-font bg-clip-text text-transparent bg-gradient-to-r from-neon-emerald to-white">{completionRate}%</div>
+                <p className="text-xs text-muted-foreground mono-font">
+                  {progressStats.completedProjects} / {progressStats.totalProjects} PRJs
                 </p>
               </div>
             </div>
 
-            <div className="glass-card p-6 flex flex-col justify-between group hover:border-neon-amber/30 transition-colors">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium text-muted-foreground">Average Score</span>
-                <div className="p-2 bg-neon-amber/10 rounded-lg group-hover:bg-neon-amber/20 transition-colors">
+            <div className="glass-card p-6 flex flex-col justify-between group hover-glow-amber transition-colors relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-neon-amber/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-neon-amber/10 transition-colors duration-500"></div>
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mono-font">Average Score</span>
+                <div className="p-2 bg-white/5 rounded-lg border border-white/10 group-hover:border-neon-amber/30 group-hover:bg-neon-amber/10 transition-colors duration-300">
                   <Star className="h-4 w-4 text-neon-amber" />
                 </div>
               </div>
-              <div>
-                <div className="text-3xl font-bold mb-1">{progressStats.averageScore}%</div>
-                <p className="text-xs text-muted-foreground">
-                  Excellent performance!
+              <div className="relative z-10">
+                <div className="text-4xl font-bold mb-1 mono-font bg-clip-text text-transparent bg-gradient-to-r from-neon-amber to-white">{progressStats.averageScore}%</div>
+                <p className="text-xs text-muted-foreground mono-font">
+                  EXCELLENT PERF
                 </p>
               </div>
             </div>
@@ -308,77 +312,83 @@ function StudentDashboard() {
             <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6 sm:space-y-8">
 
               {/* Current Assignment Callout */}
-              <div className="glass-card p-6 sm:p-8 border-neon-cyan/20 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-neon-cyan/10 rounded-full blur-[80px] pointer-events-none"></div>
+              <div className="glass-card p-6 sm:p-8 hover-glow-cyan transition-colors duration-500 relative overflow-hidden group">
+                <div className="absolute top-0 -right-20 w-80 h-80 bg-neon-cyan/5 rounded-full blur-[80px] pointer-events-none group-hover:bg-neon-cyan/15 transition-colors duration-700"></div>
+                <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-neon-violet/5 rounded-full blur-[80px] pointer-events-none group-hover:bg-neon-violet/10 transition-colors duration-700"></div>
 
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6 relative z-10">
                   <div>
-                    <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
-                      <Zap className="h-5 w-5 text-neon-cyan" />
-                      Current Assignment
+                    <h2 className="text-sm tracking-widest uppercase font-bold text-neon-cyan mb-2 flex items-center gap-2 mono-font">
+                      <Zap className="h-4 w-4" />
+                      Active Assignment Output
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                      {todayProject ? 'Your Active Project' : 'No assignment available for today'}
+                      {todayProject ? 'Execute your current instructions.' : 'No active instructions assigned.'}
                     </p>
                   </div>
                   {todayProject && (
-                    <Badge variant="outline" className={getDifficultyColor(todayProject.difficulty)}>
-                      {todayProject.difficulty.toUpperCase()}
+                    <Badge variant="outline" className={`${getDifficultyColor(todayProject.difficulty)} mono-font text-xs tracking-wider border-opacity-50`}>
+                      {todayProject.difficulty}
                     </Badge>
                   )}
                 </div>
 
                 {todayProject ? (
-                  <div className="bg-secondary/20 p-6 rounded-xl border border-white/5">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
-                      <h3 className="text-2xl font-semibold">{todayProject.title}</h3>
+                  <div className="bg-background/40 backdrop-blur-md p-6 rounded-xl border border-white/5 relative z-10">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-neon-cyan to-neon-violet rounded-l-xl opacity-50"></div>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3 pl-2">
+                      <h3 className="text-2xl font-bold tracking-tight">{todayProject.title}</h3>
                       {todayProject.class && (
-                        <Badge variant="secondary" className="bg-white/10 text-foreground border-white/10 text-xs shadow-none">
+                        <Badge variant="secondary" className="bg-white/5 text-foreground border-white/10 text-xs shadow-none mono-font tracking-wider">
                           {todayProject.class}
                         </Badge>
                       )}
                     </div>
 
-                    <p className="text-muted-foreground mb-6 text-sm sm:text-base leading-relaxed">
+                    <p className="text-muted-foreground mb-6 text-sm sm:text-base leading-relaxed pl-2">
                       {todayProject.description}
                     </p>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 bg-background/50 p-4 rounded-lg border border-white/5">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white/5 rounded-md">
-                          <Clock className="h-4 w-4 text-neon-cyan" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 relative">
+                      {/* Flowchart connecting line for desktop view */}
+                      <div className="hidden sm:block absolute top-1/2 left-1/2 right-0 h-[1px] bg-white/10 -z-10 w-full transform -translate-y-1/2"></div>
+
+                      <div className="flex items-center gap-4 bg-black/40 p-4 rounded-lg border border-white/[0.05] group-hover:border-neon-cyan/20 transition-colors duration-300">
+                        <div className="p-3 bg-neon-cyan/10 rounded-md border border-neon-cyan/20">
+                          <Clock className="h-5 w-5 text-neon-cyan" />
                         </div>
                         <div>
-                          <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Time Remaining</div>
-                          <div className={`text-sm font-bold ${todayProject.isOverdue ? 'text-neon-rose' : 'text-neon-cyan'}`}>
+                          <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mono-font mb-1">Time Remaining</div>
+                          <div className={`text-sm font-bold mono-font tracking-wider ${todayProject.isOverdue ? 'text-neon-rose' : 'text-foreground'}`}>
                             {todayProject.timeRemaining}
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white/5 rounded-md">
-                          <Target className="h-4 w-4 text-neon-emerald" />
+                      <div className="flex items-center gap-4 bg-black/40 p-4 rounded-lg border border-white/[0.05] group-hover:border-neon-emerald/20 transition-colors duration-300">
+                        <div className="p-3 bg-neon-emerald/10 rounded-md border border-neon-emerald/20">
+                          <Target className="h-5 w-5 text-neon-emerald" />
                         </div>
                         <div>
-                          <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Requirements</div>
-                          <div className="text-sm font-bold text-neon-emerald">
-                            {todayProject.requirements.length} checks
+                          <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mono-font mb-1">Requirements</div>
+                          <div className="text-sm font-bold text-foreground mono-font tracking-wider">
+                            {todayProject.requirements.length} CHECKS
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-4 mt-6">
-                      <Button onClick={() => router.push(`/assignments/${todayProject.id}`)} className="bg-neon-cyan text-black hover:bg-neon-cyan/90 w-full sm:w-auto shadow-[0_0_15px_rgba(0,255,255,0.2)]">
-                        View Details
+                    <div className="flex flex-col sm:flex-row gap-4 mt-8 pl-2">
+                      <Button onClick={() => router.push(`/assignments/${todayProject.id}`)} className="bg-neon-cyan text-black hover:bg-neon-cyan/90 w-full sm:w-auto shadow-[0_0_20px_rgba(0,255,255,0.3)] mono-font text-xs tracking-wider">
+                        INITIALIZE_WORKSPACE
                         <ArrowRight className="h-4 w-4 ml-2" />
                       </Button>
-                      <Button variant="outline" onClick={() => router.push(`/assignments/${todayProject.id}`)} className="border-white/10 hover:bg-white/5 text-foreground w-full sm:w-auto">
+                      <Button variant="outline" onClick={() => router.push(`/assignments/${todayProject.id}`)} className="border-white/10 hover:bg-white/10 text-foreground w-full sm:w-auto mono-font text-xs tracking-wider">
                         <Upload className="h-4 w-4 mr-2" />
-                        Submit Work
+                        SUBMIT_PAYLOAD
                       </Button>
                     </div>
                   </div>
+
                 ) : (
                   <div className="text-center py-10 bg-secondary/10 rounded-xl border border-white/5">
                     <BookOpen className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
@@ -394,11 +404,12 @@ function StudentDashboard() {
               </div>
 
               {/* Recent Submissions */}
-              <div className="glass-card overflow-hidden">
-                <div className="p-6 border-b border-white/5">
-                  <h2 className="text-lg font-semibold flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-neon-violet" />
-                    Recent Submissions
+              <div className="glass-card overflow-hidden group hover-glow-violet transition-colors duration-500 relative">
+                <div className="absolute -top-32 -left-32 w-64 h-64 bg-neon-violet/5 rounded-full blur-[60px] pointer-events-none group-hover:bg-neon-violet/15 transition-colors duration-700"></div>
+                <div className="p-6 border-b border-white/5 relative z-10">
+                  <h2 className="text-sm tracking-widest uppercase font-bold text-neon-violet flex items-center gap-2 mono-font">
+                    <FileText className="h-4 w-4" />
+                    Transmission Logs
                   </h2>
                 </div>
 
@@ -406,38 +417,39 @@ function StudentDashboard() {
                   {recentSubmissions.length > 0 ? (
                     <div className="divide-y divide-white/5">
                       {recentSubmissions.map((submission) => (
-                        <div key={submission.id} className="p-6 hover:bg-white/5 transition-colors group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div key={submission.id} className="p-6 hover:bg-white/5 transition-colors group/row flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 relative z-10">
                           <div className="flex-1">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
-                              <h4 className="font-semibold text-foreground group-hover:text-neon-cyan transition-colors">{submission.projectTitle}</h4>
+                              <h4 className="font-semibold text-foreground group-hover/row:text-neon-cyan transition-colors">{submission.projectTitle}</h4>
                               {submission.class && (
-                                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-white/10 rounded text-muted-foreground">
+                                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-white/5 border border-white/10 rounded text-muted-foreground mono-font">
                                   {submission.class}
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-muted-foreground mb-2">
+                            <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2 mono-font flex items-center gap-2">
+                              <span className="w-1.5 h-1.5 rounded-full bg-neon-violet/50"></span>
                               {formatDate(submission.submittedAt)}
                             </p>
                             {submission.feedback && (
-                              <p className="text-sm bg-background p-3 rounded-md border border-white/5 italic text-muted-foreground/80">
-                                "{submission.feedback}"
+                              <p className="text-xs bg-background p-3 rounded-md border border-white/5 italic text-muted-foreground/80 mono-font">
+                                &gt; {submission.feedback}
                               </p>
                             )}
                           </div>
 
                           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                             <div className="flex items-center gap-2">
-                              <Badge variant="outline" className={getStatusColor(submission.status)}>
-                                {submission.status.toUpperCase()}
+                              <Badge variant="outline" className={`${getStatusColor(submission.status)} mono-font text-[10px] tracking-widest uppercase`}>
+                                {submission.status}
                               </Badge>
                               {submission.score && (
-                                <Badge variant="secondary" className="bg-background border border-white/10 font-mono text-neon-emerald">
-                                  {submission.score}/100
+                                <Badge variant="secondary" className="bg-background border border-white/10 font-mono text-neon-emerald mono-font">
+                                  {submission.score} / 100
                                 </Badge>
                               )}
                             </div>
-                            <Button size="icon" variant="outline" className="h-8 w-8 rounded-full border-white/10 hover:border-neon-cyan hover:text-neon-cyan">
+                            <Button size="icon" variant="outline" className="h-8 w-8 rounded-full border-white/10 hover:border-neon-cyan hover:text-neon-cyan group-hover/row:border-neon-cyan/50 group-hover/row:text-neon-cyan transition-colors bg-background">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </div>
@@ -458,12 +470,11 @@ function StudentDashboard() {
             <motion.div variants={itemVariants} className="space-y-6 sm:space-y-8">
 
               {/* Quick Actions */}
-              <div className="glass-card p-6">
-                <h2 className="text-lg font-semibold mb-4 text-foreground flex items-center gap-2">
-                  <span className="p-1.5 rounded-md bg-neon-amber/10">
-                    <Activity className="h-4 w-4 text-neon-amber" />
-                  </span>
-                  Quick Navigation
+              <div className="glass-card p-6 overflow-hidden relative group hover-glow-amber transition-all duration-500">
+                <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-neon-amber/5 rounded-full blur-[50px] pointer-events-none group-hover:bg-neon-amber/10 transition-colors duration-500"></div>
+                <h2 className="text-sm tracking-widest uppercase font-bold mb-4 text-neon-amber flex items-center gap-2 mono-font relative z-10">
+                  <Activity className="h-4 w-4" />
+                  System Navigation
                 </h2>
                 <div className="flex flex-col gap-2">
                   <Button variant="ghost" className="justify-start hover:bg-white/5 text-muted-foreground hover:text-foreground font-normal" onClick={() => router.push('/projects')}>
@@ -478,19 +489,23 @@ function StudentDashboard() {
                     <TrendingUp className="h-4 w-4 mr-3 text-neon-emerald" />
                     Track Full Progress
                   </Button>
-                  <Button variant="ghost" className="justify-start hover:bg-white/5 text-muted-foreground hover:text-foreground font-normal" onClick={() => router.push('/student-guide')}>
-                    <Info className="h-4 w-4 mr-3 text-muted-foreground" />
+                  <Button variant="ghost" className="justify-start hover:bg-neon-cyan/10 hover:text-neon-cyan text-muted-foreground font-normal transition-colors" onClick={() => router.push('/student-guide')}>
+                    <Info className="h-4 w-4 mr-3" />
                     Student Handbook
                   </Button>
                 </div>
               </div>
 
               {/* Progress Overview */}
-              <div className="glass-card p-6 border-neon-emerald/20">
-                <h2 className="text-lg font-semibold mb-5 text-foreground">Completion Status</h2>
-                <div className="space-y-6">
+              <div className="glass-card p-6 border-neon-emerald/20 hover-glow-emerald transition-all duration-500 relative overflow-hidden group">
+                <div className="absolute -top-10 -right-10 w-32 h-32 bg-neon-emerald/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-neon-emerald/10 transition-colors duration-500"></div>
+                <h2 className="text-sm tracking-widest uppercase font-bold mb-5 text-neon-emerald mono-font flex items-center gap-2 relative z-10">
+                  <Target className="h-4 w-4" />
+                  Diagnostics
+                </h2>
+                <div className="space-y-6 relative z-10">
                   <div>
-                    <div className="flex justify-between text-sm mb-2">
+                    <div className="flex justify-between text-xs tracking-wider uppercase mb-2 mono-font">
                       <span className="text-muted-foreground font-medium">Curriculum Path</span>
                       <span className="font-bold text-neon-emerald">{completionRate}%</span>
                     </div>
@@ -515,17 +530,18 @@ function StudentDashboard() {
               </div>
 
               {/* Notifications */}
-              <div className="glass-card p-6">
-                <h2 className="text-lg font-semibold mb-4 text-foreground flex items-center gap-2">
-                  <Bell className="h-4 w-4 text-muted-foreground" />
-                  Recent Alerts
+              <div className="glass-card p-6 hover-glow-violet transition-all duration-500 group relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-neon-violet/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-neon-violet/10 transition-colors duration-500"></div>
+                <h2 className="text-sm tracking-widest uppercase font-bold mb-4 text-neon-violet flex items-center gap-2 mono-font relative z-10">
+                  <Bell className="h-4 w-4" />
+                  System Alerts
                 </h2>
-                <div className="flex flex-col gap-3">
-                  {recentNotifications.length === 0 && <p className="text-sm text-muted-foreground italic px-2">No alerts</p>}
+                <div className="flex flex-col gap-3 relative z-10">
+                  {recentNotifications.length === 0 && <p className="text-sm text-muted-foreground italic px-2">No active alerts.</p>}
                   {recentNotifications.map(n => (
-                    <div key={n.id} className="relative pl-4 border-l-2 border-white/10 py-1 hover:border-neon-cyan transition-colors">
-                      <div className="font-medium text-sm text-foreground">{n.title}</div>
-                      <div className="text-[11px] text-muted-foreground mt-1 line-clamp-2">{n.content}</div>
+                    <div key={n.id} className="relative pl-4 border-l-2 border-white/10 py-1 hover:border-neon-violet transition-colors">
+                      <div className="font-medium text-xs tracking-wider text-foreground mono-font uppercase">{n.title}</div>
+                      <div className="text-[11px] text-muted-foreground mt-1 line-clamp-2 leading-relaxed">{n.content}</div>
                     </div>
                   ))}
                 </div>

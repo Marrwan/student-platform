@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @layer base {
+
   /* Dark-first design system — inspired by ngrok.com */
   :root {
     --background: 240 10% 4%;
@@ -57,7 +58,9 @@
   }
 
   /* Minimum touch target for mobile */
-  button, a, [role="button"] {
+  button,
+  a,
+  [role="button"] {
     min-height: 44px;
     min-width: 44px;
   }
@@ -73,11 +76,15 @@
     @apply px-4;
   }
 
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     @apply text-base;
   }
 
-  p, span, div {
+  p,
+  span,
+  div {
     line-height: 1.6;
   }
 }
@@ -94,68 +101,177 @@
   .glass-card-hover {
     @apply glass-card transition-all duration-300;
   }
+
   .glass-card-hover:hover {
-    @apply border-white/[0.15];
-    box-shadow: 0 0 24px -4px hsl(var(--neon-cyan) / 0.15);
+    @apply border-neon-cyan/50;
+    box-shadow: 0 0 0 1px hsl(var(--neon-cyan) / 0.4), 0 0 40px hsl(var(--neon-cyan) / 0.1);
   }
 
-  /* Neon glow borders */
-  .neon-border-cyan {
-    border: 1px solid hsl(var(--neon-cyan) / 0.3);
-    box-shadow: 0 0 12px -2px hsl(var(--neon-cyan) / 0.2),
-                inset 0 0 12px -4px hsl(var(--neon-cyan) / 0.1);
+  .scan-line {
+    @apply absolute inset-0 pointer-events-none overflow-hidden;
+    background: linear-gradient(to bottom,
+        transparent 0%,
+        rgba(0, 255, 255, 0.05) 50%,
+        transparent 100%);
+    height: 100%;
+    transform: translateY(-100%);
+    animation: scan 3s linear infinite;
   }
 
-  .neon-border-violet {
-    border: 1px solid hsl(var(--neon-violet) / 0.3);
-    box-shadow: 0 0 12px -2px hsl(var(--neon-violet) / 0.2),
-                inset 0 0 12px -4px hsl(var(--neon-violet) / 0.1);
+  @keyframes scan {
+    0% {
+      transform: translateY(-100%);
+    }
+
+    100% {
+      transform: translateY(100%);
+    }
   }
 
-  /* Gradient text */
-  .text-gradient {
-    @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(var(--neon-cyan)), hsl(var(--neon-violet)));
+  .trace-border {
+    @apply relative after:absolute after:inset-0 after:border after:border-white/10 after:rounded-[inherit];
   }
 
-  /* Skeleton shimmer */
-  .skeleton {
-    @apply rounded-md;
-    background: linear-gradient(
-      90deg,
+  .trace-border-active {
+    @apply relative overflow-hidden;
+  }
+
+  .trace-border-active::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 0deg,
+        transparent 0deg,
+        hsl(var(--neon-cyan) / 0.1) 40deg,
+        hsl(var(--neon-cyan) / 0.5) 90deg,
+        hsl(var(--neon-cyan) / 0.1) 140deg,
+        transparent 180deg);
+    animation: rotate-trace 4s linear infinite;
+    z-index: -1;
+    opacity: 0.3;
+    transform: translate(-25%, -25%);
+  }
+
+  .hover-glow-violet:hover {
+    @apply border-neon-violet/50;
+    box-shadow: 0 0 0 1px hsl(var(--neon-violet) / 0.4), 0 0 40px hsl(var(--neon-violet) / 0.1);
+  }
+
+  .hover-glow-emerald:hover {
+    @apply border-neon-emerald/50;
+    box-shadow: 0 0 0 1px hsl(var(--neon-emerald) / 0.4), 0 0 40px hsl(var(--neon-emerald) / 0.1);
+  }
+
+  .hover-glow-amber:hover {
+    @apply border-neon-amber/50;
+    box-shadow: 0 0 0 1px hsl(var(--neon-amber) / 0.4), 0 0 40px hsl(var(--neon-amber) / 0.1);
+  }
+
+  .mono-font {
+    font-family: var(--font-jetbrains-mono), monospace;
+  }
+}
+
+/* Neon glow borders */
+.neon-border-cyan {
+  border: 1px solid hsl(var(--neon-cyan) / 0.3);
+  box-shadow: 0 0 12px -2px hsl(var(--neon-cyan) / 0.2),
+    inset 0 0 12px -4px hsl(var(--neon-cyan) / 0.1);
+}
+
+.neon-border-violet {
+  border: 1px solid hsl(var(--neon-violet) / 0.3);
+  box-shadow: 0 0 12px -2px hsl(var(--neon-violet) / 0.2),
+    inset 0 0 12px -4px hsl(var(--neon-violet) / 0.1);
+}
+
+/* Gradient text */
+.text-gradient {
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(135deg, hsl(var(--neon-cyan)), hsl(var(--neon-violet)));
+}
+
+/* Skeleton shimmer */
+.skeleton {
+  @apply rounded-md;
+  background: linear-gradient(90deg,
       hsl(var(--muted)) 25%,
       hsl(var(--muted-foreground) / 0.08) 50%,
-      hsl(var(--muted)) 75%
-    );
-    background-size: 200% 100%;
-    animation: skeleton-shimmer 1.8s ease-in-out infinite;
+      hsl(var(--muted)) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+}
+
+@keyframes rotate-trace {
+  from {
+    transform: translate(-25%, -25%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-25%, -25%) rotate(360deg);
   }
 }
 
 /* ── Keyframe Animations ── */
 @keyframes skeleton-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 @keyframes glow-pulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes neon-flicker {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.85; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.85;
+  }
 }
 
 /* ── Custom Scrollbar ── */
@@ -191,7 +307,12 @@ code {
   @apply max-w-none;
 }
 
-.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
   @apply font-semibold text-foreground;
 }
 
@@ -199,7 +320,8 @@ code {
   @apply text-muted-foreground;
 }
 
-.prose ul, .prose ol {
+.prose ul,
+.prose ol {
   @apply text-muted-foreground;
 }
 
