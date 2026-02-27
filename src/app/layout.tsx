@@ -108,7 +108,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`dark ${inter.className} ${jetbrainsMono.variable}`}>
+    <html lang="en" className="dark">
       <head>
         {/* Favicon */}
         <link rel="icon" type="image/jpeg" href="/logo.jpeg" />
@@ -174,6 +174,18 @@ export default function RootLayout({
                       }
                     });
                   }
+                  // Global error handler for ChunkLoadError (ES5 compatibility)
+                  window.addEventListener('error', function(e) {
+                    if (e && e.message && e.message.indexOf('ChunkLoadError') !== -1) {
+                      window.location.reload();
+                    }
+                  }, true);
+
+                  window.addEventListener('unhandledrejection', function(e) {
+                    if (e && e.reason && (e.reason.name === 'ChunkLoadError' || (e.reason.message && e.reason.message.indexOf('ChunkLoadError') !== -1))) {
+                      window.location.reload();
+                    }
+                  });
                 } catch (e) {
                   // Silent catch to prevent script-based page blocks
                   if (console && console.error) console.error('INIT_ERR:', e);
