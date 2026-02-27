@@ -24,7 +24,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: 'Nexus',
-  description: 'A comprehensive learning platform for structured programming education with assignments, progress tracking, and expert feedback',
+  description: 'A comprehensive Nexus Systems for structured programming education with assignments, progress tracking, and expert feedback',
   keywords: ['Programming', 'Learning', 'Education', 'Assignments', 'Progress Tracking', 'Web Development'],
   authors: [{ name: 'Nexus Team' }],
   icons: {
@@ -50,14 +50,14 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://learning-platform.com',
     title: 'Nexus',
-    description: 'A comprehensive learning platform for structured programming education',
+    description: 'A comprehensive Nexus Systems for structured programming education',
     siteName: 'Nexus',
   },
   // Twitter
   twitter: {
     card: 'summary_large_image',
     title: 'Nexus',
-    description: 'A comprehensive learning platform for structured programming education',
+    description: 'A comprehensive Nexus Systems for structured programming education',
   },
   // Performance hints
   other: {

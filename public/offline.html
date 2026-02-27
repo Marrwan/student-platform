@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Offline - Learning Platform</title>
+    <title>Offline - Nexus Systems</title>
     <style>
         * {
             margin: 0;
@@ -112,9 +113,12 @@
         }
 
         @keyframes pulse {
-            0%, 100% {
+
+            0%,
+            100% {
                 opacity: 1;
             }
+
             50% {
                 opacity: 0.5;
             }
@@ -174,6 +178,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="offline-container">
         <div class="status-indicator">
@@ -186,9 +191,9 @@
         </div>
 
         <h1>No Internet Connection</h1>
-        
+
         <p>
-            It looks like you've lost your internet connection. Don't worry! 
+            It looks like you've lost your internet connection. Don't worry!
             You can still access some features that were previously cached.
         </p>
 
@@ -224,13 +229,13 @@
         // Retry connection
         function retryConnection() {
             checkConnection();
-            
+
             // Show loading state
             const button = event.target;
             const originalText = button.textContent;
             button.textContent = 'Checking...';
             button.disabled = true;
-            
+
             // Try to fetch a small resource to test connection
             fetch('/favicon.ico', { cache: 'no-cache' })
                 .then(() => {
@@ -266,7 +271,7 @@
         function updateConnectionStatus() {
             const statusIndicator = document.querySelector('.status-indicator');
             const statusDot = document.querySelector('.status-dot');
-            
+
             if (navigator.onLine) {
                 statusIndicator.textContent = 'Connected';
                 statusIndicator.style.background = '#d1fae5';
@@ -288,4 +293,5 @@
         window.addEventListener('offline', updateConnectionStatus);
     </script>
 </body>
-</html> 
+
+</html>
