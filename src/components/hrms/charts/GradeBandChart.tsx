@@ -13,8 +13,8 @@ const data = [
 
 export default function GradeBandChart() {
     return (
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm h-full">
-            <h3 className="text-gray-900 font-semibold mb-4">Grade Band</h3>
+        <div className="bg-card/40 backdrop-blur-xl p-6 rounded-xl border border-white/5 shadow-sm h-full">
+            <h3 className="text-foreground font-semibold mb-4">Grade Band</h3>
             <div className="h-64 flex items-center justify-center">
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -37,7 +37,7 @@ export default function GradeBandChart() {
                             align="right"
                             iconType="circle"
                             formatter={(value, entry: any) => (
-                                <span className="text-xs text-gray-600 ml-2">{value} <span className="text-gray-400 ml-2">{entry.payload.value}%</span></span>
+                                <span className="text-xs text-muted-foreground ml-2">{value} <span className="text-muted-foreground ml-2">{entry.payload.value}%</span></span>
                             )}
                         />
                     </PieChart>

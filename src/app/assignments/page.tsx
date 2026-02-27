@@ -117,7 +117,7 @@ function AssignmentsList() {
         case 'inactive':
           return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-200';
         default:
-          return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-200';
+          return 'bg-white/5 text-foreground dark:bg-gray-900/20 dark:text-gray-200';
       }
     }
     
@@ -130,7 +130,7 @@ function AssignmentsList() {
       case 'late':
         return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-200';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-200';
+        return 'bg-white/5 text-foreground dark:bg-gray-900/20 dark:text-gray-200';
     }
   };
 
@@ -181,7 +181,7 @@ function AssignmentsList() {
       case 'hard':
         return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-200';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-200';
+        return 'bg-white/5 text-foreground dark:bg-gray-900/20 dark:text-gray-200';
     }
   };
 
@@ -229,14 +229,14 @@ function AssignmentsList() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b">
+      <header className="bg-card/40 backdrop-blur-xl dark:bg-gray-800 shadow-sm border-b">
         <div className="container mx-auto px-4 py-4 sm:py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Class Assignments</h1>
-              <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground dark:text-white">Class Assignments</h1>
+              <p className="text-muted-foreground dark:text-gray-300 text-sm sm:text-base">
                 View and submit your class assignments
               </p>
             </div>
@@ -245,11 +245,11 @@ function AssignmentsList() {
       </header>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 border-b">
+      <div className="bg-card/40 backdrop-blur-xl dark:bg-gray-800 border-b">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col sm:flex-row gap-4 items-center">
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 placeholder="Search assignments..."
                 value={searchTerm}
@@ -279,11 +279,11 @@ function AssignmentsList() {
       <main className="container mx-auto px-4 py-8">
         {filteredAssignments.length === 0 ? (
           <div className="text-center py-12">
-            <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-foreground dark:text-white mb-2">
               No assignments found
             </h3>
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-muted-foreground dark:text-gray-300">
               {searchTerm || statusFilter !== 'all' 
                 ? 'Try adjusting your search or filter criteria' 
                 : 'Join a class to see assignments'}
@@ -330,17 +330,17 @@ function AssignmentsList() {
                   </div>
 
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600 dark:text-gray-300">Class</span>
+                    <span className="text-muted-foreground dark:text-gray-300">Class</span>
                     <span className="font-medium">{assignment.class?.name}</span>
                   </div>
 
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600 dark:text-gray-300">Max Score</span>
+                    <span className="text-muted-foreground dark:text-gray-300">Max Score</span>
                     <span className="font-medium">{assignment.maxScore} points</span>
                   </div>
 
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600 dark:text-gray-300">Deadline</span>
+                    <span className="text-muted-foreground dark:text-gray-300">Deadline</span>
                     <div className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
                       <span>{formatDate(assignment.deadline)}</span>
@@ -348,10 +348,10 @@ function AssignmentsList() {
                   </div>
 
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600 dark:text-gray-300">Time Left</span>
+                    <span className="text-muted-foreground dark:text-gray-300">Time Left</span>
                     <div className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
-                      <span className={isOverdue(assignment.deadline) ? 'text-red-600 font-medium' : ''}>
+                      <span className={isOverdue(assignment.deadline) ? 'text-neon-pink font-medium' : ''}>
                         {getTimeRemaining(assignment.deadline)}
                       </span>
                     </div>
@@ -359,8 +359,8 @@ function AssignmentsList() {
 
                   {assignment.submissionScore && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600 dark:text-gray-300">Your Score</span>
-                      <span className="font-medium text-green-600">{assignment.submissionScore}/{assignment.maxScore}</span>
+                      <span className="text-muted-foreground dark:text-gray-300">Your Score</span>
+                      <span className="font-medium text-neon-emerald">{assignment.submissionScore}/{assignment.maxScore}</span>
                     </div>
                   )}
 

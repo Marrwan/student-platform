@@ -89,7 +89,7 @@ export function AttendanceManager({ classId, students, onAttendanceUpdated }: At
 
   const getAttendanceStatus = (student: Student) => {
     if (!student.lastAttendance) {
-      return { status: 'never', color: 'bg-gray-100 text-gray-800', icon: UserX };
+      return { status: 'never', color: 'bg-white/5 text-foreground', icon: UserX };
     }
 
     const lastAttendance = new Date(student.lastAttendance);
@@ -116,7 +116,7 @@ export function AttendanceManager({ classId, students, onAttendanceUpdated }: At
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-medium">Attendance Management</h3>
-          <p className="text-sm text-gray-600">Award attendance scores to students</p>
+          <p className="text-sm text-muted-foreground">Award attendance scores to students</p>
         </div>
         <Badge variant="outline" className="flex items-center gap-1">
           <Users className="w-4 h-4" />
@@ -158,27 +158,27 @@ export function AttendanceManager({ classId, students, onAttendanceUpdated }: At
                   <h4 className="font-medium">
                     {student.firstName} {student.lastName}
                   </h4>
-                  <p className="text-sm text-gray-600">{student.email}</p>
+                  <p className="text-sm text-muted-foreground">{student.email}</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="text-gray-600">Attendance Score:</span>
+                    <span className="text-muted-foreground">Attendance Score:</span>
                     <p className="font-medium">{student.attendanceScore || 0} points</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Total Sessions:</span>
+                    <span className="text-muted-foreground">Total Sessions:</span>
                     <p className="font-medium">{student.totalAttendance || 0}</p>
                   </div>
                 </div>
 
                 {student.totalAttendance && student.totalAttendance > 0 && (
                   <div>
-                    <div className="flex justify-between text-xs text-gray-600 mb-1">
+                    <div className="flex justify-between text-xs text-muted-foreground mb-1">
                       <span>Attendance Rate</span>
                       <span>{attendancePercentage}%</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-white/10 rounded-full h-2">
                       <div 
                         className={`h-2 rounded-full ${
                           attendancePercentage >= 80 ? 'bg-green-500' :
@@ -191,7 +191,7 @@ export function AttendanceManager({ classId, students, onAttendanceUpdated }: At
                 )}
 
                 {student.lastAttendance && (
-                  <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Calendar className="w-3 h-3" />
                     <span>Last: {new Date(student.lastAttendance).toLocaleDateString()}</span>
                   </div>
@@ -224,7 +224,7 @@ export function AttendanceManager({ classId, students, onAttendanceUpdated }: At
                 max="100"
                 required
               />
-              <p className="text-xs text-gray-600 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 Score from 0 to 100 points
               </p>
             </div>

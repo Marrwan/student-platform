@@ -81,7 +81,7 @@ export default function HRMSSidebar() {
                                 href={item.href}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
                                     ? 'bg-blue-600 text-white'
-                                    : 'hover:bg-white/10 hover:text-white'
+                                    : 'hover:bg-card/40 backdrop-blur-xl/10 hover:text-white'
                                     }`}
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,7 +95,7 @@ export default function HRMSSidebar() {
             </div>
 
             <div className="mt-auto p-6 space-y-2">
-                <Link href="/hrms/profile" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg transition-colors">
+                <Link href="/hrms/profile" className="flex items-center gap-3 px-4 py-3 hover:bg-card/40 backdrop-blur-xl/10 rounded-lg transition-colors">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
@@ -103,7 +103,7 @@ export default function HRMSSidebar() {
                 </Link>
                 <button
                     onClick={() => logout()}
-                    className="flex items-center gap-3 px-4 py-3 w-full text-left hover:bg-white/10 rounded-lg transition-colors text-red-400 hover:text-red-300"
+                    className="flex items-center gap-3 px-4 py-3 w-full text-left hover:bg-card/40 backdrop-blur-xl/10 rounded-lg transition-colors text-red-400 hover:text-red-300"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

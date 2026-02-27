@@ -19,6 +19,7 @@ import {
   Shield,
   Trophy,
   Calendar,
+  Code,
 } from 'lucide-react';
 
 export default function Header() {
@@ -48,12 +49,12 @@ export default function Header() {
         <div className="flex justify-between items-center h-14 sm:h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2.5 group">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-neon-cyan to-neon-violet rounded-lg flex items-center justify-center shadow-lg shadow-neon-cyan/20 group-hover:shadow-neon-cyan/40 transition-shadow duration-300">
-                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-background" />
+            <Link href={user ? (user.role === 'admin' ? '/admin' : '/dashboard') : '/'} className="flex items-center space-x-3 group">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-neon-cyan to-neon-violet flex items-center justify-center shadow-[0_0_15px_rgba(0,255,255,0.3)] group-hover:shadow-[0_0_25px_rgba(0,255,255,0.5)] transition-shadow duration-300">
+                <Code className="h-5 w-5 text-black" />
               </div>
-              <span className="text-lg sm:text-xl font-bold text-foreground">
-                Learning<span className="text-gradient">Platform</span>
+              <span className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70 tracking-tight">
+                Nexus
               </span>
             </Link>
           </div>

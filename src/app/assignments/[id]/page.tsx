@@ -447,11 +447,11 @@ export default function AssignmentDetailPage() {
       case 'overdue':
         return <Badge className="bg-neon-pink/10 text-neon-pink border-neon-pink/20">Overdue</Badge>;
       case 'locked':
-        return <Badge className="bg-white/10 text-foreground border-white/20">Locked</Badge>;
+        return <Badge className="bg-card/40 backdrop-blur-xl/10 text-foreground border-white/20">Locked</Badge>;
       case 'inactive':
         return <Badge className="bg-neon-amber/10 text-neon-amber border-neon-amber/20">Inactive</Badge>;
       default:
-        return <Badge className="bg-white/10 text-foreground border-white/20">Unknown</Badge>;
+        return <Badge className="bg-card/40 backdrop-blur-xl/10 text-foreground border-white/20">Unknown</Badge>;
     }
   };
 
@@ -464,7 +464,7 @@ export default function AssignmentDetailPage() {
       case 'accepted':
         return <Badge className="bg-neon-emerald/10 text-neon-emerald border-neon-emerald/20">Accepted</Badge>;
       default:
-        return <Badge className="bg-white/10 text-foreground border-white/20">Unknown</Badge>;
+        return <Badge className="bg-card/40 backdrop-blur-xl/10 text-foreground border-white/20">Unknown</Badge>;
     }
   };
 
@@ -501,7 +501,7 @@ export default function AssignmentDetailPage() {
               variant="outline"
               size="sm"
               onClick={() => router.back()}
-              className="shrink-0 h-10 w-10 p-0 sm:h-9 sm:w-auto sm:px-4 border-white/10 hover:bg-white/5 transition-colors"
+              className="shrink-0 h-10 w-10 p-0 sm:h-9 sm:w-auto sm:px-4 border-white/10 hover:bg-card/40 backdrop-blur-xl/5 transition-colors"
             >
               <ArrowLeft className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Back</span>
@@ -549,7 +549,7 @@ export default function AssignmentDetailPage() {
                     <FileText className="w-5 h-5 text-neon-cyan" />
                     Description
                   </h2>
-                  <div className="text-muted-foreground whitespace-pre-wrap text-sm sm:text-base leading-relaxed p-4 bg-white/[0.02] rounded-xl border border-white/5">
+                  <div className="text-muted-foreground whitespace-pre-wrap text-sm sm:text-base leading-relaxed p-4 bg-card/40 backdrop-blur-xl/[0.02] rounded-xl border border-white/5">
                     {assignment.description}
                   </div>
                 </div>
@@ -559,7 +559,7 @@ export default function AssignmentDetailPage() {
                     <CheckCircle className="w-5 h-5 text-neon-emerald" />
                     Requirements
                   </h2>
-                  <div className="text-muted-foreground whitespace-pre-wrap text-sm sm:text-base leading-relaxed p-4 bg-white/[0.02] rounded-xl border border-white/5">
+                  <div className="text-muted-foreground whitespace-pre-wrap text-sm sm:text-base leading-relaxed p-4 bg-card/40 backdrop-blur-xl/[0.02] rounded-xl border border-white/5">
                     {assignment.requirements}
                   </div>
                 </div>
@@ -576,7 +576,7 @@ export default function AssignmentDetailPage() {
                   <CardContent className="space-y-6 pt-6">
                     <div className="flex flex-col gap-1">
                       <span className="text-xs uppercase tracking-wider text-muted-foreground/70 font-semibold">Start Date</span>
-                      <div className="flex items-center gap-2 text-foreground font-medium bg-white/5 p-2.5 rounded-md border border-white/5">
+                      <div className="flex items-center gap-2 text-foreground font-medium bg-card/40 backdrop-blur-xl/5 p-2.5 rounded-md border border-white/5">
                         <Calendar className="w-4 h-4 text-neon-cyan shrink-0" />
                         {assignment.startDate ? new Date(assignment.startDate).toLocaleDateString() : 'Not set'}
                       </div>
@@ -584,7 +584,7 @@ export default function AssignmentDetailPage() {
 
                     <div className="flex flex-col gap-1">
                       <span className="text-xs uppercase tracking-wider text-muted-foreground/70 font-semibold">Deadline</span>
-                      <div className="flex items-center gap-2 text-foreground font-medium bg-white/5 p-2.5 rounded-md border border-white/5">
+                      <div className="flex items-center gap-2 text-foreground font-medium bg-card/40 backdrop-blur-xl/5 p-2.5 rounded-md border border-white/5">
                         <Clock className="w-4 h-4 text-neon-pink shrink-0" />
                         {assignment.deadline ? new Date(assignment.deadline).toLocaleDateString() : 'Not set'}
                       </div>
@@ -592,7 +592,7 @@ export default function AssignmentDetailPage() {
 
                     <div className="flex flex-col gap-1">
                       <span className="text-xs uppercase tracking-wider text-muted-foreground/70 font-semibold">Max Score</span>
-                      <div className="flex items-center gap-2 text-foreground font-medium bg-white/5 p-2.5 rounded-md border border-white/5">
+                      <div className="flex items-center gap-2 text-foreground font-medium bg-card/40 backdrop-blur-xl/5 p-2.5 rounded-md border border-white/5">
                         <FileText className="w-4 h-4 text-neon-emerald shrink-0" />
                         {assignment.maxScore} points
                       </div>
@@ -600,7 +600,7 @@ export default function AssignmentDetailPage() {
 
                     <div className="flex flex-col gap-1">
                       <span className="text-xs uppercase tracking-wider text-muted-foreground/70 font-semibold">Submission Type</span>
-                      <div className="flex items-center gap-2 text-foreground font-medium bg-white/5 p-2.5 rounded-md border border-white/5 capitalize">
+                      <div className="flex items-center gap-2 text-foreground font-medium bg-card/40 backdrop-blur-xl/5 p-2.5 rounded-md border border-white/5 capitalize">
                         <Upload className="w-4 h-4 text-neon-amber shrink-0" />
                         {assignment.submissionMode}
                       </div>
@@ -646,7 +646,7 @@ export default function AssignmentDetailPage() {
                     href={assignment.sampleOutputUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-neon-cyan hover:text-neon-cyan/80 hover:underline break-all text-sm sm:text-base inline-flex items-center gap-2 bg-white/5 p-3 rounded-lg border border-white/10 w-full transition-colors"
+                    className="text-neon-cyan hover:text-neon-cyan/80 hover:underline break-all text-sm sm:text-base inline-flex items-center gap-2 bg-card/40 backdrop-blur-xl/5 p-3 rounded-lg border border-white/10 w-full transition-colors"
                   >
                     {assignment.sampleOutputUrl}
                     <ExternalLink className="w-4 h-4" />
@@ -666,7 +666,7 @@ export default function AssignmentDetailPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="bg-white/5 rounded-xl p-2 sm:p-4 min-h-[300px] sm:min-h-[400px] border border-white/10 relative group">
+                  <div className="bg-card/40 backdrop-blur-xl/5 rounded-xl p-2 sm:p-4 min-h-[300px] sm:min-h-[400px] border border-white/10 relative group">
                     <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Badge variant="outline" className="bg-black/50 backdrop-blur text-white border-white/10">HTML/CSS/JS</Badge>
                     </div>
@@ -684,7 +684,7 @@ export default function AssignmentDetailPage() {
                         </body>
                         </html>
                       `}
-                      className="w-full h-full min-h-[250px] sm:min-h-[350px] border-0 rounded bg-white"
+                      className="w-full h-full min-h-[250px] sm:min-h-[350px] border-0 rounded bg-card/40 backdrop-blur-xl"
                       title="Sample Output Preview"
                     />
                   </div>
@@ -693,7 +693,7 @@ export default function AssignmentDetailPage() {
             ) : (
               <Card className="bg-card/30 border-dashed border-white/20">
                 <CardContent className="flex flex-col items-center justify-center py-12 sm:py-20 text-center">
-                  <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-6">
+                  <div className="w-16 h-16 rounded-full bg-card/40 backdrop-blur-xl/5 flex items-center justify-center mb-6">
                     <Eye className="w-8 h-8 text-muted-foreground" />
                   </div>
                   <h3 className="text-lg font-medium text-foreground mb-2">No Sample Output</h3>
@@ -706,7 +706,7 @@ export default function AssignmentDetailPage() {
                         onClick={() => router.push(`/admin/assignments/${assignmentId}/edit`)}
                         variant="outline"
                         size="sm"
-                        className="border-white/10 hover:bg-white/5"
+                        className="border-white/10 hover:bg-card/40 backdrop-blur-xl/5"
                       >
                         <Edit className="w-4 h-4 mr-2" />
                         Add Sample
@@ -729,7 +729,7 @@ export default function AssignmentDetailPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6 pt-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border border-white/5 bg-white/[0.02] p-4 rounded-xl">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border border-white/5 bg-card/40 backdrop-blur-xl/[0.02] p-4 rounded-xl">
                     <div className="flex flex-col gap-1">
                       <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Status</span>
                       <div>{getSubmissionStatusBadge(submission.status)}</div>
@@ -747,7 +747,7 @@ export default function AssignmentDetailPage() {
                   </div>
 
                   {submission.feedback && (
-                    <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
+                    <div className="p-4 bg-card/40 backdrop-blur-xl/5 border border-white/10 rounded-xl">
                       <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-2 block">Instructor Feedback</span>
                       <p className="text-sm text-foreground/90">{submission.feedback}</p>
                     </div>
@@ -762,7 +762,7 @@ export default function AssignmentDetailPage() {
                           Code Result
                         </span>
                       </div>
-                      <div className="bg-white p-0 relative">
+                      <div className="bg-card/40 backdrop-blur-xl p-0 relative">
                         <iframe
                           key={`submission-preview-${submission.id}`}
                           srcDoc={`
@@ -793,7 +793,7 @@ export default function AssignmentDetailPage() {
                         <Link className="w-4 h-4 text-neon-cyan" />
                         <span className="text-sm font-medium text-foreground">Deployed Site Preview</span>
                       </div>
-                      <div className="bg-white p-0">
+                      <div className="bg-card/40 backdrop-blur-xl p-0">
                         <iframe
                           key={`submission-link-${submission.id}`}
                           src={submission.submissionLink}
@@ -863,7 +863,7 @@ export default function AssignmentDetailPage() {
                     </AlertDescription>
                   </Alert>
 
-                  <div className="flex flex-col items-center justify-center p-8 bg-white/[0.02] rounded-xl border border-white/5 text-center">
+                  <div className="flex flex-col items-center justify-center p-8 bg-card/40 backdrop-blur-xl/[0.02] rounded-xl border border-white/5 text-center">
                     <p className="text-sm uppercase tracking-wider text-muted-foreground font-semibold mb-2">Required Amount</p>
                     <p className="text-4xl font-bold text-foreground mb-8">₦{assignment.paymentAmount?.toLocaleString()}</p>
 
@@ -898,7 +898,7 @@ export default function AssignmentDetailPage() {
                 </CardHeader>
                 <CardContent className="pt-6">
                   {!canSubmit() && !submission ? (
-                    <Alert className="bg-white/5 text-foreground border-white/10">
+                    <Alert className="bg-card/40 backdrop-blur-xl/5 text-foreground border-white/10">
                       <Clock className="h-4 w-4" />
                       <AlertDescription>
                         {getSubmissionMessage()}
@@ -1015,13 +1015,13 @@ export default function AssignmentDetailPage() {
 
                           {/* Live Preview for Code */}
                           <div className="border border-white/10 rounded-xl overflow-hidden mt-8 shadow-2xl">
-                            <div className="bg-white/5 px-4 py-3 border-b border-white/5 flex items-center justify-between">
+                            <div className="bg-card/40 backdrop-blur-xl/5 px-4 py-3 border-b border-white/5 flex items-center justify-between">
                               <Label className="text-sm font-medium text-foreground m-0 flex items-center gap-2">
                                 <Eye className="w-4 h-4 text-neon-cyan" />
                                 Live Preview
                               </Label>
                             </div>
-                            <div className="bg-white relative">
+                            <div className="bg-card/40 backdrop-blur-xl relative">
                               <iframe
                                 key={`preview-${previewKey}`}
                                 srcDoc={`
@@ -1068,11 +1068,11 @@ export default function AssignmentDetailPage() {
                           {/* Live Preview for Link */}
                           {submissionData.submissionLink && (
                             <div className="border border-white/10 rounded-xl overflow-hidden mt-4 shadow-2xl">
-                              <div className="bg-white/5 px-4 py-3 border-b border-white/5 flex items-center gap-2">
+                              <div className="bg-card/40 backdrop-blur-xl/5 px-4 py-3 border-b border-white/5 flex items-center gap-2">
                                 <Link className="w-4 h-4 text-neon-cyan" />
                                 <Label className="text-sm font-medium text-foreground m-0">URL Preview</Label>
                               </div>
-                              <div className="bg-white relative">
+                              <div className="bg-card/40 backdrop-blur-xl relative">
                                 <iframe
                                   key={`link-preview-${submissionData.submissionLink}`}
                                   src={submissionData.submissionLink}
@@ -1089,7 +1089,7 @@ export default function AssignmentDetailPage() {
                       {submissionData.submissionType === 'zip' && (
                         <div className="space-y-3">
                           <Label htmlFor="zipFile" className="text-sm font-semibold tracking-wide uppercase text-muted-foreground/80">Archive Upload</Label>
-                          <div className="border-2 border-dashed border-white/20 rounded-xl p-8 text-center bg-white/[0.01] hover:bg-white/[0.02] transition-colors relative group">
+                          <div className="border-2 border-dashed border-white/20 rounded-xl p-8 text-center bg-card/40 backdrop-blur-xl/[0.01] hover:bg-card/40 backdrop-blur-xl/[0.02] transition-colors relative group">
                             <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-3 group-hover:text-neon-cyan transition-colors" />
                             <p className="text-sm text-foreground mb-1">Click to browse or drag and drop</p>
                             <p className="text-xs text-muted-foreground">Supported formats: .zip, .rar</p>
@@ -1106,7 +1106,7 @@ export default function AssignmentDetailPage() {
                             />
                           </div>
                           {submissionData.zipFile && (
-                            <div className="flex items-center gap-2 p-3 bg-white/5 rounded-lg border border-white/10 mt-2">
+                            <div className="flex items-center gap-2 p-3 bg-card/40 backdrop-blur-xl/5 rounded-lg border border-white/10 mt-2">
                               <FileText className="w-4 h-4 text-neon-cyan" />
                               <span className="text-sm flex-1 truncate">{submissionData.zipFile.name}</span>
                               <span className="text-xs text-muted-foreground pr-2">{(submissionData.zipFile.size / 1024).toFixed(1)} KB</span>
@@ -1142,7 +1142,7 @@ export default function AssignmentDetailPage() {
             ) : (
               <Card className="bg-card/30 border-dashed border-white/20 text-center py-16">
                 <CardContent>
-                  <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6">
+                  <div className="w-16 h-16 rounded-full bg-card/40 backdrop-blur-xl/5 flex items-center justify-center mx-auto mb-6">
                     <XCircle className="w-8 h-8 text-muted-foreground" />
                   </div>
                   <h3 className="text-lg font-medium text-foreground mb-2">Unavailable</h3>
@@ -1163,7 +1163,7 @@ export default function AssignmentDetailPage() {
                 </CardHeader>
                 <CardContent className="pt-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-6 border border-white/10 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] transition-colors flex flex-col items-center text-center group cursor-pointer" onClick={() => router.push(`/admin/assignments/${assignmentId}/submissions`)}>
+                    <div className="p-6 border border-white/10 rounded-xl bg-card/40 backdrop-blur-xl/[0.02] hover:bg-card/40 backdrop-blur-xl/[0.04] transition-colors flex flex-col items-center text-center group cursor-pointer" onClick={() => router.push(`/admin/assignments/${assignmentId}/submissions`)}>
                       <div className="w-12 h-12 rounded-full bg-neon-cyan/10 flex items-center justify-center mb-4 group-hover:bg-neon-cyan/20 transition-colors">
                         <FileText className="w-6 h-6 text-neon-cyan" />
                       </div>
@@ -1176,7 +1176,7 @@ export default function AssignmentDetailPage() {
                       </Button>
                     </div>
 
-                    <div className="p-6 border border-white/10 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] transition-colors flex flex-col items-center text-center group cursor-pointer" onClick={() => router.push(`/admin/assignments/${assignmentId}/edit`)}>
+                    <div className="p-6 border border-white/10 rounded-xl bg-card/40 backdrop-blur-xl/[0.02] hover:bg-card/40 backdrop-blur-xl/[0.04] transition-colors flex flex-col items-center text-center group cursor-pointer" onClick={() => router.push(`/admin/assignments/${assignmentId}/edit`)}>
                       <div className="w-12 h-12 rounded-full bg-neon-amber/10 flex items-center justify-center mb-4 group-hover:bg-neon-amber/20 transition-colors">
                         <Edit className="w-6 h-6 text-neon-amber" />
                       </div>

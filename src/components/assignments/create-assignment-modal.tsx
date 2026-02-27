@@ -145,7 +145,7 @@ export function CreateAssignmentModal({ open, onOpenChange, classId, onSuccess }
             href={formData.sampleOutputUrl} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="text-blue-600 hover:underline break-all"
+            className="text-neon-cyan hover:underline break-all"
           >
             {formData.sampleOutputUrl}
           </a>
@@ -160,7 +160,7 @@ export function CreateAssignmentModal({ open, onOpenChange, classId, onSuccess }
             <Code className="w-4 h-4" />
             <span className="font-medium">Sample Output Preview</span>
           </div>
-          <div className="bg-gray-50 rounded p-4 min-h-[200px]">
+          <div className="bg-background rounded p-4 min-h-[200px]">
             <iframe
               srcDoc={`
                 <!DOCTYPE html>
@@ -183,7 +183,7 @@ export function CreateAssignmentModal({ open, onOpenChange, classId, onSuccess }
     }
 
     return (
-      <div className="text-center text-gray-500 py-8">
+      <div className="text-center text-muted-foreground py-8">
         <Eye className="w-8 h-8 mx-auto mb-2" />
         <p>No sample output configured</p>
       </div>
@@ -356,7 +356,7 @@ export function CreateAssignmentModal({ open, onOpenChange, classId, onSuccess }
                     Payment Information
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="text-sm text-gray-600">
+                <CardContent className="text-sm text-muted-foreground">
                   <p>When enabled, students who submit after the deadline will be required to pay ₦{formData.paymentAmount} to regain access to the platform.</p>
                 </CardContent>
               </Card>
@@ -452,7 +452,7 @@ export function CreateAssignmentModal({ open, onOpenChange, classId, onSuccess }
               <Card>
                 <CardHeader>
                   <CardTitle>{formData.title || 'Assignment Title'}</CardTitle>
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
                       <span>Due: {formData.deadline ? new Date(formData.deadline).toLocaleString() : 'Not set'}</span>
@@ -464,11 +464,11 @@ export function CreateAssignmentModal({ open, onOpenChange, classId, onSuccess }
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-700 mb-4">{formData.description || 'No description provided'}</p>
+                  <p className="text-foreground/90 mb-4">{formData.description || 'No description provided'}</p>
                   
                   <div className="space-y-2">
                     <h4 className="font-medium">Requirements:</h4>
-                    <p className="text-sm text-gray-600">{formData.requirements || 'No requirements specified'}</p>
+                    <p className="text-sm text-muted-foreground">{formData.requirements || 'No requirements specified'}</p>
                   </div>
 
                   {formData.paymentRequired && (

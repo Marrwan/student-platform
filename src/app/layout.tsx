@@ -17,10 +17,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Learning Platform',
+  title: 'Nexus',
   description: 'A comprehensive learning platform for structured programming education with assignments, progress tracking, and expert feedback',
   keywords: ['Programming', 'Learning', 'Education', 'Assignments', 'Progress Tracking', 'Web Development'],
-  authors: [{ name: 'Learning Platform Team' }],
+  authors: [{ name: 'Nexus Team' }],
   icons: {
     icon: '/logo.jpeg',
     shortcut: '/logo.jpeg',
@@ -43,14 +43,14 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://learning-platform.com',
-    title: 'Learning Platform',
+    title: 'Nexus',
     description: 'A comprehensive learning platform for structured programming education',
-    siteName: 'Learning Platform',
+    siteName: 'Nexus',
   },
   // Twitter
   twitter: {
     card: 'summary_large_image',
-    title: 'Learning Platform',
+    title: 'Nexus',
     description: 'A comprehensive learning platform for structured programming education',
   },
   // Performance hints

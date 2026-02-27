@@ -64,14 +64,14 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
 
   const getRankIcon = (rank: number) => {
     if (rank === 1) return <Trophy className="w-5 h-5 text-yellow-500" />;
-    if (rank === 2) return <Medal className="w-5 h-5 text-gray-400" />;
-    if (rank === 3) return <Award className="w-5 h-5 text-amber-600" />;
-    return <span className="text-lg font-bold text-gray-600">{rank}</span>;
+    if (rank === 2) return <Medal className="w-5 h-5 text-muted-foreground" />;
+    if (rank === 3) return <Award className="w-5 h-5 text-neon-amber" />;
+    return <span className="text-lg font-bold text-muted-foreground">{rank}</span>;
   };
 
   const getRankBadge = (rank: number) => {
     if (rank === 1) return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    if (rank === 2) return 'bg-gray-100 text-gray-800 border-gray-200';
+    if (rank === 2) return 'bg-white/5 text-foreground border-white/10';
     if (rank === 3) return 'bg-amber-100 text-amber-800 border-amber-200';
     return 'bg-blue-100 text-blue-800 border-blue-200';
   };
@@ -92,7 +92,7 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
         <CardContent className="flex items-center justify-center py-12">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading leaderboard...</p>
+            <p className="text-muted-foreground">Loading leaderboard...</p>
           </div>
         </CardContent>
       </Card>
@@ -103,9 +103,9 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
-          <Trophy className="w-12 h-12 text-gray-400 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No Leaderboard Data</h3>
-          <p className="text-gray-600 text-center max-w-md">
+          <Trophy className="w-12 h-12 text-muted-foreground mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">No Leaderboard Data</h3>
+          <p className="text-muted-foreground text-center max-w-md">
             No students have completed assignments or received attendance scores yet.
           </p>
         </CardContent>
@@ -118,7 +118,7 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-medium">Class Leaderboard</h3>
-          <p className="text-sm text-gray-600">Student rankings based on assignments and attendance</p>
+          <p className="text-sm text-muted-foreground">Student rankings based on assignments and attendance</p>
         </div>
         <div className="flex items-center gap-3">
           <Button
@@ -150,7 +150,7 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-white/5">
                     {getRankIcon(entry.rank)}
                   </div>
                   
@@ -163,15 +163,15 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
                         #{entry.rank}
                       </Badge>
                     </div>
-                    <p className="text-sm text-gray-600">{entry.email}</p>
+                    <p className="text-sm text-muted-foreground">{entry.email}</p>
                   </div>
                 </div>
 
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-blue-600">
+                  <div className="text-2xl font-bold text-neon-cyan">
                     {entry.finalScore.toFixed(1)}
                   </div>
-                  <div className="text-sm text-gray-600">Total Points</div>
+                  <div className="text-sm text-muted-foreground">Total Points</div>
                 </div>
               </div>
 
@@ -179,15 +179,15 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1 mb-1">
                     <Target className="w-4 h-4 text-blue-500" />
-                    <span className="text-sm font-medium text-gray-700">Assignments</span>
+                    <span className="text-sm font-medium text-foreground/90">Assignments</span>
                   </div>
-                  <div className="text-lg font-bold text-blue-600">
+                  <div className="text-lg font-bold text-neon-cyan">
                     {entry.assignmentScore.toFixed(1)}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-muted-foreground">
                     {entry.completedProjects} projects completed
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
+                  <div className="w-full bg-white/10 rounded-full h-1 mt-1">
                     <div 
                       className="bg-blue-500 h-1 rounded-full"
                       style={{ width: `${entry.completionRate}%` }}
@@ -198,15 +198,15 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1 mb-1">
                     <Star className="w-4 h-4 text-green-500" />
-                    <span className="text-sm font-medium text-gray-700">Attendance</span>
+                    <span className="text-sm font-medium text-foreground/90">Attendance</span>
                   </div>
-                  <div className="text-lg font-bold text-green-600">
+                  <div className="text-lg font-bold text-neon-emerald">
                     {entry.attendanceScore.toFixed(1)}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-muted-foreground">
                     {entry.attendanceScore}% attendance
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
+                  <div className="w-full bg-white/10 rounded-full h-1 mt-1">
                     <div 
                       className="bg-green-500 h-1 rounded-full"
                       style={{ width: `${entry.attendanceScore}%` }}
@@ -217,15 +217,15 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1 mb-1">
                     <TrendingUp className="w-4 h-4 text-purple-500" />
-                    <span className="text-sm font-medium text-gray-700">Progress</span>
+                    <span className="text-sm font-medium text-foreground/90">Progress</span>
                   </div>
-                  <div className="text-lg font-bold text-purple-600">
+                  <div className="text-lg font-bold text-neon-violet">
                     {entry.completionRate}%
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-muted-foreground">
                     Overall completion
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
+                  <div className="w-full bg-white/10 rounded-full h-1 mt-1">
                     <div 
                       className="bg-purple-500 h-1 rounded-full"
                       style={{ width: `${entry.completionRate}%` }}
@@ -235,7 +235,7 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
               </div>
 
               <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                <div className="flex items-center gap-1 text-xs text-gray-500">
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Calendar className="w-3 h-3" />
                   <span>Enrolled: {new Date(entry.enrolledAt).toLocaleDateString()}</span>
                 </div>
@@ -269,7 +269,7 @@ export function ClassLeaderboard({ classId }: ClassLeaderboardProps) {
             Previous
           </Button>
           
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-muted-foreground">
             Page {currentPage} of {totalPages}
           </span>
           

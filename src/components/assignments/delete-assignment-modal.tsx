@@ -41,13 +41,13 @@ export function DeleteAssignmentModal({
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100">
-              <Trash2 className="w-6 h-6 text-red-600" />
+              <Trash2 className="w-6 h-6 text-neon-pink" />
             </div>
             <div>
-              <DialogTitle className="text-xl font-semibold text-gray-900">
+              <DialogTitle className="text-xl font-semibold text-foreground">
                 Delete Assignment
               </DialogTitle>
-              <DialogDescription className="text-gray-600">
+              <DialogDescription className="text-muted-foreground">
                 This action cannot be undone.
               </DialogDescription>
             </div>
@@ -56,15 +56,15 @@ export function DeleteAssignmentModal({
 
         <div className="space-y-4">
           <Alert className="border-red-200 bg-red-50">
-            <AlertTriangle className="h-4 w-4 text-red-600" />
+            <AlertTriangle className="h-4 w-4 text-neon-pink" />
             <AlertDescription className="text-red-800">
               <strong>Warning:</strong> You are about to permanently delete the assignment "{assignmentTitle}".
             </AlertDescription>
           </Alert>
 
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-2">What will be deleted:</h4>
-            <ul className="space-y-1 text-sm text-gray-600">
+          <div className="bg-background border border-white/10 rounded-lg p-4">
+            <h4 className="font-medium text-foreground mb-2">What will be deleted:</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
               <li className="flex items-center gap-2">
                 <XCircle className="w-4 h-4 text-red-500" />
                 The assignment itself

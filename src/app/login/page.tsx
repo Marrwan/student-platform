@@ -65,7 +65,7 @@ export default function LoginPage() {
             <div className="w-12 h-12 rounded-xl bg-neon-cyan/10 flex items-center justify-center border border-neon-cyan/20">
               <Code className="h-6 w-6 text-neon-cyan" />
             </div>
-            <span className="text-2xl font-bold tracking-tight text-foreground">Terminal Academy</span>
+            <span className="text-2xl font-bold tracking-tight text-foreground">Nexus</span>
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground mb-2">Welcome Back</h1>
           <p className="text-muted-foreground">Sign in to continue your learning journey</p>

@@ -37,13 +37,13 @@ export function DeleteSubmissionAlertDialog({
                 <DialogHeader>
                     <div className="flex items-center gap-3">
                         <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-100">
-                            <Trash2 className="w-5 h-5 text-red-600" />
+                            <Trash2 className="w-5 h-5 text-neon-pink" />
                         </div>
                         <div>
-                            <DialogTitle className="text-lg font-semibold text-gray-900">
+                            <DialogTitle className="text-lg font-semibold text-foreground">
                                 Delete Submission
                             </DialogTitle>
-                            <DialogDescription className="text-gray-600">
+                            <DialogDescription className="text-muted-foreground">
                                 Are you sure you want to delete your submission?
                             </DialogDescription>
                         </div>
@@ -52,7 +52,7 @@ export function DeleteSubmissionAlertDialog({
 
                 <div className="space-y-4 py-2">
                     <Alert className="border-red-200 bg-red-50">
-                        <AlertTriangle className="h-4 w-4 text-red-600" />
+                        <AlertTriangle className="h-4 w-4 text-neon-pink" />
                         <AlertDescription className="text-red-800 text-sm">
                             This action cannot be undone. You will need to re-submit your work if you want to be graded.
                         </AlertDescription>

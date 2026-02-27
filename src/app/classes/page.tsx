@@ -221,10 +221,10 @@ export default function ClassesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background relative selection:bg-neon-cyan/20 selection:text-neon-cyan">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center h-64">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            <Loader2 className="h-8 w-8 animate-spin text-neon-cyan" />
           </div>
         </div>
       </div>
@@ -232,15 +232,15 @@ export default function ClassesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background relative selection:bg-neon-cyan/20 selection:text-neon-cyan">
       <div className="container mx-auto px-4 py-6 lg:py-8">
         {/* Header */}
         <div className="flex flex-col space-y-4 mb-6 lg:mb-8">
           <div className="min-w-0 flex-1">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
               {isAdmin ? 'Class Management' : 'My Classes'}
             </h1>
-            <p className="text-gray-600 mt-2 text-sm lg:text-base">
+            <p className="text-muted-foreground mt-2 text-sm lg:text-base">
               {isAdmin ? 'Manage all classes and enrollments' : 'View your enrolled classes and join new ones'}
             </p>
           </div>
@@ -276,7 +276,7 @@ export default function ClassesPage() {
         {/* Search and Filters */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
               placeholder="Search classes..."
               value={searchTerm}
@@ -301,9 +301,9 @@ export default function ClassesPage() {
         {filteredClasses.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <BookOpen className="w-12 h-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2 text-center">No classes found</h3>
-              <p className="text-gray-600 text-center max-w-md">
+              <BookOpen className="w-12 h-12 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2 text-center">No classes found</h3>
+              <p className="text-muted-foreground text-center max-w-md">
                 {isAdmin
                   ? 'Create your first class to get started'
                   : 'Join a class using an enrollment code or wait for an invitation'
@@ -332,12 +332,12 @@ export default function ClassesPage() {
                 </CardHeader>
 
                 <CardContent className="space-y-3">
-                  <div className="flex items-center text-sm text-gray-600">
+                  <div className="flex items-center text-sm text-muted-foreground">
                     <Users className="w-4 h-4 mr-2 shrink-0" />
                     <span>{cls.studentCount} / {cls.maxStudents} students</span>
                   </div>
 
-                  <div className="flex items-center text-sm text-gray-600">
+                  <div className="flex items-center text-sm text-muted-foreground">
                     <Calendar className="w-4 h-4 mr-2 shrink-0" />
                     <span className="truncate">
                       {cls.startDate ? new Date(cls.startDate).toLocaleDateString() : 'No start date'}
@@ -345,27 +345,27 @@ export default function ClassesPage() {
                   </div>
 
                   {cls.endDate && (
-                    <div className="flex items-center text-sm text-gray-600">
+                    <div className="flex items-center text-sm text-muted-foreground">
                       <Clock className="w-4 h-4 mr-2 shrink-0" />
                       <span className="truncate">Ends {new Date(cls.endDate).toLocaleDateString()}</span>
                     </div>
                   )}
 
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-muted-foreground">
                     <strong>Instructor:</strong> {cls.instructor.firstName} {cls.instructor.lastName}
                   </div>
 
                   {isAdmin && cls.enrollmentCode && (
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-muted-foreground">
                       <strong>Enrollment Code:</strong>
-                      <span className="font-mono bg-gray-100 px-2 py-1 rounded ml-1 text-xs">
+                      <span className="font-mono bg-white/5 px-2 py-1 rounded ml-1 text-xs">
                         {cls.enrollmentCode}
                       </span>
                     </div>
                   )}
 
                   {cls.isEnrolled && (
-                    <Badge variant="outline" className="text-green-600 border-green-600 text-sm">
+                    <Badge variant="outline" className="text-neon-emerald border-green-600 text-sm">
                       Enrolled
                     </Badge>
                   )}

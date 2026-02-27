@@ -196,7 +196,7 @@ export default function HomePage() {
             <span className="font-semibold tracking-tight text-foreground">Nexus Learning</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Learning Platform. All rights reserved.
+            &copy; {new Date().getFullYear()} Nexus Learning. All rights reserved.
           </p>
         </div>
       </footer>

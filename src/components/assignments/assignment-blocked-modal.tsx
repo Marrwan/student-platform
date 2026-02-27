@@ -82,7 +82,7 @@ export function AssignmentBlockedModal({
                                         {overdueSubmissions.map((sub) => (
                                             <div
                                                 key={sub.id}
-                                                className="flex items-center justify-between p-3 rounded-lg bg-white/[0.03] border border-border/50"
+                                                className="flex items-center justify-between p-3 rounded-lg bg-card/40 backdrop-blur-xl/[0.03] border border-border/50"
                                             >
                                                 <div className="flex items-center space-x-2">
                                                     <FileText className="w-4 h-4 text-muted-foreground" />

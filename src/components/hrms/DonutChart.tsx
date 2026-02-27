@@ -42,8 +42,8 @@ export default function DonutChart({
             </svg>
             {(label || sublabel) && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                    {label && <span className="text-2xl font-bold text-gray-900">{label}</span>}
-                    {sublabel && <span className="text-xs text-gray-500">{sublabel}</span>}
+                    {label && <span className="text-2xl font-bold text-foreground">{label}</span>}
+                    {sublabel && <span className="text-xs text-muted-foreground">{sublabel}</span>}
                 </div>
             )}
         </div>

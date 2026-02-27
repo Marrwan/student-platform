@@ -221,7 +221,7 @@ export function RegisterForm({ invitationData }: RegisterFormProps) {
       <div className="mb-6">
         <h2 className="text-xl font-semibold leading-none tracking-tight mb-2 text-foreground">Create Account</h2>
         <p className="text-sm text-muted-foreground">
-          Join the JavaScript Learning Platform and start your coding journey
+          Join Nexus and start your coding journey
         </p>
       </div>
       <div>

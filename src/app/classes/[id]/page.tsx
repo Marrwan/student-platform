@@ -173,10 +173,10 @@ export default function ClassDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background relative selection:bg-neon-cyan/20 selection:text-neon-cyan">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center h-64">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            <Loader2 className="h-8 w-8 animate-spin text-neon-cyan" />
           </div>
         </div>
       </div>
@@ -185,7 +185,7 @@ export default function ClassDetailPage() {
 
   if (!classDetails) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background relative selection:bg-neon-cyan/20 selection:text-neon-cyan">
         <div className="container mx-auto px-4 py-8">
           <Alert>
             <AlertDescription>Class not found or you don't have access to it.</AlertDescription>
@@ -196,7 +196,7 @@ export default function ClassDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background relative selection:bg-neon-cyan/20 selection:text-neon-cyan">
       <div className="container mx-auto px-4 py-6 lg:py-8">
         {/* Header */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 lg:mb-8 gap-4">
@@ -211,10 +211,10 @@ export default function ClassDetailPage() {
               <span className="hidden sm:inline">Back</span>
             </Button>
             <div className="min-w-0 flex-1">
-              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 truncate">
+              <h1 className="text-2xl lg:text-3xl font-bold text-foreground truncate">
                 {classDetails.name}
               </h1>
-              <p className="text-gray-600 mt-1 text-sm lg:text-base line-clamp-2">
+              <p className="text-muted-foreground mt-1 text-sm lg:text-base line-clamp-2">
                 {classDetails.description || 'No description provided'}
               </p>
             </div>
@@ -236,7 +236,7 @@ export default function ClassDetailPage() {
             {classDetails.isActive ? 'Active' : 'Inactive'}
           </Badge>
           {classDetails.isEnrolled && (
-            <Badge variant="outline" className="text-green-600 border-green-600 text-sm">
+            <Badge variant="outline" className="text-neon-emerald border-green-600 text-sm">
               Enrolled
             </Badge>
           )}
@@ -271,22 +271,22 @@ export default function ClassDetailPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Instructor</Label>
+                    <Label className="text-sm font-medium text-muted-foreground">Instructor</Label>
                     <p className="font-medium">
                       {classDetails.instructor.firstName} {classDetails.instructor.lastName}
                     </p>
                     {classDetails.instructor.email && (
-                      <p className="text-sm text-gray-600">{classDetails.instructor.email}</p>
+                      <p className="text-sm text-muted-foreground">{classDetails.instructor.email}</p>
                     )}
                   </div>
 
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Enrollment</Label>
+                    <Label className="text-sm font-medium text-muted-foreground">Enrollment</Label>
                     <p className="font-medium">{classDetails.studentCount} / {classDetails.maxStudents} students</p>
                   </div>
 
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Duration</Label>
+                    <Label className="text-sm font-medium text-muted-foreground">Duration</Label>
                     <p className="font-medium text-sm">
                       {classDetails.startDate ? new Date(classDetails.startDate).toLocaleDateString() : 'Not set'}
                       {classDetails.endDate && ` - ${new Date(classDetails.endDate).toLocaleDateString()}`}
@@ -295,8 +295,8 @@ export default function ClassDetailPage() {
 
                   {isAdmin && (
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Enrollment Code</Label>
-                      <p className="font-mono bg-gray-100 p-2 rounded text-sm break-all">
+                      <Label className="text-sm font-medium text-muted-foreground">Enrollment Code</Label>
+                      <p className="font-mono bg-white/5 p-2 rounded text-sm break-all">
                         {classDetails.enrollmentCode}
                       </p>
                     </div>
@@ -315,23 +315,23 @@ export default function ClassDetailPage() {
                 <CardContent className="space-y-4">
                   {classDetails.isVirtual ? (
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Meeting Link</Label>
+                      <Label className="text-sm font-medium text-muted-foreground">Meeting Link</Label>
                       {classDetails.meetingLink ? (
                         <a
                           href={classDetails.meetingLink}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline break-all text-sm"
+                          className="text-neon-cyan hover:underline break-all text-sm"
                         >
                           {classDetails.meetingLink}
                         </a>
                       ) : (
-                        <p className="text-gray-500 text-sm">No meeting link set</p>
+                        <p className="text-muted-foreground text-sm">No meeting link set</p>
                       )}
                     </div>
                   ) : (
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Address</Label>
+                      <Label className="text-sm font-medium text-muted-foreground">Address</Label>
                       <p className="text-sm">{classDetails.location || 'No location set'}</p>
                     </div>
                   )}
@@ -349,24 +349,24 @@ export default function ClassDetailPage() {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-600">
+                      <div className="text-2xl font-bold text-neon-cyan">
                         {classDetails.assignments?.length || 0}
                       </div>
-                      <div className="text-sm text-gray-600">Total Assignments</div>
+                      <div className="text-sm text-muted-foreground">Total Assignments</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600">
+                      <div className="text-2xl font-bold text-neon-emerald">
                         {classDetails.assignments?.filter(a => a.isUnlocked).length || 0}
                       </div>
-                      <div className="text-sm text-gray-600">Active</div>
+                      <div className="text-sm text-muted-foreground">Active</div>
                     </div>
                   </div>
 
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-600">
+                    <div className="text-2xl font-bold text-neon-violet">
                       {classDetails.averageScore || 0}%
                     </div>
-                    <div className="text-sm text-gray-600">Average Score</div>
+                    <div className="text-sm text-muted-foreground">Average Score</div>
                   </div>
                 </CardContent>
               </Card>
@@ -474,7 +474,7 @@ export default function ClassDetailPage() {
                       </CardHeader>
 
                       <CardContent className="space-y-3">
-                        <div className="flex items-center text-sm text-gray-600">
+                        <div className="flex items-center text-sm text-muted-foreground">
                           <Calendar className="w-4 h-4 mr-2 shrink-0" />
                           <span>
                             {startDate && `Start: ${startDate.toLocaleDateString()}`}
@@ -485,7 +485,7 @@ export default function ClassDetailPage() {
                         </div>
 
                         {assignment.submissionCount !== undefined && canManageClass && (
-                          <div className="flex items-center text-sm text-gray-600">
+                          <div className="flex items-center text-sm text-muted-foreground">
                             <FileText className="w-4 h-4 mr-2 shrink-0" />
                             <span>{assignment.submissionCount} / {assignment.totalStudents} submissions</span>
                           </div>
@@ -532,9 +532,9 @@ export default function ClassDetailPage() {
             ) : (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-12">
-                  <FileText className="w-12 h-12 text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2 text-center">No assignments yet</h3>
-                  <p className="text-gray-600 text-center mb-4 max-w-md">
+                  <FileText className="w-12 h-12 text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2 text-center">No assignments yet</h3>
+                  <p className="text-muted-foreground text-center mb-4 max-w-md">
                     {canManageClass
                       ? 'Create your first assignment to get started'
                       : 'No assignments have been created for this class yet'
@@ -585,7 +585,7 @@ export default function ClassDetailPage() {
                               )}
                             </h3>
                             {enrollment.student.email && canManageClass && (
-                              <p className="text-sm text-gray-600 truncate">{enrollment.student.email}</p>
+                              <p className="text-sm text-muted-foreground truncate">{enrollment.student.email}</p>
                             )}
                           </div>
                           {showProgress && (
@@ -598,22 +598,22 @@ export default function ClassDetailPage() {
                         {showProgress ? (
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Progress:</span>
+                              <span className="text-muted-foreground">Progress:</span>
                               <span className="font-medium">{enrollment.progress || 0}%</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Average Score:</span>
+                              <span className="text-muted-foreground">Average Score:</span>
                               <span className="font-medium">{enrollment.averageScore || 0}%</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Enrolled:</span>
+                              <span className="text-muted-foreground">Enrolled:</span>
                               <span className="font-medium text-xs">
                                 {new Date(enrollment.enrolledAt).toLocaleDateString()}
                               </span>
                             </div>
                           </div>
                         ) : (
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-muted-foreground">
                             {isStudent ? 'Progress data hidden' : 'Student enrolled'}
                           </div>
                         )}
@@ -625,11 +625,11 @@ export default function ClassDetailPage() {
             ) : (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-12">
-                  <Users className="w-12 h-12 text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2 text-center">
+                  <Users className="w-12 h-12 text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2 text-center">
                     {isStudent ? 'No students enrolled yet' : 'No students enrolled'}
                   </h3>
-                  <p className="text-gray-600 text-center max-w-md">
+                  <p className="text-muted-foreground text-center max-w-md">
                     {canManageClass
                       ? 'Invite students to get started with this class'
                       : 'No students have enrolled in this class yet'
@@ -647,7 +647,7 @@ export default function ClassDetailPage() {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div>
                     <h2 className="text-xl lg:text-2xl font-bold">Weekly Attendance Management</h2>
-                    <p className="text-gray-600 mt-1">Mark and manage weekly attendance for all students</p>
+                    <p className="text-muted-foreground mt-1">Mark and manage weekly attendance for all students</p>
                   </div>
                   <Button
                     onClick={() => router.push(`/admin/weekly-attendance`)}
@@ -667,8 +667,8 @@ export default function ClassDetailPage() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold text-blue-600">{classDetails.studentCount}</div>
-                      <p className="text-sm text-gray-600">Enrolled students</p>
+                      <div className="text-2xl font-bold text-neon-cyan">{classDetails.studentCount}</div>
+                      <p className="text-sm text-muted-foreground">Enrolled students</p>
                     </CardContent>
                   </Card>
 
@@ -680,8 +680,8 @@ export default function ClassDetailPage() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold text-green-600">Weekly</div>
-                      <p className="text-sm text-gray-600">Mark attendance by week</p>
+                      <div className="text-2xl font-bold text-neon-emerald">Weekly</div>
+                      <p className="text-sm text-muted-foreground">Mark attendance by week</p>
                     </CardContent>
                   </Card>
 
@@ -693,8 +693,8 @@ export default function ClassDetailPage() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold text-purple-600">Integrated</div>
-                      <p className="text-sm text-gray-600">Part of leaderboard calculation</p>
+                      <div className="text-2xl font-bold text-neon-violet">Integrated</div>
+                      <p className="text-sm text-muted-foreground">Part of leaderboard calculation</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -710,7 +710,7 @@ export default function ClassDetailPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="p-4 border rounded-lg">
                         <h3 className="font-medium mb-2">Mark This Week's Attendance</h3>
-                        <p className="text-sm text-gray-600 mb-3">
+                        <p className="text-sm text-muted-foreground mb-3">
                           Mark attendance for the current week for all students
                         </p>
                         <Button
@@ -725,7 +725,7 @@ export default function ClassDetailPage() {
 
                       <div className="p-4 border rounded-lg">
                         <h3 className="font-medium mb-2">View Attendance History</h3>
-                        <p className="text-sm text-gray-600 mb-3">
+                        <p className="text-sm text-muted-foreground mb-3">
                           View and manage attendance records for all weeks
                         </p>
                         <Button
@@ -749,7 +749,7 @@ export default function ClassDetailPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-gray-600 mb-4">
+                    <p className="text-sm text-muted-foreground mb-4">
                       Weekly attendance scores are automatically integrated into the class leaderboard.
                       Students' attendance performance affects their overall ranking.
                     </p>
@@ -767,10 +767,10 @@ export default function ClassDetailPage() {
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-12">
                   <div className="text-center">
-                    <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Attendance Management</h3>
-                    <p className="text-gray-600 mb-4">Only instructors and administrators can manage attendance.</p>
-                    <p className="text-sm text-gray-500">
+                    <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">Attendance Management</h3>
+                    <p className="text-muted-foreground mb-4">Only instructors and administrators can manage attendance.</p>
+                    <p className="text-sm text-muted-foreground">
                       Your attendance is tracked weekly and contributes to your leaderboard score.
                     </p>
                   </div>
@@ -812,30 +812,30 @@ export default function ClassDetailPage() {
                     </CardHeader>
 
                     <CardContent className="space-y-3">
-                      <div className="flex items-center text-sm text-gray-600">
+                      <div className="flex items-center text-sm text-muted-foreground">
                         <Clock className="w-4 h-4 mr-2 shrink-0" />
                         <span>{schedule.startTime} - {schedule.endTime}</span>
                       </div>
 
                       {schedule.type === 'virtual' ? (
                         <div>
-                          <Label className="text-sm font-medium text-gray-600">Meeting Link</Label>
+                          <Label className="text-sm font-medium text-muted-foreground">Meeting Link</Label>
                           {schedule.meetingLink ? (
                             <a
                               href={schedule.meetingLink}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline text-sm break-all"
+                              className="text-neon-cyan hover:underline text-sm break-all"
                             >
                               Join Meeting
                             </a>
                           ) : (
-                            <p className="text-gray-500 text-sm">No link provided</p>
+                            <p className="text-muted-foreground text-sm">No link provided</p>
                           )}
                         </div>
                       ) : (
                         <div>
-                          <Label className="text-sm font-medium text-gray-600">Location</Label>
+                          <Label className="text-sm font-medium text-muted-foreground">Location</Label>
                           <p className="text-sm">{schedule.location || 'No location set'}</p>
                         </div>
                       )}
@@ -846,9 +846,9 @@ export default function ClassDetailPage() {
             ) : (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-12">
-                  <CalendarDays className="w-12 h-12 text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2 text-center">No schedule set</h3>
-                  <p className="text-gray-600 text-center mb-4 max-w-md">
+                  <CalendarDays className="w-12 h-12 text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2 text-center">No schedule set</h3>
+                  <p className="text-muted-foreground text-center mb-4 max-w-md">
                     {canManageClass
                       ? 'Add a class schedule to help students know when to attend'
                       : 'No class schedule has been set yet'
@@ -874,8 +874,8 @@ export default function ClassDetailPage() {
                 <Card>
                   <CardContent className="pt-6">
                     <div className="text-center">
-                      <div className="text-2xl lg:text-3xl font-bold text-blue-600">{classDetails.studentCount}</div>
-                      <div className="text-sm text-gray-600">Total Students</div>
+                      <div className="text-2xl lg:text-3xl font-bold text-neon-cyan">{classDetails.studentCount}</div>
+                      <div className="text-sm text-muted-foreground">Total Students</div>
                     </div>
                   </CardContent>
                 </Card>
@@ -883,10 +883,10 @@ export default function ClassDetailPage() {
                 <Card>
                   <CardContent className="pt-6">
                     <div className="text-center">
-                      <div className="text-2xl lg:text-3xl font-bold text-green-600">
+                      <div className="text-2xl lg:text-3xl font-bold text-neon-emerald">
                         {classDetails.assignments?.length || 0}
                       </div>
-                      <div className="text-sm text-gray-600">Total Assignments</div>
+                      <div className="text-sm text-muted-foreground">Total Assignments</div>
                     </div>
                   </CardContent>
                 </Card>
@@ -894,10 +894,10 @@ export default function ClassDetailPage() {
                 <Card>
                   <CardContent className="pt-6">
                     <div className="text-center">
-                      <div className="text-2xl lg:text-3xl font-bold text-purple-600">
+                      <div className="text-2xl lg:text-3xl font-bold text-neon-violet">
                         {classDetails.completionRate || 0}%
                       </div>
-                      <div className="text-sm text-gray-600">Completion Rate</div>
+                      <div className="text-sm text-muted-foreground">Completion Rate</div>
                     </div>
                   </CardContent>
                 </Card>
@@ -908,7 +908,7 @@ export default function ClassDetailPage() {
                       <div className="text-2xl lg:text-3xl font-bold text-orange-600">
                         {classDetails.averageScore || 0}%
                       </div>
-                      <div className="text-sm text-gray-600">Average Score</div>
+                      <div className="text-sm text-muted-foreground">Average Score</div>
                     </div>
                   </CardContent>
                 </Card>
@@ -919,7 +919,7 @@ export default function ClassDetailPage() {
                   <CardTitle>Recent Activity</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600">Analytics dashboard will be implemented here with charts and detailed metrics.</p>
+                  <p className="text-muted-foreground">Analytics dashboard will be implemented here with charts and detailed metrics.</p>
                 </CardContent>
               </Card>
             </TabsContent>

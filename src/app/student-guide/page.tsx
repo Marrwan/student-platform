@@ -5,14 +5,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  BookOpen, 
-  Code, 
-  FileText, 
-  Users, 
-  Trophy, 
-  Calendar, 
-  Clock, 
+import {
+  BookOpen,
+  Code,
+  FileText,
+  Users,
+  Trophy,
+  Calendar,
+  Clock,
   CheckCircle,
   AlertCircle,
   Info,
@@ -62,7 +62,7 @@ export default function StudentGuidePage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Star className="h-5 w-5 text-yellow-500" />
-                  Welcome to the Learning Platform
+                  Welcome to Nexus
                 </CardTitle>
                 <CardDescription>
                   Your journey to becoming a better programmer starts here
@@ -445,26 +445,26 @@ export default function StudentGuidePage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Button 
-                  className="h-auto p-4 flex flex-col items-center gap-2" 
+                <Button
+                  className="h-auto p-4 flex flex-col items-center gap-2"
                   onClick={() => router.push('/projects')}
                 >
                   <Code className="h-6 w-6" />
                   <span>View Projects</span>
                   <span className="text-xs opacity-80">Start coding challenges</span>
                 </Button>
-                <Button 
+                <Button
                   variant="outline"
-                  className="h-auto p-4 flex flex-col items-center gap-2" 
+                  className="h-auto p-4 flex flex-col items-center gap-2"
                   onClick={() => router.push('/classes')}
                 >
                   <BookOpen className="h-6 w-6" />
                   <span>Join Classes</span>
                   <span className="text-xs opacity-80">Enroll in structured learning</span>
                 </Button>
-                <Button 
+                <Button
                   variant="outline"
-                  className="h-auto p-4 flex flex-col items-center gap-2" 
+                  className="h-auto p-4 flex flex-col items-center gap-2"
                   onClick={() => router.push('/leaderboard')}
                 >
                   <Trophy className="h-6 w-6" />

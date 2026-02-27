@@ -20,10 +20,10 @@ const data = [
 
 export default function AppraisalTrendChart() {
     return (
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm h-full">
+        <div className="bg-card/40 backdrop-blur-xl p-6 rounded-xl border border-white/5 shadow-sm h-full">
             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-gray-900 font-semibold">Overall Appraisal performance trend</h3>
-                <select className="text-sm border-gray-200 rounded-md text-gray-500">
+                <h3 className="text-foreground font-semibold">Overall Appraisal performance trend</h3>
+                <select className="text-sm border-white/10 rounded-md text-muted-foreground">
                     <option>Filter by year</option>
                     <option>2025</option>
                     <option>2024</option>
