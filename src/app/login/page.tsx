@@ -6,44 +6,35 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Code, ArrowLeft, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React from 'react'; // Added missing import for React
+import React, { useEffect } from 'react';
 
 export default function LoginPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neon-cyan"></div>
-      </div>
-    );
-  }
-
-  // If user is already logged in, redirect them immediately
-  if (user) {
-    // Redirect immediately without useEffect
-    let redirectPath = '/dashboard';
-    if (user.role === 'admin') {
-      redirectPath = '/admin';
-    } else if (user.role === 'staff' || user.role === 'instructor' || user.role === 'partial_admin') {
-      redirectPath = '/hrms/dashboard';
-    } else if (user.role === 'student') {
-      redirectPath = '/dashboard';
+  // Handle authenticated users with a side effect
+  useEffect(() => {
+    if (user && !loading) {
+      const roleRedirects: Record<string, string> = {
+        admin: '/admin',
+        instructor: '/hrms/dashboard',
+        staff: '/hrms/dashboard',
+        student: '/dashboard',
+      };
+      const redirectPath = roleRedirects[user.role] || '/dashboard';
+      router.push(redirectPath);
     }
+  }, [user, loading, router]);
 
-    if (typeof window !== 'undefined') {
-      window.location.href = redirectPath;
-    }
-
+  if (loading || user) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
         <div className="text-center">
           <div className="w-12 h-12 rounded-xl bg-neon-cyan/10 border border-neon-cyan/20 flex items-center justify-center mx-auto mb-6">
             <Loader2 className="h-6 w-6 text-neon-cyan animate-spin" />
           </div>
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-[0.2em] mono-font animate-pulse">
-            REDIRECTING_TO_SESSION_ROOT
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mono-font animate-pulse">
+            {loading ? 'INITIALIZING_AUTH_PROTOCOL' : 'REDIRECTING_TO_SESSION_ROOT'}
           </p>
         </div>
       </div>

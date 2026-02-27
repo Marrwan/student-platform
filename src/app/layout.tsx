@@ -111,9 +111,9 @@ export default function RootLayout({
     <html lang="en" className={`dark ${inter.className} ${jetbrainsMono.variable}`}>
       <head>
         {/* Favicon */}
-        <link rel="icon" type="image/jpeg" href="/logo.jpeg" style={{ borderRadius: '50%' }} />
-        <link rel="shortcut icon" type="image/jpeg" href="/logo.jpeg" style={{ borderRadius: '50%' }} />
-        <link rel="apple-touch-icon" href="/logo.jpeg" style={{ borderRadius: '50%' }} />
+        <link rel="icon" type="image/jpeg" href="/logo.jpeg" />
+        <link rel="shortcut icon" type="image/jpeg" href="/logo.jpeg" />
+        <link rel="apple-touch-icon" href="/logo.jpeg" />
 
         {/* Preload critical resources */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -130,39 +130,55 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              // Performance monitoring
-              if ('performance' in window) {
-                window.addEventListener('load', function() {
-                  setTimeout(function() {
-                    const perfData = performance.getEntriesByType('navigation')[0];
-                    if (perfData) {
-                      console.log('Page Load Time:', perfData.loadEventEnd - perfData.loadEventStart, 'ms');
-                      console.log('DOM Content Loaded:', perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart, 'ms');
-                    }
-                  }, 0);
-                });
-              }
-
-              // UNCOMPROMISING_CACHE_PURGE: Unregister any existing Service Workers and clear caches to fix design regressions
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                    for(let registration of registrations) {
-                      registration.unregister().then(function() {
-                        console.log('SW_UNREGISTERED_OK');
-                      });
-                    }
-                  });
-
-                  // Force clear caches
-                  if ('caches' in window) {
-                    caches.keys().then(function(names) {
-                      for (let name of names) caches.delete(name);
-                      console.log('CACHE_PURGE_COMPLETE');
+              // Performance monitoring and Cache Purge (ES5 for broad compatibility)
+              (function() {
+                try {
+                  if ('performance' in window && typeof performance.getEntriesByType === 'function') {
+                    window.addEventListener('load', function() {
+                      setTimeout(function() {
+                        var entries = performance.getEntriesByType('navigation');
+                        if (entries && entries.length > 0) {
+                          var perfData = entries[0];
+                          console.log('Page Load Time:', perfData.loadEventEnd - perfData.loadEventStart, 'ms');
+                        }
+                      }, 0);
                     });
                   }
-                });
-              }
+
+                  // UNCOMPROMISING_CACHE_PURGE: Unregister any existing Service Workers and clear caches
+                  if ('serviceWorker' in navigator && typeof navigator.serviceWorker.getRegistrations === 'function') {
+                    window.addEventListener('load', function() {
+                      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                        if (registrations && registrations.length > 0) {
+                          for (var i = 0; i < registrations.length; i++) {
+                            registrations[i].unregister();
+                          }
+                          console.log('SW_UNREGISTERED_OK');
+                        }
+                      })['catch'](function(err) {
+                        console.warn('SW_REG_ERR:', err);
+                      });
+
+                      // Force clear caches
+                      if ('caches' in window && typeof caches.keys === 'function') {
+                        caches.keys().then(function(names) {
+                          if (names && names.length > 0) {
+                            for (var j = 0; j < names.length; j++) {
+                              caches['delete'](names[j]);
+                            }
+                            console.log('CACHE_PURGE_COMPLETE');
+                          }
+                        })['catch'](function(err) {
+                          console.warn('CACHE_ERR:', err);
+                        });
+                      }
+                    });
+                  }
+                } catch (e) {
+                  // Silent catch to prevent script-based page blocks
+                  if (console && console.error) console.error('INIT_ERR:', e);
+                }
+              })();
             `,
           }}
         />
@@ -197,24 +213,32 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              // Web Vitals monitoring
-              if ('PerformanceObserver' in window) {
-                const observer = new PerformanceObserver((list) => {
-                  list.getEntries().forEach((entry) => {
-                    if (entry.entryType === 'largest-contentful-paint') {
-                      console.log('LCP:', entry.startTime, 'ms');
-                    }
-                    if (entry.entryType === 'first-input') {
-                      console.log('FID:', entry.processingStart - entry.startTime, 'ms');
-                    }
-                    if (entry.entryType === 'layout-shift') {
-                      console.log('CLS:', entry.value);
-                    }
-                  });
-                });
-                
-                observer.observe({ entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'] });
-              }
+              // Web Vitals monitoring (ES5)
+              (function() {
+                try {
+                  if ('PerformanceObserver' in window) {
+                    var observer = new PerformanceObserver(function(list) {
+                      var entries = list.getEntries();
+                      for (var i = 0; i < entries.length; i++) {
+                        var entry = entries[i];
+                        if (entry.entryType === 'largest-contentful-paint') {
+                          console.log('LCP:', entry.startTime, 'ms');
+                        }
+                        if (entry.entryType === 'first-input') {
+                          console.log('FID:', entry.processingStart - entry.startTime, 'ms');
+                        }
+                        if (entry.entryType === 'layout-shift') {
+                          console.log('CLS:', entry.value);
+                        }
+                      }
+                    });
+                    
+                    observer.observe({ entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'] });
+                  }
+                } catch (e) {
+                  // Silent catch
+                }
+              })();
             `,
           }}
         />
