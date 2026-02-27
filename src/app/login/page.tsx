@@ -23,7 +23,15 @@ export default function LoginPage() {
   // If user is already logged in, redirect them immediately
   if (user) {
     // Redirect immediately without useEffect
-    const redirectPath = user.role === 'admin' ? '/admin' : '/dashboard';
+    let redirectPath = '/dashboard';
+    if (user.role === 'admin') {
+      redirectPath = '/admin';
+    } else if (user.role === 'staff' || user.role === 'instructor' || user.role === 'partial_admin') {
+      redirectPath = '/hrms/dashboard';
+    } else if (user.role === 'student') {
+      redirectPath = '/dashboard';
+    }
+
     if (typeof window !== 'undefined') {
       window.location.href = redirectPath;
     }

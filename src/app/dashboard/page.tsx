@@ -87,8 +87,15 @@ export default function DashboardPage() {
     return null;
   }
 
-  if (user.role === 'staff' || user.role === 'instructor') {
+  if (user.role === 'staff' || user.role === 'instructor' || user.role === 'partial_admin') {
     router.replace('/hrms/dashboard');
+    return null;
+  }
+
+  // Final check: if user is logged in but has no valid role for student dashboard, redirect to login or error
+  if (user.role !== 'student' && user.role !== 'admin' && user.role !== 'staff' && user.role !== 'instructor') {
+    console.error('Invalid user role detected:', user.role);
+    router.replace('/login');
     return null;
   }
 

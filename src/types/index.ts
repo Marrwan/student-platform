@@ -3,7 +3,7 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'student' | 'admin' | 'instructor' | 'staff';
+  role: 'student' | 'admin' | 'instructor' | 'staff' | 'partial_admin';
   isActive?: boolean;
   emailVerified?: boolean;
   lastLogin?: string;
