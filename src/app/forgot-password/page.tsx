@@ -57,26 +57,25 @@ export default function ForgotPasswordPage() {
 
         <div className="w-full max-w-md relative z-10">
           {/* Back to login */}
-          <div className="mb-6">
-            <Button
-              variant="ghost"
+          <div className="mb-6 flex justify-start">
+            <button
               onClick={() => router.push('/login')}
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors absolute top-4 left-4 sm:static"
+              className="group flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground hover:text-neon-cyan transition-all mono-font"
             >
-              <ArrowLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Back to Login</span>
-            </Button>
+              <span className="text-neon-cyan transition-transform group-hover:-translate-x-1">&lt;</span>
+              RETURN_TO_AUTH
+            </button>
           </div>
 
           <Card className="bg-card/60 backdrop-blur-xl border border-white/10 shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-neon-emerald via-neon-cyan to-neon-violet"></div>
             <CardHeader className="text-center pt-8">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-neon-emerald/10 border border-neon-emerald/20">
-                <CheckCircle className="h-6 w-6 text-neon-emerald" />
+              <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-neon-emerald/10 border border-neon-emerald/20 shadow-glow-emerald">
+                <CheckCircle className="h-7 w-7 text-neon-emerald" />
               </div>
-              <CardTitle className="text-xl">Check Your Email</CardTitle>
-              <CardDescription className="text-muted-foreground">
-                We've sent a password reset link to your email address
+              <CardTitle className="text-xl mono-font font-black tracking-tight uppercase">TELEMETRY_SENT</CardTitle>
+              <CardDescription className="text-[10px] text-muted-foreground uppercase tracking-widest mono-font pt-2">
+                Recovery handshake dispatched to secondary node
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 pb-8">
@@ -128,35 +127,36 @@ export default function ForgotPasswordPage() {
 
       <div className="w-full max-w-md relative z-10">
         {/* Back to login */}
-        <div className="mb-8">
-          <Button
-            variant="ghost"
+        <div className="mb-8 flex justify-start">
+          <button
             onClick={() => router.push('/login')}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors absolute top-4 left-4 sm:static"
+            className="group flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground hover:text-neon-cyan transition-all mono-font"
           >
-            <ArrowLeft className="h-4 w-4" />
-            <span className="hidden sm:inline">Back to Login</span>
-          </Button>
+            <span className="text-neon-cyan transition-transform group-hover:-translate-x-1">&lt;</span>
+            SYS_EXIT_RECOVERY
+          </button>
         </div>
 
         {/* Header */}
         <div className="text-center mb-10 mt-8 sm:mt-0">
-          <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-neon-cyan/10 border border-neon-cyan/20">
-            <Mail className="h-6 w-6 text-neon-cyan" />
+          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-black/40 border border-white/10 hover:border-neon-cyan/50 hover-glow-cyan transition-all duration-500">
+            <Mail className="h-7 w-7 text-neon-cyan" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground mb-2">Forgot Password</h1>
-          <p className="text-muted-foreground">
-            Enter your email address and we'll send you a link to reset your password
-          </p>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] uppercase tracking-widest text-neon-cyan mb-3 mono-font">
+            <span className="w-1 h-1 rounded-full bg-neon-cyan animate-pulse"></span>
+            RECOVERY_PROTOCOL_V4
+          </div>
+          <h1 className="text-4xl font-black tracking-tighter text-foreground mb-2 uppercase">Reset <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-violet">Access</span></h1>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-widest mono-font">Initiate credential restoration sequence</p>
         </div>
 
         {/* Form */}
         <Card className="bg-card/60 backdrop-blur-xl border border-white/10 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-pink"></div>
           <CardHeader className="pt-8 pb-4">
-            <CardTitle className="text-xl">Reset Your Password</CardTitle>
-            <CardDescription className="text-muted-foreground">
-              We'll send you an email with a link to reset your password
+            <CardTitle className="text-xl mono-font font-black tracking-tight uppercase">PROTOCOL_INIT</CardTitle>
+            <CardDescription className="text-[10px] text-muted-foreground uppercase tracking-widest mono-font pt-2">
+              Provide account telemetry to receive hash link
             </CardDescription>
           </CardHeader>
           <CardContent className="pb-8">

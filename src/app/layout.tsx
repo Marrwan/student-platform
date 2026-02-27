@@ -143,16 +143,24 @@ export default function RootLayout({
                 });
               }
 
-              // Unregister any existing Service Workers to fix caching issues
+              // UNCOMPROMISING_CACHE_PURGE: Unregister any existing Service Workers and clear caches to fix design regressions
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
                   navigator.serviceWorker.getRegistrations().then(function(registrations) {
                     for(let registration of registrations) {
-                      registration.unregister().then(function(boolean) {
-                        console.log('ServiceWorker unregistered: ', boolean);
+                      registration.unregister().then(function() {
+                        console.log('SW_UNREGISTERED_OK');
                       });
                     }
                   });
+
+                  // Force clear caches
+                  if ('caches' in window) {
+                    caches.keys().then(function(names) {
+                      for (let name of names) caches.delete(name);
+                      console.log('CACHE_PURGE_COMPLETE');
+                    });
+                  }
                 });
               }
             `,
@@ -161,7 +169,7 @@ export default function RootLayout({
         {/* Paystack Popup Script (for modals that use PaystackPop). Assignment late-fee uses redirect, not this script. */}
         <Script src="https://js.paystack.co/v1/popup.js" strategy="lazyOnload" />
       </head>
-      <body className={`${inter.className} antialiased`}>
+      <body className={`${inter.className} ${jetbrainsMono.variable} antialiased selection:bg-neon-cyan/30`}>
         <ErrorBoundaryClient>
           <AuthProvider>
             <div className="min-h-screen flex flex-col">

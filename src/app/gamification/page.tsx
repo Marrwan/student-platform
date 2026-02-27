@@ -45,29 +45,45 @@ export default function GamificationPage() {
     if (loading) return <div className="p-8 text-center text-gray-500">Loading gamification data...</div>;
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="mb-8 text-center">
-                <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-                    Achievement Center 🏆
+        <div className="container mx-auto px-6 py-12">
+            <div className="mb-12 text-center relative">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-neon-cyan/10 blur-[100px] pointer-events-none"></div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] uppercase tracking-widest text-neon-cyan mb-4 mono-font">
+                    <span className="w-1 h-1 rounded-full bg-neon-cyan animate-pulse"></span>
+                    SYSTEM_ACHIEVEMENTS_V1.0
+                </div>
+                <h1 className="text-4xl font-black text-foreground sm:text-5xl uppercase tracking-tighter mb-4">
+                    Achievement <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-violet">Center</span>
                 </h1>
-                <p className="mt-2 text-lg text-gray-600">
-                    Track your progress, earn badges, and celebrate your team!
+                <p className="max-w-xl mx-auto text-muted-foreground mono-font text-xs uppercase tracking-widest leading-relaxed">
+                    Quantifying technical excellence and team collaboration through verified milestones.
                 </p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Left Column: My Badges */}
                 <div className="lg:col-span-2 space-y-8">
-                    <section className="bg-white rounded-lg shadow p-6">
-                        <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">My Badges</h2>
+                    <section className="glass-card p-8 relative overflow-hidden group hover-glow-cyan transition-all duration-500">
+                        <div className="absolute top-0 right-0 p-4 opacity-5 mono-font text-[60px] font-black select-none pointer-events-none">
+                            BADGES
+                        </div>
+                        <h2 className="text-lg font-bold text-foreground mb-8 border-b border-white/5 pb-4 mono-font flex items-center gap-3">
+                            <span className="text-neon-cyan text-xl">#</span> USER_BADGE_LIST
+                        </h2>
                         <BadgeList userBadges={badges} />
                     </section>
 
-                    <section className="bg-white rounded-lg shadow p-6">
-                        <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Team Shoutouts</h2>
-                        {/* RecognitionFeed was removed, but the section title remains. Assuming this is intended based on the provided diff. */}
-                        {/* If RecognitionFeed should be here, it needs to be re-added. */}
-                        {/* For now, I'm just removing the component as per the diff. */}
+                    <section className="glass-card p-8 relative group hover-glow-violet transition-all duration-500">
+                        <div className="absolute top-0 right-0 p-4 opacity-5 mono-font text-[60px] font-black select-none pointer-events-none">
+                            SHOUTS
+                        </div>
+                        <h2 className="text-lg font-bold text-foreground mb-4 border-b border-white/5 pb-4 mono-font flex items-center gap-3">
+                            <span className="text-neon-violet text-xl">#</span> TEAM_RECOGNITION_STREAM
+                        </h2>
+                        <div className="p-8 text-center border-2 border-dashed border-white/5 rounded-xl">
+                            <p className="text-muted-foreground mono-font text-[10px] uppercase tracking-widest">
+                                Pending new telemetry feeds...
+                            </p>
+                        </div>
                     </section>
                 </div>
 
@@ -81,17 +97,20 @@ export default function GamificationPage() {
                         <RecognitionForm users={users} onSuccess={fetchData} />
                     </section>
 
-                    <section className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-lg p-6 text-white text-center">
-                        <h3 className="text-lg font-bold mb-2">Intern of the Month</h3>
-                        <div className="bg-white/20 rounded-full h-24 w-24 mx-auto mb-4 flex items-center justify-center text-4xl">
-                            👑
+                    <section className="bg-gradient-to-br from-neon-violet/20 via-background to-background rounded-2xl border border-neon-violet/30 shadow-2xl p-8 text-white relative overflow-hidden group">
+                        <div className="scan-line opacity-20"></div>
+                        <div className="relative z-10 flex flex-col items-center">
+                            <h3 className="text-xs font-bold mb-6 text-neon-violet uppercase tracking-[0.3em] mono-font">System Objective : MVP_MONTH</h3>
+                            <div className="w-24 h-24 rounded-full bg-neon-violet/10 border border-neon-violet/30 flex items-center justify-center text-4xl mb-6 shadow-glow-violet group-hover:scale-110 transition-transform duration-500">
+                                👑
+                            </div>
+                            <p className="text-[10px] text-muted-foreground uppercase mono-font tracking-widest mb-6 leading-relaxed">
+                                Nominations open for session 0x24. Identify colleagues demonstrating exceptional core competencies.
+                            </p>
+                            <button className="w-full py-3 bg-neon-violet text-white rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-neon-violet/80 transition-all mono-font shadow-glow-violet">
+                                LAUNCH_NOMINATION_TERMINAL
+                            </button>
                         </div>
-                        <p className="text-sm opacity-90 mb-4">
-                            Nominations are open! Recognize someone who went above and beyond this month.
-                        </p>
-                        <button className="bg-white text-indigo-600 px-4 py-2 rounded-full font-bold text-sm hover:bg-opacity-90 transition">
-                            View Winners
-                        </button>
                     </section>
                 </div>
             </div>

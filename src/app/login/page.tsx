@@ -4,7 +4,7 @@ import { useAuth } from '@/components/providers/auth-provider';
 import { LoginForm } from '@/components/auth/login-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Code, ArrowLeft } from 'lucide-react';
+import { Code, ArrowLeft, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React from 'react'; // Added missing import for React
 
@@ -29,11 +29,13 @@ export default function LoginPage() {
     }
 
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neon-cyan mx-auto mb-4"></div>
-          <p className="text-lg text-muted-foreground">
-            Redirecting to your dashboard...
+          <div className="w-12 h-12 rounded-xl bg-neon-cyan/10 border border-neon-cyan/20 flex items-center justify-center mx-auto mb-6">
+            <Loader2 className="h-6 w-6 text-neon-cyan animate-spin" />
+          </div>
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-[0.2em] mono-font animate-pulse">
+            REDIRECTING_TO_SESSION_ROOT
           </p>
         </div>
       </div>
@@ -61,23 +63,26 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="text-center mb-10 mt-8 sm:mt-0">
-          <div className="flex items-center justify-center space-x-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-neon-cyan/10 flex items-center justify-center border border-neon-cyan/20">
-              <Code className="h-6 w-6 text-neon-cyan" />
+          <div className="flex items-center justify-center space-x-3 mb-6 group">
+            <div className="w-14 h-14 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center group-hover:border-neon-cyan/50 hover-glow-cyan transition-all duration-500 transform group-hover:rotate-6">
+              <Code className="h-7 w-7 text-neon-cyan" />
             </div>
-            <span className="text-2xl font-bold tracking-tight text-foreground">Nexus</span>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground mb-2">Welcome Back</h1>
-          <p className="text-muted-foreground">Sign in to continue your learning journey</p>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] uppercase tracking-widest text-neon-cyan mb-3 mono-font">
+            <span className="w-1 h-1 rounded-full bg-neon-cyan animate-pulse"></span>
+            AUTH_TERMINAL_VSEC
+          </div>
+          <h1 className="text-4xl font-black tracking-tighter text-foreground mb-2 uppercase">Nexus <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-violet">Systems</span></h1>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-widest mono-font">Secure access for verified developers</p>
         </div>
 
         {/* Login Form */}
         <Card className="bg-card/60 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden relative">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-pink"></div>
           <CardHeader className="pt-8 pb-4">
-            <CardTitle className="text-xl">Sign In</CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Enter your credentials to access your account
+            <CardTitle className="text-xl mono-font font-bold">SESSION_LOGIN</CardTitle>
+            <CardDescription className="text-[10px] text-muted-foreground uppercase tracking-tight mono-font">
+              Enter valid credentials to initiate auth_handshake
             </CardDescription>
           </CardHeader>
           <CardContent className="pb-8">

@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { 
+import {
   Trophy,
   Medal,
   Crown,
@@ -170,7 +170,7 @@ export default function LeaderboardPage() {
         const response = await api.getProjectLeaderboard(selectedProject);
         setProjectLeaderboardData(response.data);
       }
-      
+
       const statsResponse = await api.getLeaderboardStats();
       setStats(statsResponse.stats);
     } catch (err: any) {
@@ -265,20 +265,30 @@ export default function LeaderboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-black/95 text-foreground relative overflow-hidden">
+      {/* Background Glows */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-neon-cyan/5 blur-[120px]"></div>
+        <div className="absolute bottom-[10%] right-[-5%] w-[30%] h-[30%] bg-neon-pink/5 blur-[120px]"></div>
+      </div>
+
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex justify-between items-center">
+      <header className="bg-white/[0.02] backdrop-blur-md border-b border-white/5 relative z-10">
+        <div className="container mx-auto px-6 py-8">
+          <div className="flex justify-between items-end">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Leaderboard
+              <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-neon-cyan/5 border border-neon-cyan/10 text-[8px] uppercase tracking-[0.2em] text-neon-cyan mb-2 mono-font">
+                <span className="w-1 h-1 rounded-full bg-neon-cyan animate-pulse"></span>
+                MODULE: RANK_HIERARCHY_V4.2
+              </div>
+              <h1 className="text-4xl font-black text-foreground uppercase tracking-tight mono-font">
+                System <span className="text-muted-foreground">Hierarchy</span>
               </h1>
-              <p className="text-gray-600 dark:text-gray-300">
-                Track your progress and compete with other learners
+              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.3em] mono-font mt-2">
+                Real-time synchronization of relative technical efficiency
               </p>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-6">
               <NotificationCenter />
             </div>
           </div>
@@ -286,160 +296,161 @@ export default function LeaderboardPage() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-6 py-12 relative z-10">
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Participants</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+          <Card className="bg-card/40 backdrop-blur-xl border border-white/10 rounded-3xl group relative overflow-hidden">
+            <div className="absolute inset-0 bg-neon-cyan/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <CardTitle className="text-[9px] font-black uppercase tracking-[0.2em] mono-font text-muted-foreground">TOTAL_NODES</CardTitle>
+              <Users className="h-4 w-4 text-neon-cyan" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalParticipants}</div>
-              <p className="text-xs text-muted-foreground">
-                Active learners
-              </p>
+              <div className="text-3xl font-black text-foreground mono-font tracking-tighter">{stats.totalParticipants}</div>
+              <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-2 mono-font italic">Verified active telemetry</p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average Score</CardTitle>
-              <Target className="h-4 w-4 text-muted-foreground" />
+          <Card className="bg-card/40 backdrop-blur-xl border border-white/10 rounded-3xl group relative overflow-hidden">
+            <div className="absolute inset-0 bg-neon-violet/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <CardTitle className="text-[9px] font-black uppercase tracking-[0.2em] mono-font text-muted-foreground">AGGR_EFFICIENCY</CardTitle>
+              <Target className="h-4 w-4 text-neon-violet" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{Math.round(stats.averageScore)}%</div>
-              <p className="text-xs text-muted-foreground">
-                Across all submissions
-              </p>
+              <div className="text-3xl font-black text-foreground mono-font tracking-tighter">{Math.round(stats.averageScore)}%</div>
+              <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-2 mono-font italic">System-wide success rate</p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Top Score</CardTitle>
-              <Trophy className="h-4 w-4 text-muted-foreground" />
+          <Card className="bg-card/40 backdrop-blur-xl border border-white/10 rounded-3xl group relative overflow-hidden">
+            <div className="absolute inset-0 bg-neon-pink/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <CardTitle className="text-[9px] font-black uppercase tracking-[0.2em] mono-font text-muted-foreground">PEAK_VALUE</CardTitle>
+              <Trophy className="h-4 w-4 text-neon-pink" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.topScore}</div>
-              <p className="text-xs text-muted-foreground">
-                Highest achieved
-              </p>
+              <div className="text-3xl font-black text-foreground mono-font tracking-tighter shadow-glow-pink/10">{stats.topScore}</div>
+              <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-2 mono-font italic">Max recorded potential</p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Classes</CardTitle>
-              <BookOpen className="h-4 w-4 text-muted-foreground" />
+          <Card className="bg-card/40 backdrop-blur-xl border border-white/10 rounded-3xl group relative overflow-hidden">
+            <div className="absolute inset-0 bg-neon-emerald/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <CardTitle className="text-[9px] font-black uppercase tracking-[0.2em] mono-font text-muted-foreground">ACTIVE_STREAMS</CardTitle>
+              <BookOpen className="h-4 w-4 text-neon-emerald" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.activeClasses}</div>
-              <p className="text-xs text-muted-foreground">
-                Out of {stats.totalClasses} total
-              </p>
+              <div className="text-3xl font-black text-foreground mono-font tracking-tighter">{stats.activeClasses}</div>
+              <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-2 mono-font italic">Concurrent sub-sectors</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Leaderboard Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overall">Overall</TabsTrigger>
-            <TabsTrigger value="class">Class Rankings</TabsTrigger>
-            <TabsTrigger value="project">Project Rankings</TabsTrigger>
-            <TabsTrigger value="streaks">Streaks</TabsTrigger>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-10">
+          <TabsList className="grid w-full grid-cols-4 bg-white/5 border border-white/10 p-1.5 rounded-2xl h-16">
+            <TabsTrigger value="overall" className="rounded-xl data-[state=active]:bg-neon-cyan data-[state=active]:text-black text-[10px] font-black uppercase tracking-widest mono-font transition-all">OVERALL</TabsTrigger>
+            <TabsTrigger value="class" className="rounded-xl data-[state=active]:bg-neon-violet data-[state=active]:text-white text-[10px] font-black uppercase tracking-widest mono-font transition-all">SECTOR_RANK</TabsTrigger>
+            <TabsTrigger value="project" className="rounded-xl data-[state=active]:bg-neon-pink data-[state=active]:text-white text-[10px] font-black uppercase tracking-widest mono-font transition-all">TASK_RANK</TabsTrigger>
+            <TabsTrigger value="streaks" className="rounded-xl data-[state=active]:bg-neon-emerald data-[state=active]:text-white text-[10px] font-black uppercase tracking-widest mono-font transition-all">MOMENTUM</TabsTrigger>
           </TabsList>
 
           {/* Overall Leaderboard */}
-          <TabsContent value="overall" className="space-y-6">
-            <div className="flex gap-4">
+          <TabsContent value="overall" className="space-y-8">
+            <div className="flex gap-6">
               <Select value={timeFilter} onValueChange={setTimeFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Time Filter" />
+                <SelectTrigger className="w-56 bg-black/40 border-white/10 rounded-xl mono-font uppercase text-[10px] tracking-widest h-12 focus:ring-neon-cyan/50">
+                  <SelectValue placeholder="TIME_INTERVAL" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all-time">All Time</SelectItem>
-                  <SelectItem value="monthly">This Month</SelectItem>
-                  <SelectItem value="weekly">This Week</SelectItem>
-                  <SelectItem value="daily">Today</SelectItem>
+                <SelectContent className="bg-card/90 backdrop-blur-2xl border-white/10 rounded-xl">
+                  <SelectItem value="all-time" className="mono-font text-[10px] uppercase">ARCHIVE_TOTAL</SelectItem>
+                  <SelectItem value="monthly" className="mono-font text-[10px] uppercase">CURRENT_MONTH</SelectItem>
+                  <SelectItem value="weekly" className="mono-font text-[10px] uppercase">CURRENT_WEEK</SelectItem>
+                  <SelectItem value="daily" className="mono-font text-[10px] uppercase">ACTIVE_24H</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               <Select value={selectedProject} onValueChange={setSelectedProject}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Project" />
+                <SelectTrigger className="w-64 bg-black/40 border-white/10 rounded-xl mono-font uppercase text-[10px] tracking-widest h-12 focus:ring-neon-cyan/50">
+                  <SelectValue placeholder="NODAL_POINT" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Projects</SelectItem>
+                <SelectContent className="bg-card/90 backdrop-blur-2xl border-white/10 rounded-xl">
+                  <SelectItem value="all" className="mono-font text-[10px] uppercase">GLOBAL_VIEW</SelectItem>
                   {projects.map((project) => (
-                    <SelectItem key={project.id} value={project.id}>
-                      Day {project.day}: {project.title}
+                    <SelectItem key={project.id} value={project.id} className="mono-font text-[10px] uppercase">
+                      0X{project.day}: {project.title}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Overall Rankings</CardTitle>
-                <CardDescription>
-                  Rankings based on intelligent scoring system
+            <Card className="bg-card/40 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+              <CardHeader className="p-10 pb-6 border-b border-white/5">
+                <CardTitle className="text-xl font-black text-foreground mono-font uppercase tracking-tighter">NODE_RANKINGS</CardTitle>
+                <CardDescription className="text-[10px] text-muted-foreground uppercase tracking-widest mono-font mt-2">
+                  Relative efficiency based on multi-vector intelligent scoring
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-8">
                 <div className="space-y-4">
                   {leaderboardData.map((entry) => (
                     <div
                       key={entry.id}
-                      className={`flex items-center justify-between p-4 rounded-lg border ${
-                        entry.isCurrentUser ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200' : ''
-                      }`}
+                      className={`group flex items-center justify-between p-6 rounded-2xl border transition-all hover:bg-white/5 ${entry.isCurrentUser
+                          ? 'bg-neon-cyan/5 border-neon-cyan/30 shadow-glow-cyan/5'
+                          : 'border-white/5 bg-black/20'
+                        }`}
                     >
-                      <div className="flex items-center space-x-4">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getRankColor(entry.rank)}`}>
-                          {getRankIcon(entry.rank)}
+                      <div className="flex items-center space-x-6">
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border font-black mono-font text-lg relative ${entry.rank <= 3 ? 'shadow-glow-cyan/20' : ''
+                          }`}>
+                          <div className="absolute inset-0 opacity-10 blur-md pointer-events-none group-hover:opacity-30 transition-opacity"></div>
+                          {entry.rank}
                         </div>
                         <div>
-                          <h3 className="font-medium">
+                          <h3 className="font-black text-foreground uppercase tracking-tight mono-font flex items-center gap-3">
                             {entry.firstName} {entry.lastName}
-                            {entry.isCurrentUser && <Badge className="ml-2">You</Badge>}
+                            {entry.isCurrentUser && (
+                              <span className="px-2 py-0.5 rounded-md bg-neon-cyan text-black text-[8px] font-black uppercase tracking-widest shadow-glow-cyan/50">SELF_ENTITY</span>
+                            )}
                           </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-300">{entry.email}</p>
+                          <p className="text-[10px] text-muted-foreground mono-font uppercase tracking-widest mt-1 italic">{entry.email}</p>
                         </div>
                       </div>
-                      
-                      <div className="flex items-center space-x-6">
+
+                      <div className="flex items-center space-x-12">
                         <div className="text-right">
-                          <div className={`text-lg font-bold ${getScoreColor(entry.finalScore)}`}>
+                          <div className={`text-2xl font-black mono-font tracking-tighter ${getScoreColor(entry.finalScore)}`}>
                             {entry.finalScore}
                           </div>
-                          <div className="text-xs text-gray-600 dark:text-gray-300">Final Score</div>
+                          <div className="text-[8px] text-muted-foreground uppercase tracking-widest mono-font font-bold">FINAL_VAL</div>
                         </div>
-                        
-                        <div className="text-right">
-                          <div className="text-sm font-medium">{entry.completedProjects}</div>
-                          <div className="text-xs text-gray-600 dark:text-gray-300">Completed</div>
+
+                        <div className="text-right hidden sm:block">
+                          <div className="text-sm font-black text-foreground mono-font">{entry.completedProjects}</div>
+                          <div className="text-[8px] text-muted-foreground uppercase tracking-widest mono-font font-bold">SYMBOLS_SYNC</div>
                         </div>
-                        
-                        <div className="text-right">
-                          <div className="text-sm font-medium">{Math.round(entry.completionRate)}%</div>
-                          <div className="text-xs text-gray-600 dark:text-gray-300">Success Rate</div>
+
+                        <div className="text-right hidden md:block">
+                          <div className="text-sm font-black text-foreground mono-font">{Math.round(entry.completionRate)}%</div>
+                          <div className="text-[8px] text-muted-foreground uppercase tracking-widest mono-font font-bold">SUCCESS_RATE</div>
                         </div>
-                        
-                        <div className="flex items-center space-x-2">
+
+                        <div className="flex items-center space-x-3 w-32 justify-end">
                           {entry.bonusPoints > 0 && (
-                            <Badge className="bg-green-100 text-green-800">
-                              <Zap className="h-3 w-3 mr-1" />
+                            <div className="px-2 py-1 rounded-lg bg-neon-emerald/10 border border-neon-emerald/20 text-neon-emerald text-[8px] font-black mono-font flex items-center gap-1 shadow-glow-emerald/10 animate-pulse">
+                              <Zap className="h-2.5 w-2.5" />
                               +{entry.bonusPoints}
-                            </Badge>
+                            </div>
                           )}
                           {entry.penaltyPoints > 0 && (
-                            <Badge className="bg-red-100 text-red-800">
-                              <TrendingDown className="h-3 w-3 mr-1" />
+                            <div className="px-2 py-1 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-[8px] font-black mono-font flex items-center gap-1">
+                              <TrendingDown className="h-2.5 w-2.5" />
                               -{entry.penaltyPoints}
-                            </Badge>
+                            </div>
                           )}
                         </div>
                       </div>
@@ -451,17 +462,17 @@ export default function LeaderboardPage() {
           </TabsContent>
 
           {/* Class Rankings */}
-          <TabsContent value="class" className="space-y-6">
-            <div className="flex gap-4">
+          <TabsContent value="class" className="space-y-8">
+            <div className="flex gap-6">
               <Select value={selectedClass} onValueChange={setSelectedClass}>
-                <SelectTrigger className="w-80">
-                  <SelectValue placeholder="Select Class" />
+                <SelectTrigger className="w-96 bg-black/40 border-white/10 rounded-xl mono-font uppercase text-[10px] tracking-widest h-12 focus:ring-neon-violet/50">
+                  <SelectValue placeholder="SELECT_SECTOR" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Select a class to view rankings</SelectItem>
+                <SelectContent className="bg-card/90 backdrop-blur-2xl border-white/10 rounded-xl">
+                  <SelectItem value="all" className="mono-font text-[10px] uppercase">SELECTION_PENDING</SelectItem>
                   {classes.map((classItem) => (
-                    <SelectItem key={classItem.id} value={classItem.id}>
-                      {classItem.name}
+                    <SelectItem key={classItem.id} value={classItem.id} className="mono-font text-[10px] uppercase italic">
+                      {classItem.name.toUpperCase()}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -469,68 +480,67 @@ export default function LeaderboardPage() {
             </div>
 
             {selectedClass === 'all' ? (
-              <Card>
-                <CardContent className="text-center py-12">
-                  <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                    Select a Class
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Choose a class from the dropdown to view class-specific rankings
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="flex flex-col items-center justify-center py-32 bg-card/20 rounded-3xl border border-dashed border-white/10 group">
+                <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-6 opacity-20 group-hover:scale-110 transition-transform" />
+                <h3 className="text-xl font-black text-foreground mb-3 uppercase tracking-tight mono-font">
+                  SECTOR_QUERY_REQUIRED
+                </h3>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest mono-font italic">
+                  Initialize sector selection to retrieve relative rankings
+                </p>
+              </div>
             ) : (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Class Rankings</CardTitle>
-                  <CardDescription>
-                    Rankings based on 30% attendance + 70% assignment scores
+              <Card className="bg-card/40 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+                <CardHeader className="p-10 pb-6 border-b border-white/5">
+                  <CardTitle className="text-xl font-black text-foreground mono-font uppercase tracking-tighter">SECTOR_PROTO_RANKINGS</CardTitle>
+                  <CardDescription className="text-[10px] text-muted-foreground uppercase tracking-widest mono-font mt-2">
+                    Rankings calculated via 30% participation + 70% task efficiency
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-8">
                   <div className="space-y-4">
                     {classLeaderboardData.map((entry) => (
                       <div
                         key={entry.id}
-                        className={`flex items-center justify-between p-4 rounded-lg border ${
-                          entry.isCurrentUser ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200' : ''
-                        }`}
+                        className={`group flex items-center justify-between p-6 rounded-2xl border transition-all hover:bg-white/5 ${entry.isCurrentUser
+                            ? 'bg-neon-violet/5 border-neon-violet/30 shadow-glow-violet/5'
+                            : 'border-white/5 bg-black/20'
+                          }`}
                       >
-                        <div className="flex items-center space-x-4">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getRankColor(entry.rank)}`}>
-                            {getRankIcon(entry.rank)}
+                        <div className="flex items-center space-x-6">
+                          <div className="w-12 h-12 rounded-2xl flex items-center justify-center border border-white/10 font-black mono-font text-lg text-neon-violet bg-black/40">
+                            {entry.rank}
                           </div>
                           <div>
-                            <h3 className="font-medium">
+                            <h3 className="font-black text-foreground uppercase tracking-tight mono-font">
                               {entry.firstName} {entry.lastName}
-                              {entry.isCurrentUser && <Badge className="ml-2">You</Badge>}
+                              {entry.isCurrentUser && <span className="ml-3 px-2 py-0.5 rounded-md bg-neon-violet text-white text-[8px] font-black uppercase tracking-widest shadow-glow-violet/50">SELF</span>}
                             </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">{entry.email}</p>
+                            <p className="text-[10px] text-muted-foreground mono-font uppercase tracking-widest mt-1 italic">{entry.email}</p>
                           </div>
                         </div>
-                        
-                        <div className="flex items-center space-x-6">
+
+                        <div className="flex items-center space-x-12">
                           <div className="text-right">
-                            <div className={`text-lg font-bold ${getScoreColor(entry.finalScore)}`}>
+                            <div className={`text-2xl font-black mono-font tracking-tighter ${getScoreColor(entry.finalScore)}`}>
                               {Math.round(entry.finalScore)}
                             </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-300">Final Score</div>
+                            <div className="text-[8px] text-muted-foreground uppercase tracking-widest mono-font font-bold">AGGR_EFF</div>
                           </div>
-                          
-                          <div className="text-right">
-                            <div className="text-sm font-medium">{Math.round(entry.attendanceScore)}%</div>
-                            <div className="text-xs text-gray-600 dark:text-gray-300">Attendance</div>
+
+                          <div className="text-right hidden sm:block">
+                            <div className="text-sm font-black text-foreground mono-font">{Math.round(entry.attendanceScore)}%</div>
+                            <div className="text-[8px] text-muted-foreground uppercase tracking-widest mono-font font-bold">PARTICIPATION</div>
                           </div>
-                          
-                          <div className="text-right">
-                            <div className="text-sm font-medium">{entry.assignmentScore}</div>
-                            <div className="text-xs text-gray-600 dark:text-gray-300">Assignments</div>
+
+                          <div className="text-right hidden md:block">
+                            <div className="text-sm font-black text-foreground mono-font">{entry.assignmentScore}</div>
+                            <div className="text-[8px] text-muted-foreground uppercase tracking-widest mono-font font-bold">TASK_YIELD</div>
                           </div>
-                          
-                          <div className="text-right">
-                            <div className="text-sm font-medium">{Math.round(entry.completionRate)}%</div>
-                            <div className="text-xs text-gray-600 dark:text-gray-300">Completion</div>
+
+                          <div className="text-right hidden lg:block">
+                            <div className="text-sm font-black text-foreground mono-font">{Math.round(entry.completionRate)}%</div>
+                            <div className="text-[8px] text-muted-foreground uppercase tracking-widest mono-font font-bold">SYNC_COMPLETE</div>
                           </div>
                         </div>
                       </div>
@@ -542,17 +552,17 @@ export default function LeaderboardPage() {
           </TabsContent>
 
           {/* Project Rankings */}
-          <TabsContent value="project" className="space-y-6">
-            <div className="flex gap-4">
+          <TabsContent value="project" className="space-y-8">
+            <div className="flex gap-6">
               <Select value={selectedProject} onValueChange={setSelectedProject}>
-                <SelectTrigger className="w-80">
-                  <SelectValue placeholder="Select Project" />
+                <SelectTrigger className="w-96 bg-black/40 border-white/10 rounded-xl mono-font uppercase text-[10px] tracking-widest h-12 focus:ring-neon-pink/50">
+                  <SelectValue placeholder="LOCATE_TASK_NODE" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Select a project to view rankings</SelectItem>
+                <SelectContent className="bg-card/90 backdrop-blur-2xl border-white/10 rounded-xl">
+                  <SelectItem value="all" className="mono-font text-[10px] uppercase">PROJECT_BUFFER_NULL</SelectItem>
                   {projects.map((project) => (
-                    <SelectItem key={project.id} value={project.id}>
-                      Day {project.day}: {project.title} ({project.difficulty})
+                    <SelectItem key={project.id} value={project.id} className="mono-font text-[10px] uppercase italic">
+                      0X{project.day}: {project.title.toUpperCase()}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -560,84 +570,83 @@ export default function LeaderboardPage() {
             </div>
 
             {selectedProject === 'all' ? (
-              <Card>
-                <CardContent className="text-center py-12">
-                  <Code className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                    Select a Project
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Choose a project from the dropdown to view project-specific rankings
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="flex flex-col items-center justify-center py-32 bg-card/20 rounded-3xl border border-dashed border-white/10 group">
+                <Code className="h-16 w-16 text-muted-foreground mx-auto mb-6 opacity-20 group-hover:scale-110 transition-transform" />
+                <h3 className="text-xl font-black text-foreground mb-3 uppercase tracking-tight mono-font">
+                  TASK_INIT_REQUIRED
+                </h3>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest mono-font italic">
+                  Select task node from the system directory to view efficiency rankings
+                </p>
+              </div>
             ) : (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Project Rankings</CardTitle>
-                  <CardDescription>
-                    Intelligent scoring with time bonuses, quality bonuses, and penalties
+              <Card className="bg-card/40 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+                <CardHeader className="p-10 pb-6 border-b border-white/5">
+                  <CardTitle className="text-xl font-black text-foreground mono-font uppercase tracking-tighter">PROJECT_UNIT_HIERARCHY</CardTitle>
+                  <CardDescription className="text-[10px] text-muted-foreground uppercase tracking-widest mono-font mt-2">
+                    Multi-dimensional scoring with temporal bonuses and quality overrides
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-8">
                   <div className="space-y-4">
                     {projectLeaderboardData.map((entry) => (
                       <div
                         key={entry.id}
-                        className={`flex items-center justify-between p-4 rounded-lg border ${
-                          entry.isCurrentUser ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200' : ''
-                        }`}
+                        className={`group flex items-center justify-between p-6 rounded-2xl border transition-all hover:bg-white/5 ${entry.isCurrentUser
+                            ? 'bg-neon-pink/5 border-neon-pink/30 shadow-glow-pink/5'
+                            : 'border-white/5 bg-black/20'
+                          }`}
                       >
-                        <div className="flex items-center space-x-4">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getRankColor(entry.rank)}`}>
-                            {getRankIcon(entry.rank)}
+                        <div className="flex items-center space-x-6">
+                          <div className="w-12 h-12 rounded-2xl flex items-center justify-center border border-white/10 font-black mono-font text-lg text-neon-pink bg-black/40">
+                            {entry.rank}
                           </div>
                           <div>
-                            <h3 className="font-medium">
+                            <h3 className="font-black text-foreground uppercase tracking-tight mono-font">
                               {entry.firstName} {entry.lastName}
-                              {entry.isCurrentUser && <Badge className="ml-2">You</Badge>}
+                              {entry.isCurrentUser && <span className="ml-3 px-2 py-0.5 rounded-md bg-neon-pink text-white text-[8px] font-black uppercase tracking-widest shadow-glow-pink/50">ENTITY</span>}
                             </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">{entry.email}</p>
+                            <p className="text-[10px] text-muted-foreground mono-font uppercase tracking-widest mt-1 italic">{entry.email}</p>
                           </div>
                         </div>
-                        
-                        <div className="flex items-center space-x-6">
+
+                        <div className="flex items-center space-x-12">
                           <div className="text-right">
-                            <div className={`text-lg font-bold ${getScoreColor(entry.intelligentScore)}`}>
+                            <div className={`text-2xl font-black mono-font tracking-tighter ${getScoreColor(entry.intelligentScore)}`}>
                               {entry.intelligentScore}
                             </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-300">Intelligent Score</div>
+                            <div className="text-[8px] text-muted-foreground uppercase tracking-widest mono-font font-bold">INTELLIGENT_VAL</div>
                           </div>
-                          
-                          <div className="text-right">
-                            <div className="text-sm font-medium">{entry.baseScore}</div>
-                            <div className="text-xs text-gray-600 dark:text-gray-300">Base Score</div>
+
+                          <div className="text-right hidden sm:block">
+                            <div className="text-sm font-black text-foreground mono-font">{entry.baseScore}</div>
+                            <div className="text-[8px] text-muted-foreground uppercase tracking-widest mono-font font-bold">BASE_SYNC</div>
                           </div>
-                          
-                          <div className="flex items-center space-x-2">
+
+                          <div className="flex items-center space-x-3 w-48 justify-center">
                             {entry.timeBonus > 0 && (
-                              <Badge className="bg-blue-100 text-blue-800">
-                                <Timer className="h-3 w-3 mr-1" />
+                              <div className="px-2 py-1 rounded-lg bg-neon-cyan/10 border border-neon-cyan/20 text-neon-cyan text-[8px] font-black mono-font flex items-center gap-1 shadow-glow-cyan/5 animate-pulse">
+                                <Timer className="h-2.5 w-2.5" />
                                 +{entry.timeBonus}
-                              </Badge>
+                              </div>
                             )}
                             {entry.qualityBonus > 0 && (
-                              <Badge className="bg-purple-100 text-purple-800">
-                                <Brain className="h-3 w-3 mr-1" />
+                              <div className="px-2 py-1 rounded-lg bg-neon-violet/10 border border-neon-violet/20 text-neon-violet text-[8px] font-black mono-font flex items-center gap-1">
+                                <Brain className="h-2.5 w-2.5" />
                                 +{entry.qualityBonus}
-                              </Badge>
+                              </div>
                             )}
                             {entry.latePenalty > 0 && (
-                              <Badge className="bg-red-100 text-red-800">
-                                <AlertCircle className="h-3 w-3 mr-1" />
+                              <div className="px-2 py-1 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-[8px] font-black mono-font flex items-center gap-1">
+                                <AlertCircle className="h-2.5 w-2.5" />
                                 -{entry.latePenalty}
-                              </Badge>
+                              </div>
                             )}
                           </div>
-                          
-                          <div className="text-right">
-                            <Badge className={getStatusColor(entry.status)}>
-                              {entry.status}
+
+                          <div className="text-right w-24">
+                            <Badge className={`${getStatusColor(entry.status)} border-none text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-lg mono-font`}>
+                              {entry.status.toUpperCase()}
                             </Badge>
                           </div>
                         </div>
@@ -650,22 +659,26 @@ export default function LeaderboardPage() {
           </TabsContent>
 
           {/* Streaks */}
-          <TabsContent value="streaks" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Activity Streaks</CardTitle>
-                <CardDescription>
-                  Users with the longest consecutive days of activity
+          <TabsContent value="streaks" className="space-y-8">
+            <Card className="bg-card/40 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative group">
+              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-neon-emerald/50 to-transparent"></div>
+              <CardHeader className="p-10 pb-6 border-b border-white/5">
+                <CardTitle className="text-xl font-black text-foreground mono-font uppercase tracking-tighter">MOMENTUM_STREAKS</CardTitle>
+                <CardDescription className="text-[10px] text-muted-foreground uppercase tracking-widest mono-font mt-2">
+                  Users with maximal consecutive active temporal segments
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="text-center py-12">
-                  <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                    Streak Feature Coming Soon
+              <CardContent className="p-10">
+                <div className="text-center py-20 flex flex-col items-center">
+                  <div className="w-24 h-24 rounded-full bg-neon-emerald/5 border border-neon-emerald/20 flex items-center justify-center text-neon-emerald mb-8 shadow-glow-emerald/10 relative group-hover:scale-110 transition-transform">
+                    <div className="absolute inset-0 bg-neon-emerald/10 blur-2xl opacity-50"></div>
+                    <Activity className="h-10 w-10 relative z-10" />
+                  </div>
+                  <h3 className="text-xl font-black text-foreground mb-3 uppercase tracking-tight mono-font">
+                    STREAK_ENGINE_INITIALIZING
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Track consecutive days of activity and submissions
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mono-font max-w-xs leading-relaxed italic">
+                    Momentum tracking algorithms are currently in the calibration phase. Real-time streak telemetry coming in next update.
                   </p>
                 </div>
               </CardContent>

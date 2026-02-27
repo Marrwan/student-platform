@@ -36,8 +36,15 @@ function RegisterPageContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neon-cyan mb-4"></div>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+        <div className="text-center">
+          <div className="w-12 h-12 rounded-xl bg-neon-cyan/10 border border-neon-cyan/20 flex items-center justify-center mx-auto mb-6">
+            <Loader2 className="h-6 w-6 text-neon-cyan animate-spin" />
+          </div>
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mono-font animate-pulse">
+            INITIALIZING_AUTH_ENVIRONMENT
+          </p>
+        </div>
       </div>
     );
   }
@@ -50,11 +57,13 @@ function RegisterPageContent() {
     }
 
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neon-cyan mx-auto mb-4"></div>
-          <p className="text-lg text-muted-foreground">
-            Redirecting to your dashboard...
+          <div className="w-12 h-12 rounded-xl bg-neon-cyan/10 border border-neon-cyan/20 flex items-center justify-center mx-auto mb-6">
+            <Loader2 className="h-6 w-6 text-neon-cyan animate-spin" />
+          </div>
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mono-font animate-pulse">
+            AUTH_SESSION_VALID: REDIRECTING
           </p>
         </div>
       </div>
@@ -68,28 +77,29 @@ function RegisterPageContent() {
       <div className="absolute bottom-0 left-1/4 w-[40rem] h-[40rem] bg-neon-emerald/10 rounded-full blur-[120px] pointer-events-none"></div>
 
       <div className="w-full max-w-md relative z-10">
-        {/* Back to home */}
-        <div className="mb-6">
-          <Button
-            variant="ghost"
+        <div className="mb-6 flex justify-start">
+          <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors absolute top-4 left-4 sm:static"
+            className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground hover:text-neon-cyan transition-all mono-font"
           >
-            <ArrowLeft className="h-4 w-4" />
-            <span className="hidden sm:inline">Back to Home</span>
-          </Button>
+            <span className="text-neon-cyan transition-transform group-hover:-translate-x-1">&lt;</span>
+            SYS_EXIT_LOGIN
+          </button>
         </div>
 
         {/* Logo */}
         <div className="text-center mb-10 mt-8 sm:mt-0">
-          <div className="flex items-center justify-center space-x-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-neon-cyan/10 flex items-center justify-center border border-neon-cyan/20">
-              <Code className="h-6 w-6 text-neon-cyan" />
+          <div className="flex items-center justify-center space-x-3 mb-6 group">
+            <div className="w-14 h-14 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center group-hover:border-neon-cyan/50 hover-glow-cyan transition-all duration-500 transform group-hover:scale-110">
+              <Code className="h-7 w-7 text-neon-cyan" />
             </div>
-            <span className="text-2xl font-bold tracking-tight text-foreground">Nexus</span>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground mb-2">Join the Platform</h1>
-          <p className="text-muted-foreground">Create your account and start your coding journey</p>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] uppercase tracking-widest text-neon-cyan mb-3 mono-font">
+            <span className="w-1 h-1 rounded-full bg-neon-cyan animate-pulse"></span>
+            PROVISION_ACCOUNT_VSEC
+          </div>
+          <h1 className="text-4xl font-black tracking-tighter text-foreground mb-2 uppercase">Nexus <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-violet">Systems</span></h1>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-widest mono-font">Initiate developer registration sequence</p>
         </div>
 
         {/* Invitation Banner */}

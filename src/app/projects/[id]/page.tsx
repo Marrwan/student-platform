@@ -11,20 +11,21 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  ArrowLeft, 
-  Code, 
-  Eye, 
-  Upload, 
-  Github, 
-  Clock, 
-  CheckCircle, 
+import {
+  ArrowLeft,
+  Code,
+  Eye,
+  Upload,
+  Github,
+  Clock,
+  CheckCircle,
   XCircle,
   Play,
   Download,
   Copy,
   ExternalLink,
-  Target
+  Target,
+  Loader2
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import toast from 'react-hot-toast';
@@ -61,7 +62,7 @@ function ProjectViewer() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  
+
   // Form state
   const [githubLink, setGithubLink] = useState('');
   const [codeSubmission, setCodeSubmission] = useState('');
@@ -104,7 +105,7 @@ function ProjectViewer() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!githubLink.trim()) {
       toast.error('GitHub link is required');
       return;
@@ -155,10 +156,29 @@ function ProjectViewer() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div></div>;
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <div className="w-16 h-16 rounded-2xl bg-neon-cyan/10 border border-neon-cyan/20 flex items-center justify-center mb-6">
+          <Loader2 className="h-8 w-8 text-neon-cyan animate-spin" />
+        </div>
+        <p className="text-xs font-bold text-muted-foreground uppercase tracking-[0.3em] mono-font animate-pulse">INIT_PROJECT_ENV</p>
+      </div>
+    );
   }
+
   if (error) {
-    return <div className="min-h-screen flex flex-col items-center justify-center bg-red-50 text-red-800"><h1 className="text-2xl font-bold mb-4">Project Error</h1><p>{error}</p><button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded" onClick={loadProject}>Retry</button></div>;
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
+        <div className="glass-card max-w-md w-full p-12 text-center border-neon-rose/30">
+          <XCircle className="h-12 w-12 text-neon-rose mx-auto mb-6" />
+          <h1 className="text-xl font-black text-foreground uppercase tracking-tight mb-4 mono-font">ENV_FAULT_DETECTION</h1>
+          <p className="text-sm text-muted-foreground mb-8 leading-relaxed opacity-80">{error}</p>
+          <Button className="w-full bg-neon-rose text-white hover:bg-neon-rose/90 mono-font uppercase tracking-widest text-[10px] py-6" onClick={loadProject}>
+            REBOOT_SESSION
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   if (!project) {
@@ -175,31 +195,33 @@ function ProjectViewer() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background text-foreground selection:bg-neon-cyan/30 pb-20">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
+      <header className="bg-background/40 backdrop-blur-xl border-b border-white/5 sticky top-0 z-50">
+        <div className="container mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" onClick={() => router.push('/projects')}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Projects
-              </Button>
+            <div className="flex items-center gap-6">
+              <button onClick={() => router.push('/projects')} className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-neon-cyan/50 hover:text-neon-cyan transition-all group">
+                <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
+              </button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[10px] mono-font uppercase tracking-[0.2em] text-neon-cyan font-bold opacity-80">PROJECT_OBJ_ID::{id?.toString().padStart(3, '0')}</span>
+                </div>
+                <h1 className="text-3xl font-black text-foreground uppercase tracking-tighter leading-none">
                   {project.title}
                 </h1>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Day {id} • {project.difficulty} difficulty
-                </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant={!!project.isLocked ? "destructive" : "default"}>
-                {!!project.isLocked ? "Locked" : "Unlocked"}
-              </Badge>
+            <div className="flex items-center gap-4">
+              <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest mono-font border shadow-glow-sm ${!!project.isLocked ? 'bg-neon-rose/10 text-neon-rose border-neon-rose/20' : 'bg-neon-emerald/10 text-neon-emerald border-neon-emerald/20'
+                }`}>
+                SYSTEM_STATE::{!!project.isLocked ? 'LOCKED' : 'READY'}
+              </div>
               {!!project.isOverdue && (
-                <Badge variant="destructive">Overdue</Badge>
+                <div className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest mono-font bg-neon-amber/20 text-neon-amber border border-neon-amber/30 animate-pulse">
+                  CRITICAL_OVERDUE
+                </div>
               )}
             </div>
           </div>
@@ -212,43 +234,48 @@ function ProjectViewer() {
           {/* Project Details */}
           <div className="space-y-6">
             {/* Project Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Project Overview</CardTitle>
-                <CardDescription>
+            <Card className="glass-card p-0 border-white/5 overflow-hidden">
+              <CardHeader className="bg-white/5 border-b border-white/5 p-8">
+                <CardTitle className="text-lg font-black uppercase tracking-tight mono-font flex items-center gap-3">
+                  <Target className="h-5 w-5 text-neon-cyan" />
+                  OBJECTIVE_BRIEFING
+                </CardTitle>
+                <CardDescription className="text-sm text-muted-foreground leading-relaxed pt-2">
                   {project.description}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Deadline</span>
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    <span className="text-sm">{project.deadline}</span>
+              <CardContent className="p-8 space-y-8">
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-1">
+                    <p className="text-[9px] uppercase tracking-widest text-muted-foreground mono-font">TERMINATION_DEADLINE</p>
+                    <div className="flex items-center gap-2 text-foreground font-bold mono-font text-sm">
+                      <Clock className="h-4 w-4 text-neon-violet" />
+                      <span>{project.deadline}</span>
+                    </div>
                   </div>
-                </div>
-                
-                {project.timeRemaining && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Time Remaining</span>
-                    <Badge variant={!!project.isOverdue ? "destructive" : "default"}>
-                      {project.timeRemaining}
-                    </Badge>
-                  </div>
-                )}
 
-                <div className="space-y-2">
-                  <h4 className="font-medium">Requirements</h4>
-                  <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
+                  {project.timeRemaining && (
+                    <div className="space-y-1 text-right">
+                      <p className="text-[9px] uppercase tracking-widest text-muted-foreground mono-font">REMAINING_TELEMETRY</p>
+                      <div className={`inline-block px-3 py-1 rounded-lg text-[10px] font-black mono-font ${!!project.isOverdue ? 'bg-neon-rose text-white shadow-glow-rose' : 'bg-neon-cyan text-black shadow-glow-cyan'}`}>
+                        {project.timeRemaining}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-4 pt-4 border-t border-white/5">
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-neon-cyan mono-font">CORE_COMPETENCIES_REQ</h4>
+                  <ul className="text-xs text-muted-foreground space-y-3">
                     {Array.isArray(project.requirements) ? project.requirements.map((req, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        {req}
+                      <li key={index} className="flex items-start gap-4 group">
+                        <span className="text-neon-cyan mono-font opacity-50 group-hover:opacity-100 transition-opacity">[{index.toString().padStart(2, '0')}]</span>
+                        <span className="leading-relaxed">{req}</span>
                       </li>
                     )) : (
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        {project.requirements || 'No requirements specified'}
+                      <li className="flex items-start gap-4">
+                        <span className="text-neon-cyan mono-font opacity-50">[00]</span>
+                        <span>{project.requirements || 'ALL_CORE_LIBRARIES'}</span>
                       </li>
                     )}
                   </ul>
@@ -292,7 +319,7 @@ function ProjectViewer() {
                       <TabsTrigger value="css">CSS</TabsTrigger>
                       <TabsTrigger value="js">JavaScript</TabsTrigger>
                     </TabsList>
-                    
+
                     <TabsContent value="html" className="mt-4">
                       <div className="relative">
                         <Button
@@ -308,7 +335,7 @@ function ProjectViewer() {
                         </pre>
                       </div>
                     </TabsContent>
-                    
+
                     <TabsContent value="css" className="mt-4">
                       <div className="relative">
                         <Button
@@ -324,7 +351,7 @@ function ProjectViewer() {
                         </pre>
                       </div>
                     </TabsContent>
-                    
+
                     <TabsContent value="js" className="mt-4">
                       <div className="relative">
                         <Button
@@ -470,9 +497,9 @@ function ProjectViewer() {
                   </div>
                   <div className="bg-white p-4 min-h-[400px]">
                     {project.sampleOutput ? (
-                      <img 
-                        src={project.sampleOutput} 
-                        alt="Sample output" 
+                      <img
+                        src={project.sampleOutput}
+                        alt="Sample output"
                         className="w-full h-auto"
                       />
                     ) : (
@@ -498,11 +525,11 @@ function ProjectViewer() {
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Status</span>
-                    <Badge 
+                    <Badge
                       variant={
                         submission.status === 'accepted' ? 'default' :
-                        submission.status === 'rejected' ? 'destructive' :
-                        submission.status === 'reviewed' ? 'secondary' : 'outline'
+                          submission.status === 'rejected' ? 'destructive' :
+                            submission.status === 'reviewed' ? 'secondary' : 'outline'
                       }
                     >
                       {submission.status.charAt(0).toUpperCase() + submission.status.slice(1)}
@@ -540,8 +567,8 @@ function ProjectViewer() {
                   )}
 
                   <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       size="sm"
                       onClick={() => window.open(submission.githubLink, '_blank')}
                     >

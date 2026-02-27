@@ -45,61 +45,68 @@ export default function StandupDetailPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="flex flex-col items-center justify-center min-h-[400px]">
+                <div className="w-12 h-12 rounded-xl bg-neon-cyan/10 border border-neon-cyan/20 flex items-center justify-center mb-4">
+                    <div className="w-6 h-6 border-2 border-neon-cyan border-t-transparent rounded-full animate-spin"></div>
+                </div>
+                <p className="text-[10px] mono-font uppercase tracking-[0.2em] text-muted-foreground animate-pulse">FETCHING_STANDUP_LOGS</p>
             </div>
         );
     }
 
     if (!standup) {
         return (
-            <div className="text-center py-12">
-                <p className="text-gray-500">Standup not found</p>
+            <div className="text-center py-24 glass-card border-dashed">
+                <p className="text-[10px] mono-font uppercase tracking-widest text-muted-foreground">ERROR: OBJECT_NOT_FOUND_0x404</p>
             </div>
         );
     }
 
     return (
-        <div className="max-w-5xl mx-auto space-y-6">
+        <div className="max-w-5xl mx-auto space-y-8 pb-12">
             {/* Header */}
-            <div>
+            <div className="relative">
                 <button
                     onClick={() => router.back()}
-                    className="text-blue-600 hover:text-blue-700 mb-4 flex items-center gap-2"
+                    className="group mb-8 flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground hover:text-neon-cyan transition-colors mono-font"
                 >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                    Back to Standups
+                    <span className="text-neon-cyan transition-transform group-hover:-translate-x-1">&lt;</span>
+                    SYS_EXIT_DETAIL
                 </button>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">{standup.title}</h1>
-                <div className="flex items-center gap-4 text-sm text-gray-500">
-                    <span>📅 {new Date(standup.scheduledFor).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                    {standup.team && <span>👥 {standup.team.name}</span>}
+                <div className="flex flex-col gap-4">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] uppercase tracking-widest text-neon-cyan w-fit mono-font">
+                        <span className="w-1 h-1 rounded-full bg-neon-cyan"></span>
+                        EVENT_TYPE: SYNC_STANDUP
+                    </div>
+                    <h1 className="text-4xl font-black text-foreground uppercase tracking-tighter">{standup.title}</h1>
+                </div>
+                <div className="flex items-center gap-6 mt-6 text-[10px] uppercase tracking-widest text-muted-foreground mono-font border-y border-white/5 py-3">
+                    <span className="flex items-center gap-2"><span className="text-neon-violet">TIME:</span> {new Date(standup.scheduledFor).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                    {standup.team && <span className="flex items-center gap-2"><span className="text-neon-cyan">ORG:</span> {standup.team.name.toUpperCase()}</span>}
                 </div>
                 {standup.description && (
-                    <p className="text-gray-600 mt-2">{standup.description}</p>
+                    <p className="text-xs text-muted-foreground mt-4 leading-relaxed max-w-2xl border-l border-white/10 pl-4">{standup.description}</p>
                 )}
             </div>
 
             {/* Stats */}
             {attendance && (
-                <div className="grid grid-cols-4 gap-4">
-                    <div className="bg-white p-4 rounded-lg border border-gray-100">
-                        <p className="text-sm text-gray-500">Total Responses</p>
-                        <p className="text-2xl font-bold text-gray-900">{attendance.total}</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="glass-card p-6 border-white/5 group hover-glow-cyan transition-all duration-300">
+                        <p className="text-[9px] uppercase tracking-widest text-muted-foreground mb-1 mono-font">Telemetry_Count</p>
+                        <p className="text-3xl font-black text-foreground mono-font tracking-tighter">{attendance.total.toString().padStart(2, '0')}</p>
                     </div>
-                    <div className="bg-green-50 p-4 rounded-lg border border-green-100">
-                        <p className="text-sm text-green-600">Present</p>
-                        <p className="text-2xl font-bold text-green-700">{attendance.present}</p>
+                    <div className="glass-card p-6 border-neon-emerald/20 group hover-glow-emerald transition-all duration-300">
+                        <p className="text-[9px] uppercase tracking-widest text-neon-emerald/70 mb-1 mono-font">Status_Online</p>
+                        <p className="text-3xl font-black text-neon-emerald mono-font tracking-tighter">{attendance.present.toString().padStart(2, '0')}</p>
                     </div>
-                    <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
-                        <p className="text-sm text-yellow-600">Late</p>
-                        <p className="text-2xl font-bold text-yellow-700">{attendance.late}</p>
+                    <div className="glass-card p-6 border-neon-amber/20 group hover-glow-amber transition-all duration-300">
+                        <p className="text-[9px] uppercase tracking-widest text-neon-amber/70 mb-1 mono-font">Status_Delayed</p>
+                        <p className="text-3xl font-black text-neon-amber mono-font tracking-tighter">{attendance.late.toString().padStart(2, '0')}</p>
                     </div>
-                    <div className="bg-red-50 p-4 rounded-lg border border-red-100">
-                        <p className="text-sm text-red-600">Absent</p>
-                        <p className="text-2xl font-bold text-red-700">{attendance.absent}</p>
+                    <div className="glass-card p-6 border-neon-rose/20 group hover-glow-rose transition-all duration-300">
+                        <p className="text-[9px] uppercase tracking-widest text-neon-rose/70 mb-1 mono-font">Status_Offline</p>
+                        <p className="text-3xl font-black text-neon-rose mono-font tracking-tighter">{attendance.absent.toString().padStart(2, '0')}</p>
                     </div>
                 </div>
             )}
@@ -133,48 +140,66 @@ export default function StandupDetailPage() {
                 )}
 
                 {activeTab === 'responses' && (
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         {standup.responses?.length === 0 ? (
-                            <div className="bg-white p-12 rounded-xl border border-gray-100 text-center">
-                                <p className="text-gray-500">No responses submitted yet</p>
+                            <div className="glass-card p-24 text-center border-dashed">
+                                <p className="text-[10px] mono-font uppercase tracking-widest text-muted-foreground">LOG_EMPTY: NO_TELEMETRY_DATA</p>
                             </div>
                         ) : (
                             standup.responses?.map((response: any) => (
-                                <div key={response.id} className="bg-white p-6 rounded-xl border border-gray-100">
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div>
-                                            <h4 className="font-bold text-gray-900">
-                                                {response.user?.firstName} {response.user?.lastName}
-                                            </h4>
-                                            <p className="text-sm text-gray-500">{response.user?.email}</p>
+                                <div key={response.id} className="glass-card p-8 border-white/5 relative overflow-hidden group hover-glow-cyan transition-all duration-500">
+                                    <div className="scan-line opacity-5 group-hover:opacity-10"></div>
+                                    <div className="flex items-start justify-between mb-8 pb-4 border-b border-white/5 relative z-10">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-neon-cyan font-black mono-font text-sm">
+                                                {response.user?.firstName?.[0]}{response.user?.lastName?.[0]}
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-foreground text-sm flex items-center gap-2 mono-font">
+                                                    {response.user?.firstName?.toUpperCase()}_{response.user?.lastName?.toUpperCase()}
+                                                    <span className="text-[10px] text-muted-foreground opacity-50 font-normal">0x{response.id?.slice(-4)}</span>
+                                                </h4>
+                                                <p className="text-[10px] text-muted-foreground mono-font tracking-tight">{response.user?.email}</p>
+                                            </div>
                                         </div>
-                                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${response.attendanceStatus === 'present' ? 'bg-green-100 text-green-700' :
-                                            response.attendanceStatus === 'late' ? 'bg-yellow-100 text-yellow-700' :
-                                                'bg-red-100 text-red-700'
+                                        <div className={`px-3 py-1.5 rounded-xl text-[9px] uppercase tracking-widest font-black mono-font border ${response.attendanceStatus === 'present' ? 'bg-neon-emerald/10 text-neon-emerald border-neon-emerald/20' :
+                                                response.attendanceStatus === 'late' ? 'bg-neon-amber/10 text-neon-amber border-neon-amber/20' :
+                                                    'bg-neon-rose/10 text-neon-rose border-neon-rose/20'
                                             }`}>
-                                            {response.attendanceStatus}
-                                        </span>
+                                            STATUS::{response.attendanceStatus}
+                                        </div>
                                     </div>
-                                    <div className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
                                         <div>
-                                            <p className="text-sm font-medium text-gray-700 mb-1">What did you do? 🚀</p>
-                                            <p className="text-gray-600">{response.whatDidYouDo || 'N/A'}</p>
+                                            <p className="text-[9px] uppercase tracking-widest font-bold text-neon-cyan mb-3 mono-font flex items-center gap-2">
+                                                <span className="w-1.5 h-1.5 bg-neon-cyan rounded-full animate-pulse"></span>
+                                                TASK_HISTORY::POST
+                                            </p>
+                                            <p className="text-xs text-muted-foreground leading-relaxed pl-3 border-l-2 border-neon-cyan/20">{response.whatDidYouDo || 'NOT_SPECIFIED'}</p>
                                         </div>
                                         <div>
-                                            <p className="text-sm font-medium text-gray-700 mb-1">What will you do? 📅</p>
-                                            <p className="text-gray-600">{response.whatWillYouDo || 'N/A'}</p>
+                                            <p className="text-[9px] uppercase tracking-widest font-bold text-neon-violet mb-3 mono-font flex items-center gap-2">
+                                                <span className="w-1.5 h-1.5 bg-neon-violet rounded-full animate-pulse"></span>
+                                                TARGET_OBJECTIVES::PRE
+                                            </p>
+                                            <p className="text-xs text-muted-foreground leading-relaxed pl-3 border-l-2 border-neon-violet/20">{response.whatWillYouDo || 'NOT_SPECIFIED'}</p>
                                         </div>
                                         {response.blockers && (
-                                            <div>
-                                                <p className="text-sm font-medium text-gray-700 mb-1">Blockers 🚧</p>
-                                                <p className="text-gray-600">{response.blockers}</p>
+                                            <div className="md:col-span-2 bg-neon-rose/5 p-4 rounded-xl border border-neon-rose/10">
+                                                <p className="text-[9px] uppercase tracking-widest font-black text-neon-rose mb-2 mono-font">PROCESS_BLOCKERS::CRITICAL</p>
+                                                <p className="text-xs text-neon-rose/80 mono-font">{response.blockers}</p>
                                             </div>
                                         )}
                                     </div>
                                     {response.submittedAt && (
-                                        <p className="text-xs text-gray-400 mt-4">
-                                            Submitted {new Date(response.submittedAt).toLocaleString()}
-                                        </p>
+                                        <div className="mt-8 pt-4 border-t border-white/5 flex items-center justify-between opacity-50 grayscale hover:grayscale-0 transition-all">
+                                            <p className="text-[9px] text-muted-foreground mono-font tracking-widest uppercase">
+                                                TIMELOG: {new Date(response.submittedAt).toISOString().replace('T', '_').split('.')[0]}
+                                            </p>
+                                            <div className="flex gap-1">
+                                                {[1, 2, 3].map(i => <div key={i} className="w-1 h-1 bg-neon-cyan/30 rounded-full"></div>)}
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
                             ))

@@ -41,126 +41,141 @@ export default function SupervisorAppraisalList() {
     };
 
     return (
-        <div className="bg-card/40 backdrop-blur-xl rounded-xl border border-white/5 shadow-sm min-h-[600px]">
-            <div className="p-6">
-                <div className="flex justify-between items-start mb-6">
+        <div className="bg-card/40 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl min-h-[600px] overflow-hidden relative group">
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-neon-cyan/50 to-transparent"></div>
+            <div className="p-8">
+                <div className="flex justify-between items-start mb-8">
                     <div>
-                        <h2 className="text-xl font-bold text-foreground">Employee List</h2>
-                        <p className="text-muted-foreground">Your Appraisee Team</p>
+                        <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-neon-cyan/5 border border-neon-cyan/10 text-[8px] uppercase tracking-[0.2em] text-neon-cyan mb-2 mono-font">
+                            <span className="w-1 h-1 rounded-full bg-neon-cyan animate-pulse"></span>
+                            EVAL_NODE_SET: PRIMARY
+                        </div>
+                        <h2 className="text-2xl font-black text-foreground uppercase tracking-tight mono-font">Personnel <span className="text-muted-foreground">Evaluation</span></h2>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest mono-font mt-1">Personnel under current oversight</p>
                     </div>
-                    <div className="flex gap-2 relative">
+                    <div className="flex gap-4 relative">
                         <button
-                            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
+                            className="bg-white/5 border border-white/10 hover:bg-white/10 hover:border-neon-cyan/30 text-neon-cyan px-5 py-2.5 rounded-xl text-[10px] font-black transition-all uppercase tracking-widest mono-font flex items-center gap-2"
                             onClick={() => setShowCycleDropdown(!showCycleDropdown)}
                         >
-                            {selectedCycle}
+                            {selectedCycle.toUpperCase()}
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                         </button>
 
                         {showCycleDropdown && (
-                            <div className="absolute top-full right-0 mt-2 w-64 bg-card/40 backdrop-blur-xl border border-white/10 rounded-lg shadow-lg z-10 py-1">
-                                <button onClick={() => { setSelectedCycle('Q3 2025 Appraisal test Cycle'); setShowCycleDropdown(false); }} className="block w-full text-left px-4 py-2 text-sm text-foreground/90 hover:bg-background">Q3 2025 Appraisal test Cycle</button>
-                                <button onClick={() => { setSelectedCycle('Latest Testing Cycle'); setShowCycleDropdown(false); }} className="block w-full text-left px-4 py-2 text-sm text-foreground/90 hover:bg-background">Latest Testing Cycle</button>
-                                <button onClick={() => { setSelectedCycle('Q2 2025 Test for Appraisal'); setShowCycleDropdown(false); }} className="block w-full text-left px-4 py-2 text-sm text-foreground/90 hover:bg-background">Q2 2025 Test for Appraisal</button>
+                            <div className="absolute top-full right-0 mt-3 w-72 bg-card/60 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl z-50 py-2 animate-in fade-in slide-in-from-top-2">
+                                <button onClick={() => { setSelectedCycle('Q3 2025 Appraisal test Cycle'); setShowCycleDropdown(false); }} className="block w-full text-left px-5 py-3 text-[10px] mono-font uppercase tracking-widest text-foreground hover:bg-neon-cyan/10 hover:text-neon-cyan transition-colors">Q3 2025 Appraisal test Cycle</button>
+                                <button onClick={() => { setSelectedCycle('Latest Testing Cycle'); setShowCycleDropdown(false); }} className="block w-full text-left px-5 py-3 text-[10px] mono-font uppercase tracking-widest text-foreground hover:bg-neon-cyan/10 hover:text-neon-cyan transition-colors">Latest Testing Cycle</button>
+                                <button onClick={() => { setSelectedCycle('Q2 2025 Test for Appraisal'); setShowCycleDropdown(false); }} className="block w-full text-left px-5 py-3 text-[10px] mono-font uppercase tracking-widest text-foreground hover:bg-neon-cyan/10 hover:text-neon-cyan transition-colors">Q2 2025 Test for Appraisal</button>
                             </div>
                         )}
 
-                        <button className="p-2 border border-white/10 rounded hover:bg-background">
-                            <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                        </button>
-                        <button className="p-2 border border-white/10 rounded hover:bg-background">
-                            <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+                        <button className="w-10 h-10 flex items-center justify-center border border-white/10 rounded-xl hover:bg-white/5 text-muted-foreground hover:text-neon-cyan transition-all">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                         </button>
                     </div>
                 </div>
 
                 {/* Tabs */}
-                <div className="flex border-b border-white/10 mb-6 gap-6">
+                <div className="flex border-b border-white/5 mb-8 gap-10">
                     <button
-                        className={`pb-3 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'reviewer' ? 'border-blue-600 text-neon-cyan' : 'border-transparent text-muted-foreground hover:text-foreground/90'}`}
+                        className={`pb-4 text-[10px] font-black uppercase tracking-widest transition-all relative mono-font ${activeTab === 'reviewer' ? 'text-neon-cyan' : 'text-muted-foreground hover:text-foreground'}`}
                         onClick={() => setActiveTab('reviewer')}
                     >
-                        As Reviewer <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded">36</span>
+                        AS_REVIEWER
+                        <span className="ml-3 px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[8px]">36</span>
+                        {activeTab === 'reviewer' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-neon-cyan shadow-glow-cyan"></div>}
                     </button>
                     <button
-                        className={`pb-3 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'countersigning' ? 'border-blue-600 text-neon-cyan' : 'border-transparent text-muted-foreground hover:text-foreground/90'}`}
+                        className={`pb-4 text-[10px] font-black uppercase tracking-widest transition-all relative mono-font ${activeTab === 'countersigning' ? 'text-neon-cyan' : 'text-muted-foreground hover:text-foreground'}`}
                         onClick={() => setActiveTab('countersigning')}
                     >
-                        As Countersigning Officer <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded">19</span>
+                        AS_COUNTERSIGNING
+                        <span className="ml-3 px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[8px]">19</span>
+                        {activeTab === 'countersigning' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-neon-cyan shadow-glow-cyan"></div>}
                     </button>
                     <button
-                        className={`pb-3 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${activeTab === '360' ? 'border-blue-600 text-neon-cyan' : 'border-transparent text-muted-foreground hover:text-foreground/90'}`}
+                        className={`pb-4 text-[10px] font-black uppercase tracking-widest transition-all relative mono-font ${activeTab === '360' ? 'text-neon-cyan' : 'text-muted-foreground hover:text-foreground'}`}
                         onClick={() => setActiveTab('360')}
                     >
-                        360 Feedback <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded">1</span>
+                        FEEDBACK_CIRCUIT
+                        <span className="ml-3 px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[8px]">01</span>
+                        {activeTab === '360' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-neon-cyan shadow-glow-cyan"></div>}
                     </button>
                 </div>
 
-                <div className="flex justify-end mb-4 gap-2">
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
-                    </button>
-                    <div className="relative">
-                        <input
-                            type="text"
-                            placeholder="Search Staff"
-                            className="pl-4 pr-10 py-2 border border-white/10 rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                        <svg className="w-4 h-4 text-muted-foreground absolute right-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+                <div className="flex justify-between items-center mb-6">
+                    <div className="flex items-center gap-3">
+                        <div className="w-1 h-1 rounded-full bg-neon-cyan"></div>
+                        <span className="text-[10px] mono-font uppercase tracking-widest text-muted-foreground">EVAL_STREAM: ACTIVE</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <div className="relative group/search">
+                            <input
+                                type="text"
+                                placeholder="SEARCH_STAFF_ID..."
+                                className="pl-4 pr-10 py-2 bg-black/40 border border-white/10 rounded-xl text-[10px] w-64 focus:outline-none focus:border-neon-cyan/50 focus:ring-1 focus:ring-neon-cyan/50 transition-all mono-font uppercase tracking-widest text-foreground"
+                            />
+                            <svg className="w-4 h-4 text-muted-foreground absolute right-4 top-2.5 group-focus-within/search:text-neon-cyan transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
                     </div>
                 </div>
 
-                <table className="w-full text-left text-sm text-muted-foreground">
-                    <thead className="bg-[#f0f4ff] text-xs uppercase text-foreground/90 font-medium">
+                <table className="w-full text-left text-[11px] mono-font uppercase tracking-widest">
+                    <thead className="bg-white/[0.02] text-muted-foreground border-y border-white/5">
                         <tr>
-                            <th className="px-6 py-4">Employee</th>
-                            <th className="px-6 py-4">Status</th>
-                            <th className="px-6 py-4">9-Box Position</th>
-                            <th className="px-6 py-4">Score (%)</th>
-                            <th className="px-6 py-4">Action</th>
+                            <th className="px-8 py-5 font-black">ENTITY_IDENTIFIER</th>
+                            <th className="px-8 py-5 font-black">LIFECYCLE_STATUS</th>
+                            <th className="px-8 py-5 font-black">NODE_ROLE</th>
+                            <th className="px-8 py-5 font-black">VAL_INDEX</th>
+                            <th className="px-8 py-5 font-black">MGMT</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
-                        {employees.map((emp) => (
-                            <tr key={emp.id} className="hover:bg-background transition-colors cursor-pointer" onClick={() => router.push(`/hrms/appraisal/${emp.id}/report`)}>
-                                <td className="px-6 py-4 flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-muted-foreground">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                                    </div>
-                                    <div>
-                                        <div className="font-medium text-foreground">{emp.name}</div>
-                                        <div className="text-xs text-muted-foreground">{emp.department}</div>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(emp.status)}`}>
-                                        <span className={`w-1.5 h-1.5 rounded-full ${getStatusDot(emp.status)}`}></span>
-                                        {emp.status}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4">{emp.box}</td>
-                                <td className="px-6 py-4">{emp.score}</td>
-                                <td className="px-6 py-4">
-                                    <button className="text-muted-foreground hover:text-muted-foreground">
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                    <tbody className="divide-y divide-white/[0.05]">
+                        {loading ? (
+                            <tr><td colSpan={5} className="text-center py-12 text-muted-foreground animate-pulse">STREAMING_PERSONNEL_DATA...</td></tr>
+                        ) : (
+                            employees.map((emp) => (
+                                <tr key={emp.id} className="hover:bg-white/[0.03] transition-colors group/row cursor-pointer" onClick={() => router.push(`/hrms/appraisal/${emp.id}/report`)}>
+                                    <td className="px-8 py-5 flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-xl bg-black/40 border border-white/10 flex items-center justify-center text-neon-cyan group-hover/row:border-neon-cyan/50 transition-colors">
+                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                        </div>
+                                        <div>
+                                            <div className="font-black text-foreground group-hover/row:text-neon-cyan transition-colors">{emp.name}</div>
+                                            <div className="text-[9px] text-muted-foreground opacity-70">{emp.department}</div>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-5">
+                                        <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-black border ${emp.status.includes('Pending') ? 'bg-neon-amber/5 text-neon-amber border-neon-amber/20 shadow-glow-amber/10' : emp.status.includes('Yet') ? 'bg-red-500/5 text-red-500 border-red-500/20 shadow-glow-red/10' : 'bg-white/5 text-muted-foreground border-white/10'}`}>
+                                            <span className={`w-1 h-1 rounded-full ${emp.status.includes('Pending') ? 'bg-neon-amber animate-pulse' : emp.status.includes('Yet') ? 'bg-red-500' : 'bg-muted-foreground'}`}></span>
+                                            {emp.status.toUpperCase()}
+                                        </span>
+                                    </td>
+                                    <td className="px-8 py-5 text-muted-foreground">{emp.box}</td>
+                                    <td className="px-8 py-5 font-black text-foreground">{emp.score}</td>
+                                    <td className="px-8 py-5">
+                                        <button className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-muted-foreground hover:text-neon-cyan hover:bg-white/10 transition-all">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
 
-                <div className="p-4 border-t border-white/5 flex justify-between items-center text-sm text-muted-foreground">
-                    <div>Showing 1 to 20 of 36 entries</div>
-                    <div className="flex gap-1">
-                        <button className="w-8 h-8 flex items-center justify-center rounded border border-white/10 hover:bg-background">
+                <div className="p-8 border-t border-white/5 flex justify-between items-center text-[10px] mono-font uppercase tracking-widest text-muted-foreground">
+                    <div>DATA_NODES: {employees.length} OF 36</div>
+                    <div className="flex gap-2">
+                        <button className="w-10 h-10 flex items-center justify-center rounded-xl border border-white/10 hover:bg-white/5 transition-colors">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                         </button>
-                        <button className="w-8 h-8 flex items-center justify-center rounded bg-blue-600 text-white">1</button>
-                        <button className="w-8 h-8 flex items-center justify-center rounded border border-white/10 hover:bg-background">2</button>
-                        <button className="w-8 h-8 flex items-center justify-center rounded border border-white/10 hover:bg-background">
+                        <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-neon-cyan text-black font-black">01</button>
+                        <button className="w-10 h-10 flex items-center justify-center rounded-xl border border-white/10 hover:bg-white/5 transition-colors text-foreground">02</button>
+                        <button className="w-10 h-10 flex items-center justify-center rounded-xl border border-white/10 hover:bg-white/5 transition-colors">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                         </button>
                     </div>
