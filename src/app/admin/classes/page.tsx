@@ -570,16 +570,16 @@ function ClassesManagement() {
 
           <TabsContent value="students" className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <h2 className="text-xl lg:text-2xl font-bold">All Students</h2>
+              <h2 className="text-xl lg:text-2xl font-bold tracking-tight">All Students</h2>
               <Button size="sm">
                 <UserPlus className="w-4 h-4 mr-2" />
                 Invite Students
               </Button>
             </div>
 
-            <Card>
+            <Card className="border-dashed border-white/20 bg-background/50">
               <CardContent className="pt-6">
-                <p className="text-gray-600 text-center py-8">
+                <p className="text-muted-foreground text-center py-12">
                   Student management features will be implemented here.
                   You can view and manage all students across classes.
                 </p>
@@ -588,60 +588,60 @@ function ClassesManagement() {
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
-            <h2 className="text-xl lg:text-2xl font-bold">Class Analytics</h2>
+            <h2 className="text-xl lg:text-2xl font-bold tracking-tight">Class Analytics</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-              <Card>
+              <Card className="bg-card/60 backdrop-blur-md">
                 <CardContent className="pt-6">
                   <div className="text-center">
-                    <div className="text-2xl lg:text-3xl font-bold text-blue-600">
+                    <div className="text-2xl lg:text-3xl font-bold text-neon-cyan">
                       {classes.length}
                     </div>
-                    <div className="text-sm text-gray-600">Total Classes</div>
+                    <div className="text-sm text-muted-foreground mt-1 tracking-wide uppercase">Total Classes</div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-card/60 backdrop-blur-md">
                 <CardContent className="pt-6">
                   <div className="text-center">
-                    <div className="text-2xl lg:text-3xl font-bold text-green-600">
+                    <div className="text-2xl lg:text-3xl font-bold text-neon-emerald">
                       {classes.reduce((sum, cls) => sum + (cls.studentCount || 0), 0)}
                     </div>
-                    <div className="text-sm text-gray-600">Total Students</div>
+                    <div className="text-sm text-muted-foreground mt-1 tracking-wide uppercase">Total Students</div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-card/60 backdrop-blur-md">
                 <CardContent className="pt-6">
                   <div className="text-center">
-                    <div className="text-2xl lg:text-3xl font-bold text-purple-600">
+                    <div className="text-2xl lg:text-3xl font-bold text-neon-violet">
                       {classes.reduce((sum, cls) => sum + (cls.assignments?.length || 0), 0)}
                     </div>
-                    <div className="text-sm text-gray-600">Total Assignments</div>
+                    <div className="text-sm text-muted-foreground mt-1 tracking-wide uppercase">Total Assignments</div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-card/60 backdrop-blur-md">
                 <CardContent className="pt-6">
                   <div className="text-center">
-                    <div className="text-2xl lg:text-3xl font-bold text-orange-600">
+                    <div className="text-2xl lg:text-3xl font-bold text-neon-amber">
                       {classes.filter(cls => cls.isActive).length}
                     </div>
-                    <div className="text-sm text-gray-600">Active Classes</div>
+                    <div className="text-sm text-muted-foreground mt-1 tracking-wide uppercase">Active Classes</div>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            <Card>
+            <Card className="bg-card/60 backdrop-blur-md">
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">Analytics dashboard will be implemented here with charts and detailed metrics.</p>
+                <p className="text-muted-foreground">Analytics dashboard will be implemented here with charts and detailed metrics.</p>
               </CardContent>
             </Card>
           </TabsContent>
@@ -770,26 +770,26 @@ function ClassesManagement() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Description</Label>
-                      <p className="text-sm">{selectedClass.description}</p>
+                      <Label className="text-sm font-medium text-muted-foreground">Description</Label>
+                      <p className="text-sm text-foreground mt-1">{selectedClass.description}</p>
                     </div>
 
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Instructor</Label>
-                      <p className="font-medium">
+                      <Label className="text-sm font-medium text-muted-foreground">Instructor</Label>
+                      <p className="font-medium text-foreground mt-1">
                         {selectedClass.instructor?.firstName} {selectedClass.instructor?.lastName}
                       </p>
-                      <p className="text-sm text-gray-600">{selectedClass.instructor?.email}</p>
+                      <p className="text-sm text-muted-foreground">{selectedClass.instructor?.email}</p>
                     </div>
 
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Enrollment</Label>
-                      <p className="font-medium">{selectedClass.studentCount} / {selectedClass.maxStudents} students</p>
+                      <Label className="text-sm font-medium text-muted-foreground">Enrollment</Label>
+                      <p className="font-medium text-foreground mt-1">{selectedClass.studentCount} / {selectedClass.maxStudents} students</p>
                     </div>
 
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Enrollment Code</Label>
-                      <p className="font-mono bg-gray-100 p-2 rounded text-sm break-all">
+                      <Label className="text-sm font-medium text-muted-foreground">Enrollment Code</Label>
+                      <p className="font-mono bg-white/5 border border-white/10 p-3 mt-1 rounded-lg text-sm break-all text-neon-cyan/90">
                         {selectedClass.enrollmentCode}
                       </p>
                     </div>
@@ -803,27 +803,27 @@ function ClassesManagement() {
                       Statistics
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-6">
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-blue-600">
+                      <div className="text-center p-4 rounded-lg bg-white/5 border border-white/10">
+                        <div className="text-2xl font-bold text-neon-violet">
                           {selectedClass.assignments?.length || 0}
                         </div>
-                        <div className="text-sm text-gray-600">Assignments</div>
+                        <div className="text-xs text-muted-foreground mt-1 uppercase tracking-wider">Assignments</div>
                       </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-green-600">
+                      <div className="text-center p-4 rounded-lg bg-white/5 border border-white/10">
+                        <div className="text-2xl font-bold text-neon-emerald">
                           {selectedClass.completionRate || 0}%
                         </div>
-                        <div className="text-sm text-gray-600">Completion</div>
+                        <div className="text-xs text-muted-foreground mt-1 uppercase tracking-wider">Completion</div>
                       </div>
                     </div>
 
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-purple-600">
+                    <div className="text-center p-4 rounded-lg bg-white/5 border border-white/10">
+                      <div className="text-3xl font-bold text-neon-cyan">
                         {selectedClass.averageScore || 0}%
                       </div>
-                      <div className="text-sm text-gray-600">Average Score</div>
+                      <div className="text-xs text-muted-foreground mt-1 uppercase tracking-wider">Average Score</div>
                     </div>
                   </CardContent>
                 </Card>
@@ -853,32 +853,37 @@ function ClassesManagement() {
                   {selectedClass.schedule && selectedClass.schedule.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {selectedClass.schedule.map((schedule) => (
-                        <div key={schedule.id} className="border rounded-lg p-4">
-                          <div className="flex items-center gap-2 mb-2">
-                            {schedule.type === 'virtual' ? <Video className="w-4 h-4" /> : <MapPin className="w-4 h-4" />}
-                            <span className="font-medium">{schedule.dayOfWeek}</span>
+                        <div key={schedule.id} className="border border-white/10 bg-white/[0.02] rounded-lg p-4 transition-colors hover:bg-white/[0.04]">
+                          <div className="flex items-center gap-2 mb-3 text-foreground">
+                            {schedule.type === 'virtual' ? <Video className="w-4 h-4 text-neon-cyan" /> : <MapPin className="w-4 h-4 text-neon-emerald" />}
+                            <span className="font-semibold capitalize tracking-wide">{schedule.dayOfWeek}</span>
                           </div>
-                          <div className="text-sm text-gray-600">
-                            <div>{schedule.startTime} - {schedule.endTime}</div>
+                          <div className="text-sm text-muted-foreground">
+                            <div className="flex items-center gap-2 mb-2 bg-background/50 px-2 py-1 rounded inline-flex border border-white/5">
+                              <Clock className="w-3.5 h-3.5" />
+                              {schedule.startTime} - {schedule.endTime}
+                            </div>
                             {schedule.type === 'virtual' ? (
-                              <div className="mt-1">
+                              <div className="mt-2 text-sm pt-2 border-t border-white/5">
                                 {schedule.meetingLink ? (
-                                  <a href={schedule.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                    Join Meeting
+                                  <a href={schedule.meetingLink} target="_blank" rel="noopener noreferrer" className="text-neon-cyan hover:text-neon-cyan/80 hover:underline flex items-center gap-1.5 transition-colors">
+                                    <Link className="w-3.5 h-3.5" /> Join Meeting
                                   </a>
                                 ) : (
-                                  <span className="text-gray-500">No link provided</span>
+                                  <span className="text-muted-foreground/50">No link provided</span>
                                 )}
                               </div>
                             ) : (
-                              <div className="mt-1">{schedule.location || 'No location set'}</div>
+                              <div className="mt-2 text-sm pt-2 border-t border-white/5 text-foreground/80">{schedule.location || 'No location set'}</div>
                             )}
                           </div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-gray-600 text-center py-4">No schedule set for this class</p>
+                    <div className="text-muted-foreground text-center py-8 bg-white/5 rounded-lg border border-dashed border-white/10">
+                      No schedule set for this class
+                    </div>
                   )}
                 </CardContent>
               </Card>

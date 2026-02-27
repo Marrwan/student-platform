@@ -60,7 +60,7 @@ export function RegisterForm({ invitationData }: RegisterFormProps) {
           setUserEmail(email);
           setUserPassword(password);
           setShowOtpInput(true);
-        } catch {}
+        } catch { }
       }
     }
   }, []);
@@ -146,109 +146,108 @@ export function RegisterForm({ invitationData }: RegisterFormProps) {
 
   if (showOtpInput) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Verify Your Email</CardTitle>
-          <CardDescription>
-            Enter the 6-digit verification code sent to {userEmail}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg mb-4">
-            <CheckCircle className="h-4 w-4 text-blue-600" />
-            <p className="text-sm text-blue-800">
-              Registration successful! Please check your email for the verification code.
-            </p>
+      <div className="p-6">
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold leading-none tracking-tight mb-2 text-foreground">Verify Your Email</h2>
+          <p className="text-sm text-muted-foreground">
+            Enter the 6-digit verification code sent to <strong className="text-foreground">{userEmail}</strong>
+          </p>
+        </div>
+        <div className="flex items-center gap-2 p-3 bg-neon-emerald/10 border border-neon-emerald/20 rounded-lg mb-6">
+          <CheckCircle className="h-4 w-4 text-neon-emerald" />
+          <p className="text-sm text-foreground/80">
+            Registration successful! Please check your email for the verification code.
+          </p>
+        </div>
+
+        <form onSubmit={handleOtpSubmit(onOtpSubmit)} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="otp" className="text-foreground">6-Digit Verification Code</Label>
+            <Input
+              id="otp"
+              type="text"
+              placeholder="Enter 6-digit code"
+              maxLength={6}
+              {...registerOtp('otp')}
+              className={`bg-black/50 border-white/10 focus-visible:ring-neon-cyan text-foreground text-center text-lg font-mono tracking-widest ${otpErrors.otp ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+            />
+            {otpErrors.otp && (
+              <p className="text-sm text-red-500">{otpErrors.otp.message}</p>
+            )}
           </div>
 
-          <form onSubmit={handleOtpSubmit(onOtpSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="otp">6-Digit Verification Code</Label>
-              <Input
-                id="otp"
-                type="text"
-                placeholder="Enter 6-digit code"
-                maxLength={6}
-                {...registerOtp('otp')}
-                className={otpErrors.otp ? 'border-red-500' : ''}
-              />
-              {otpErrors.otp && (
-                <p className="text-sm text-red-500">{otpErrors.otp.message}</p>
-              )}
-            </div>
-
-            <div className="flex gap-2">
-              <Button
-                type="submit"
-                className="flex-1"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Verifying...
-                  </>
-                ) : (
-                  'Verify & Sign In'
-                )}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleResendOtp}
-                disabled={isLoading}
-              >
-                Resend Code
-              </Button>
-            </div>
-          </form>
-
-          <div className="mt-4 text-center">
-            <Button 
-              variant="link" 
-              className="p-0 h-auto font-semibold"
-              onClick={handleBackToRegistration}
+          <div className="flex gap-2 pt-2">
+            <Button
+              type="submit"
+              className="flex-1 bg-neon-cyan text-black hover:bg-neon-cyan/90 border-0"
+              disabled={isLoading}
             >
-              Back to Registration
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Verifying...
+                </>
+              ) : (
+                'Verify & Sign In'
+              )}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleResendOtp}
+              disabled={isLoading}
+              className="border-white/10 hover:bg-white/5"
+            >
+              Resend Code
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </form>
+
+        <div className="mt-8 text-center border-t border-white/5 pt-6">
+          <Button
+            variant="link"
+            className="p-0 h-auto font-semibold text-muted-foreground hover:text-foreground"
+            onClick={handleBackToRegistration}
+          >
+            Back to Registration
+          </Button>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Create Account</CardTitle>
-        <CardDescription>
+    <div className="p-6">
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold leading-none tracking-tight mb-2 text-foreground">Create Account</h2>
+        <p className="text-sm text-muted-foreground">
           Join the JavaScript Learning Platform and start your coding journey
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+        </p>
+      </div>
+      <div>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
+              <Label htmlFor="firstName" className="text-foreground">First Name</Label>
               <Input
                 id="firstName"
                 type="text"
                 placeholder="John"
                 {...register('firstName')}
-                className={errors.firstName ? 'border-red-500' : ''}
+                className={`bg-black/50 border-white/10 focus-visible:ring-neon-cyan text-foreground ${errors.firstName ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
               />
               {errors.firstName && (
                 <p className="text-sm text-red-500">{errors.firstName.message}</p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
+              <Label htmlFor="lastName" className="text-foreground">Last Name</Label>
               <Input
                 id="lastName"
                 type="text"
                 placeholder="Doe"
                 {...register('lastName')}
-                className={errors.lastName ? 'border-red-500' : ''}
+                className={`bg-black/50 border-white/10 focus-visible:ring-neon-cyan text-foreground ${errors.lastName ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
               />
               {errors.lastName && (
                 <p className="text-sm text-red-500">{errors.lastName.message}</p>
@@ -257,13 +256,13 @@ export function RegisterForm({ invitationData }: RegisterFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-foreground">Email</Label>
             <Input
               id="email"
               type="email"
               placeholder="john.doe@example.com"
               {...register('email')}
-              className={errors.email ? 'border-red-500' : ''}
+              className={`bg-black/50 border-white/10 focus-visible:ring-neon-cyan text-foreground ${errors.email ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
             />
             {errors.email && (
               <p className="text-sm text-red-500">{errors.email.message}</p>
@@ -271,19 +270,19 @@ export function RegisterForm({ invitationData }: RegisterFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password" className="text-foreground">Password</Label>
             <div className="relative">
               <Input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Enter your password"
                 {...register('password')}
-                className={errors.password ? 'border-red-500 pr-10' : 'pr-10'}
+                className={`bg-black/50 border-white/10 focus-visible:ring-neon-cyan text-foreground pr-10 ${errors.password ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -294,19 +293,19 @@ export function RegisterForm({ invitationData }: RegisterFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <Label htmlFor="confirmPassword" className="text-foreground">Confirm Password</Label>
             <div className="relative">
               <Input
                 id="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
                 placeholder="Confirm your password"
                 {...register('confirmPassword')}
-                className={errors.confirmPassword ? 'border-red-500 pr-10' : 'pr-10'}
+                className={`bg-black/50 border-white/10 focus-visible:ring-neon-cyan text-foreground pr-10 ${errors.confirmPassword ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
               >
                 {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -316,7 +315,7 @@ export function RegisterForm({ invitationData }: RegisterFormProps) {
             )}
           </div>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="w-full mt-6 bg-neon-cyan text-black hover:bg-neon-cyan/90 border-0" disabled={isLoading}>
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -328,19 +327,19 @@ export function RegisterForm({ invitationData }: RegisterFormProps) {
           </Button>
         </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600 dark:text-gray-300">
+        <div className="mt-8 text-center border-t border-white/5 pt-6">
+          <p className="text-sm text-muted-foreground">
             Already have an account?{' '}
-            <Button 
-              variant="link" 
-              className="p-0 h-auto font-semibold"
+            <Button
+              variant="link"
+              className="p-0 h-auto font-semibold text-neon-cyan hover:text-neon-cyan/80 transition-colors"
               onClick={() => window.location.href = '/login'}
             >
               Sign in here
             </Button>
           </p>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 } 

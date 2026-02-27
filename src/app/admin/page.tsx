@@ -54,6 +54,7 @@ import { useRouter } from 'next/navigation';
 import clsx from 'clsx';
 import dynamic from 'next/dynamic';
 import Select, { MultiValue } from 'react-select';
+import { SkeletonDashboard } from '@/components/ui/skeleton';
 const RichTextEditor = dynamic(() => import('@/components/ui/rich-text-editor').then((mod) => mod.RichTextEditor), { ssr: false });
 
 interface DashboardStats {
@@ -245,7 +246,13 @@ function AdminDashboard() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div></div>;
+    return (
+      <div className="min-h-screen p-6 sm:p-8 pt-24 bg-background border-border selection:bg-neon-cyan/30">
+        <div className="container mx-auto max-w-5xl">
+          <SkeletonDashboard />
+        </div>
+      </div>
+    );
   }
   if (error) {
     return <div className="min-h-screen flex flex-col items-center justify-center bg-red-50 text-red-800"><h1 className="text-2xl font-bold mb-4">Admin Dashboard Error</h1><p>{error}</p><button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded" onClick={loadDashboardData}>Retry</button></div>;

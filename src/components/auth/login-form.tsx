@@ -57,7 +57,7 @@ export function LoginForm() {
       await login(data.email, data.password, data.verificationOtp);
     } catch (error: any) {
       console.error('Login error:', error);
-      
+
       if (error.response?.data?.needsVerification) {
         setNeedsVerification(true);
         setEmail(data.email);
@@ -75,18 +75,18 @@ export function LoginForm() {
       toast.error('Please enter your email address first');
       return;
     }
-    
+
     if (resendCooldown > 0) {
       toast.error(`Please wait ${resendCooldown} seconds before requesting another code`);
       return;
     }
-    
+
     setResendLoading(true);
     try {
       const response = await resendVerification(email);
       setVerificationSent(true);
       setResendCooldown(30); // 30 second cooldown
-      
+
       // Show success message from the backend
       toast.success(response.message || 'Verification code sent successfully! Check your email for the new code.');
     } catch (error: any) {
@@ -113,13 +113,13 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email" className="text-foreground">Email</Label>
         <Input
           id="email"
           type="email"
           placeholder="Enter your email"
           {...register('email')}
-          className={errors.email ? 'border-red-500' : ''}
+          className={`bg-black/50 border-white/10 focus-visible:ring-neon-cyan text-foreground ${errors.email ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
         />
         {errors.email && (
           <p className="text-sm text-red-500">{errors.email.message}</p>
@@ -127,20 +127,20 @@ export function LoginForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password" className="text-foreground">Password</Label>
         <div className="relative">
           <Input
             id="password"
             type={showPassword ? 'text' : 'password'}
             placeholder="Enter your password"
             {...register('password')}
-            className={errors.password ? 'border-red-500' : ''}
+            className={`bg-black/50 border-white/10 focus-visible:ring-neon-cyan text-foreground pr-10 ${errors.password ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
           />
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-muted-foreground hover:text-foreground"
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? (
@@ -153,12 +153,12 @@ export function LoginForm() {
         {errors.password && (
           <p className="text-sm text-red-500">{errors.password.message}</p>
         )}
-        
+
         <div className="text-right">
           <Button
             type="button"
             variant="link"
-            className="p-0 h-auto text-sm text-blue-600 hover:text-blue-800"
+            className="p-0 h-auto text-sm text-neon-cyan hover:text-neon-cyan/80"
             onClick={() => window.location.href = '/forgot-password'}
           >
             Forgot your password?
@@ -167,23 +167,23 @@ export function LoginForm() {
       </div>
 
       {needsVerification && (
-        <div className="space-y-4">
-          <div className="flex items-start gap-3 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+        <div className="space-y-4 mt-6">
+          <div className="flex items-start gap-3 p-4 bg-neon-amber/10 border border-neon-amber/20 rounded-lg">
+            <AlertCircle className="h-5 w-5 text-neon-amber mt-0.5 flex-shrink-0" />
             <div className="flex-1">
-              <h3 className="text-sm font-medium text-yellow-900 mb-1">
+              <h3 className="text-sm font-medium text-neon-amber mb-1">
                 Account Found! Email Verification Required
               </h3>
-              <p className="text-sm text-yellow-800 mb-2">
-                We found your account! Your email address <strong>{email}</strong> is not verified. 
+              <p className="text-sm text-foreground/80 mb-2">
+                We found your account! Your email address <strong className="text-foreground">{email}</strong> is not verified.
                 Please verify your email before proceeding.
               </p>
-              <p className="text-xs text-yellow-700">
+              <p className="text-xs text-muted-foreground">
                 Click the button below to receive a verification code.
               </p>
             </div>
           </div>
-          
+
           {!verificationSent ? (
             <div className="space-y-3">
               <Button
@@ -191,7 +191,7 @@ export function LoginForm() {
                 variant="outline"
                 onClick={handleResendVerification}
                 disabled={resendLoading}
-                className="w-full"
+                className="w-full border-white/10 hover:bg-white/5"
               >
                 {resendLoading ? (
                   <>
@@ -205,7 +205,7 @@ export function LoginForm() {
                   </>
                 )}
               </Button>
-              
+
               <div className="text-center">
                 <Button
                   type="button"
@@ -218,43 +218,43 @@ export function LoginForm() {
               </div>
             </div>
           ) : (
-            <div className="space-y-4">
-              <div className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+            <div className="space-y-4 mt-6">
+              <div className="flex items-start gap-3 p-4 bg-neon-emerald/10 border border-neon-emerald/20 rounded-lg">
+                <CheckCircle className="h-5 w-5 text-neon-emerald mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
-                  <h3 className="text-sm font-medium text-green-900 mb-1">
+                  <h3 className="text-sm font-medium text-neon-emerald mb-1">
                     Verification Code Sent!
                   </h3>
-                  <p className="text-sm text-green-800">
-                    A 6-digit verification code has been sent to <strong>{email}</strong>. 
+                  <p className="text-sm text-foreground/80">
+                    A 6-digit verification code has been sent to <strong className="text-foreground">{email}</strong>.
                     Please check your email and enter the code below.
                   </p>
                 </div>
               </div>
-              
+
               <div className="space-y-2">
-                <Label htmlFor="verificationOtp">6-Digit Verification Code</Label>
+                <Label htmlFor="verificationOtp" className="text-foreground">6-Digit Verification Code</Label>
                 <Input
                   id="verificationOtp"
                   type="text"
                   placeholder="Enter 6-digit code from email"
                   maxLength={6}
-                  className={`text-center text-lg font-mono tracking-widest ${errors.verificationOtp ? 'border-red-500' : ''}`}
+                  className={`bg-black/50 border-white/10 focus-visible:ring-neon-cyan text-foreground text-center text-lg font-mono tracking-widest ${errors.verificationOtp ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                   {...register('verificationOtp')}
                 />
                 {errors.verificationOtp && (
                   <p className="text-sm text-red-500">{errors.verificationOtp.message}</p>
                 )}
               </div>
-              
-              <div className="flex gap-2">
+
+              <div className="flex gap-2 pt-2">
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={handleResendVerification}
                   disabled={resendLoading || resendCooldown > 0}
-                  className="flex-1"
+                  className="flex-1 border-white/10 hover:bg-white/5"
                 >
                   {resendLoading ? (
                     <>
@@ -282,9 +282,9 @@ export function LoginForm() {
                   Back
                 </Button>
               </div>
-              
-              <div className="text-center space-y-2">
-                <p className="text-xs text-gray-500">
+
+              <div className="text-center space-y-2 pt-2">
+                <p className="text-xs text-muted-foreground">
                   Having trouble? Check your spam folder or contact support.
                 </p>
               </div>
@@ -295,7 +295,7 @@ export function LoginForm() {
 
       <Button
         type="submit"
-        className="w-full"
+        className="w-full mt-6 bg-neon-cyan text-black hover:bg-neon-cyan/90 border-0"
         disabled={isLoading}
       >
         {isLoading ? (
