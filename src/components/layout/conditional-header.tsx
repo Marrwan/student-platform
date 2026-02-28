@@ -8,11 +8,17 @@ import { useEffect, useState } from 'react';
 const Header = dynamic(() => import('@/components/layout/header'), {
   ssr: true,
   loading: () => (
-    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+    <header className="border-b border-border/50 bg-background/80 backdrop-blur-xl sticky top-0 z-50 h-14 sm:h-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="animate-pulse bg-gray-200 h-8 w-32 rounded"></div>
-          <div className="animate-pulse bg-gray-200 h-8 w-24 rounded"></div>
+        <div className="flex justify-between items-center h-full">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 animate-pulse"></div>
+            <div className="bg-white/5 h-6 w-24 rounded animate-pulse"></div>
+          </div>
+          <div className="flex items-center space-x-4">
+            <div className="bg-white/5 h-8 w-20 rounded-md animate-pulse"></div>
+            <div className="bg-white/5 h-8 w-8 rounded-full animate-pulse"></div>
+          </div>
         </div>
       </div>
     </header>
@@ -21,16 +27,6 @@ const Header = dynamic(() => import('@/components/layout/header'), {
 
 export default function ConditionalHeader() {
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Don't render anything until mounted to prevent hydration issues
-  if (!mounted) {
-    return null;
-  }
 
   // Don't render header on homepage
   if (pathname === '/') {

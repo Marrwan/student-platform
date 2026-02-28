@@ -110,71 +110,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        {/* Favicon */}
-        <link rel="icon" type="image/jpeg" href="/logo.jpeg" />
-        <link rel="shortcut icon" type="image/jpeg" href="/logo.jpeg" />
-        <link rel="apple-touch-icon" href="/logo.jpeg" />
-
-        {/* Preload critical resources */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-
-        {/* DNS prefetch for external domains */}
-        <link rel="dns-prefetch" href="//via.placeholder.com" />
-        <link rel="dns-prefetch" href="//images.unsplash.com" />
-
-        {/* Preload critical images */}
-        <link rel="preload" href="/logo.jpeg" as="image" type="image/jpeg" />
-
-        {/* Performance monitoring */}
+        {/* CRITICAL RECOVERY SCRIPT (Pre-empts hydration) */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              // Performance monitoring and Cache Purge (ES5 for broad compatibility)
               (function() {
                 try {
-                  if ('performance' in window && typeof performance.getEntriesByType === 'function') {
-                    window.addEventListener('load', function() {
-                      setTimeout(function() {
-                        var entries = performance.getEntriesByType('navigation');
-                        if (entries && entries.length > 0) {
-                          var perfData = entries[0];
-                          console.log('Page Load Time:', perfData.loadEventEnd - perfData.loadEventStart, 'ms');
-                        }
-                      }, 0);
-                    });
-                  }
-
-                  // UNCOMPROMISING_CACHE_PURGE: Unregister any existing Service Workers and clear caches
-                  if ('serviceWorker' in navigator && typeof navigator.serviceWorker.getRegistrations === 'function') {
-                    window.addEventListener('load', function() {
-                      navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                        if (registrations && registrations.length > 0) {
-                          for (var i = 0; i < registrations.length; i++) {
-                            registrations[i].unregister();
-                          }
-                          console.log('SW_UNREGISTERED_OK');
-                        }
-                      })['catch'](function(err) {
-                        console.warn('SW_REG_ERR:', err);
-                      });
-
-                      // Force clear caches
-                      if ('caches' in window && typeof caches.keys === 'function') {
-                        caches.keys().then(function(names) {
-                          if (names && names.length > 0) {
-                            for (var j = 0; j < names.length; j++) {
-                              caches['delete'](names[j]);
-                            }
-                            console.log('CACHE_PURGE_COMPLETE');
-                          }
-                        })['catch'](function(err) {
-                          console.warn('CACHE_ERR:', err);
-                        });
-                      }
-                    });
-                  }
-                  // Global error handler for ChunkLoadError (ES5 compatibility)
+                  // 1. Chunk Error Recovery
                   window.addEventListener('error', function(e) {
                     if (e && e.message && e.message.indexOf('ChunkLoadError') !== -1) {
                       window.location.reload();
@@ -182,19 +124,40 @@ export default function RootLayout({
                   }, true);
 
                   window.addEventListener('unhandledrejection', function(e) {
-                    if (e && e.reason && (e.reason.name === 'ChunkLoadError' || (e.reason.message && e.reason.message.indexOf('ChunkLoadError') !== -1))) {
+                    var msg = e.reason && (e.reason.message || e.reason.name || '');
+                    if (msg && msg.indexOf('ChunkLoadError') !== -1) {
                       window.location.reload();
                     }
                   });
-                } catch (e) {
-                  // Silent catch to prevent script-based page blocks
-                  if (console && console.error) console.error('INIT_ERR:', e);
-                }
+
+                  // 2. Cache Purge (Force latest assets)
+                  if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(function(regs) {
+                      for (var i = 0; i < regs.length; i++) regs[i].unregister();
+                    });
+                  }
+                  if ('caches' in window) {
+                    caches.keys().then(function(keys) {
+                      for (var i = 0; i < keys.length; i++) caches.delete(keys[i]);
+                    });
+                  }
+                } catch (err) {}
               })();
             `,
           }}
         />
-        {/* Paystack Popup Script (for modals that use PaystackPop). Assignment late-fee uses redirect, not this script. */}
+
+        {/* Favicon */}
+        <link rel="icon" type="image/jpeg" href="/logo.jpeg" />
+        <link rel="shortcut icon" type="image/jpeg" href="/logo.jpeg" />
+        <link rel="apple-touch-icon" href="/logo.jpeg" />
+
+        {/* DNS prefetch */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+
+        {/* Metadata and preloads */}
+        <link rel="preload" href="/logo.jpeg" as="image" type="image/jpeg" />
         <Script src="https://js.paystack.co/v1/popup.js" strategy="lazyOnload" />
       </head>
       <body className={`${inter.className} ${jetbrainsMono.variable} antialiased selection:bg-neon-cyan/30`}>
@@ -221,39 +184,6 @@ export default function RootLayout({
           </AuthProvider>
         </ErrorBoundaryClient>
 
-        {/* Performance monitoring script */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              // Web Vitals monitoring (ES5)
-              (function() {
-                try {
-                  if ('PerformanceObserver' in window) {
-                    var observer = new PerformanceObserver(function(list) {
-                      var entries = list.getEntries();
-                      for (var i = 0; i < entries.length; i++) {
-                        var entry = entries[i];
-                        if (entry.entryType === 'largest-contentful-paint') {
-                          console.log('LCP:', entry.startTime, 'ms');
-                        }
-                        if (entry.entryType === 'first-input') {
-                          console.log('FID:', entry.processingStart - entry.startTime, 'ms');
-                        }
-                        if (entry.entryType === 'layout-shift') {
-                          console.log('CLS:', entry.value);
-                        }
-                      }
-                    });
-                    
-                    observer.observe({ entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'] });
-                  }
-                } catch (e) {
-                  // Silent catch
-                }
-              })();
-            `,
-          }}
-        />
       </body>
     </html>
   )
