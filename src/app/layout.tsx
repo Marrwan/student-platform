@@ -110,13 +110,35 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        {/* CRITICAL RECOVERY SCRIPT (Pre-empts hydration) */}
+        {/* NUCLEAR CACHE RECOVERY SCRIPT */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
-                  // 1. Chunk Error Recovery
+                  var VERSION_ID = "v1_${Date.now()}"; // Unique build ID
+                  var STORED_VERSION = localStorage.getItem('NEXUS_UI_VERSION');
+                  
+                  // 1. Version Parity Check (Force Refresh on New Build)
+                  if (STORED_VERSION && STORED_VERSION !== VERSION_ID) {
+                    console.warn('New deployment detected. Purging systematic cache...');
+                    if ('serviceWorker' in navigator) {
+                      navigator.serviceWorker.getRegistrations().then(function(regs) {
+                        for (var i = 0; i < regs.length; i++) regs[i].unregister();
+                      });
+                    }
+                    if ('caches' in window) {
+                      caches.keys().then(function(keys) {
+                        for (var i = 0; i < keys.length; i++) caches.delete(keys[i]);
+                      });
+                    }
+                    localStorage.setItem('NEXUS_UI_VERSION', VERSION_ID);
+                    window.location.reload(true);
+                  } else {
+                    localStorage.setItem('NEXUS_UI_VERSION', VERSION_ID);
+                  }
+
+                  // 2. Continuous Chunk Error Recovery
                   window.addEventListener('error', function(e) {
                     if (e && e.message && e.message.indexOf('ChunkLoadError') !== -1) {
                       window.location.reload();
@@ -129,23 +151,16 @@ export default function RootLayout({
                       window.location.reload();
                     }
                   });
-
-                  // 2. Cache Purge (Force latest assets)
-                  if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.getRegistrations().then(function(regs) {
-                      for (var i = 0; i < regs.length; i++) regs[i].unregister();
-                    });
-                  }
-                  if ('caches' in window) {
-                    caches.keys().then(function(keys) {
-                      for (var i = 0; i < keys.length; i++) caches.delete(keys[i]);
-                    });
-                  }
                 } catch (err) {}
               })();
             `,
           }}
         />
+
+        {/* Prevent Browser-Level Index Caching */}
+        <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta httpEquiv="Pragma" content="no-cache" />
+        <meta httpEquiv="Expires" content="0" />
 
         {/* Favicon */}
         <link rel="icon" type="image/jpeg" href="/logo.jpeg" />
@@ -185,6 +200,6 @@ export default function RootLayout({
         </ErrorBoundaryClient>
 
       </body>
-    </html>
+    </html >
   )
 } 
