@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/components/providers/auth-provider';
 import { api } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,6 +17,7 @@ interface Payment {
     metadata?: {
         assignmentId?: string;
         submissionId?: string;
+        assignmentTitle?: string;
     };
     createdAt: string;
 }
@@ -171,8 +173,7 @@ export default function PaymentsPage() {
                                                 <span className="capitalize">{payment.type.replace('_', ' ')}</span>
                                                 {payment.metadata?.assignmentId && (
                                                     <>
-                                                        <span className="mx-2 opacity-50">•</span>
-                                                        <span>Assignment: <span className="text-foreground/80 font-mono text-xs">{payment.metadata.assignmentId.split('-')[0]}...</span></span>
+                                                        <span>Assignment: <Link href={`/assignments/${payment.metadata.assignmentId}`} className="text-foreground hover:text-neon-cyan transition-colors font-medium hover:underline decoration-neon-cyan/50 underline-offset-4">{payment.metadata.assignmentTitle || 'View Assignment'}</Link></span>
                                                     </>
                                                 )}
                                             </p>
