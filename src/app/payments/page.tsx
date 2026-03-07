@@ -173,7 +173,7 @@ export default function PaymentsPage() {
                                                 <span className="capitalize">{payment.type.replace('_', ' ')}</span>
                                                 {payment.metadata?.assignmentId && (
                                                     <>
-                                                        <span>Assignment: <Link href={`/assignments/${payment.metadata.assignmentId}`} className="text-foreground hover:text-neon-cyan transition-colors font-medium hover:underline decoration-neon-cyan/50 underline-offset-4">{payment.metadata.assignmentTitle || 'View Assignment'}</Link></span>
+                                                        <span>Assignment: <Link href={`/assignments/${payment.metadata?.assignmentId}`} className="text-foreground hover:text-neon-cyan transition-colors font-medium hover:underline decoration-neon-cyan/50 underline-offset-4">{payment.metadata?.assignmentTitle || 'View Assignment'}</Link></span>
                                                     </>
                                                 )}
                                             </p>
