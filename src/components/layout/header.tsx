@@ -20,6 +20,7 @@ import {
   Trophy,
   Calendar,
   Code,
+  Receipt,
 } from 'lucide-react';
 
 export default function Header() {
@@ -120,6 +121,10 @@ export default function Header() {
                     <Link href="/gamification" className={navLinkClass}>
                       <Award className="w-4 h-4" />
                       <span>Achievements</span>
+                    </Link>
+                    <Link href="/payments" className={navLinkClass}>
+                      <Receipt className="w-4 h-4" />
+                      <span>Payments</span>
                     </Link>
                   </>
                 )}
@@ -237,6 +242,9 @@ export default function Header() {
                     </Link>
                     <Link href="/gamification" className={mobileNavLinkClass} onClick={() => setIsMobileMenuOpen(false)}>
                       <Award className="w-5 h-5" /><span>Achievements</span>
+                    </Link>
+                    <Link href="/payments" className={mobileNavLinkClass} onClick={() => setIsMobileMenuOpen(false)}>
+                      <Receipt className="w-5 h-5" /><span>Payments</span>
                     </Link>
                   </>
                 )}
