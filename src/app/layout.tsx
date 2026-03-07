@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Inter, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
+import { Toaster as SonnerToaster } from 'sonner'
 import { AuthProvider } from '@/components/providers/auth-provider'
 import ErrorBoundaryClient from '@/components/ErrorBoundaryClient';
 import { PerformanceMonitor } from '@/components/performance/performance-monitor';
@@ -195,6 +196,7 @@ export default function RootLayout({
                 },
               }}
             />
+            <SonnerToaster position="top-right" />
             <PerformanceMonitor />
           </AuthProvider>
         </ErrorBoundaryClient>
