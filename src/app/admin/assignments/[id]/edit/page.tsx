@@ -11,12 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  ArrowLeft, 
-  Save, 
-  Eye, 
-  Code, 
-  Link, 
+import {
+  ArrowLeft,
+  Save,
+  Eye,
+  Code,
+  Link,
   Upload,
   Calendar,
   Clock,
@@ -100,7 +100,7 @@ export default function EditAssignmentPage() {
       setLoading(true);
       const assignmentData = await api.getAssignment(assignmentId);
       setAssignment(assignmentData);
-      
+
       // Load class data
       if (assignmentData.classId) {
         const classData = await api.getClass(assignmentData.classId);
@@ -114,8 +114,8 @@ export default function EditAssignmentPage() {
         type: assignmentData.type || 'fullstack',
         difficulty: assignmentData.difficulty || 'easy',
         maxScore: assignmentData.maxScore || 100,
-        startDate: assignmentData.startDate ? new Date(assignmentData.startDate).toISOString().split('T')[0] : '',
-        deadline: assignmentData.deadline ? new Date(assignmentData.deadline).toISOString().split('T')[0] : '',
+        startDate: assignmentData.startDate ? new Date(assignmentData.startDate).toISOString().slice(0, 16) : '',
+        deadline: assignmentData.deadline ? new Date(assignmentData.deadline).toISOString().slice(0, 16) : '',
         requirements: assignmentData.requirements || '',
         submissionMode: assignmentData.submissionMode || 'both',
         paymentRequired: assignmentData.paymentRequired || false,
@@ -145,8 +145,8 @@ export default function EditAssignmentPage() {
         startDate: new Date(formData.startDate).toISOString(),
         deadline: new Date(formData.deadline).toISOString(),
         sampleOutputUrl: formData.sampleOutputUrl || undefined,
-        sampleOutputCode: formData.sampleOutputCode.html || formData.sampleOutputCode.css || formData.sampleOutputCode.javascript 
-          ? formData.sampleOutputCode 
+        sampleOutputCode: formData.sampleOutputCode.html || formData.sampleOutputCode.css || formData.sampleOutputCode.javascript
+          ? formData.sampleOutputCode
           : undefined
       };
 
@@ -371,7 +371,7 @@ export default function EditAssignmentPage() {
                     <Label htmlFor="startDate">Start Date</Label>
                     <Input
                       id="startDate"
-                      type="date"
+                      type="datetime-local"
                       value={formData.startDate}
                       onChange={(e) => handleInputChange('startDate', e.target.value)}
                       required
@@ -382,7 +382,7 @@ export default function EditAssignmentPage() {
                     <Label htmlFor="deadline">Deadline</Label>
                     <Input
                       id="deadline"
-                      type="date"
+                      type="datetime-local"
                       value={formData.deadline}
                       onChange={(e) => handleInputChange('deadline', e.target.value)}
                       required
@@ -424,7 +424,7 @@ export default function EditAssignmentPage() {
 
                 <div className="space-y-4">
                   <Label>Sample Output Code (Optional)</Label>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="html" className="text-sm">HTML</Label>
                     <Textarea
