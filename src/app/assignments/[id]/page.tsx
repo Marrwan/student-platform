@@ -27,7 +27,8 @@ import {
   DollarSign,
   AlertTriangle,
   Lock,
-  Trash2
+  Trash2,
+  AlertCircle
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { User } from '@/types';
@@ -114,6 +115,9 @@ export default function AssignmentDetailPage() {
   const [hasPaid, setHasPaid] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
 
+  // Sequential block state
+  const [lockMessage, setLockMessage] = useState<string | null>(null);
+
   // Submission form data
   const [submissionData, setSubmissionData] = useState({
     submissionType: 'code' as 'github' | 'code' | 'link' | 'zip',
@@ -176,9 +180,15 @@ export default function AssignmentDetailPage() {
       if (isAdmin()) {
         await loadSubmissionCount();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading assignment:', error);
-      toast.error('Failed to load assignment');
+
+      // Check if it's our specific sequential lock ValidationError (400)
+      if (error.response?.status === 400 && error.response?.data?.message?.includes('must submit the previous assignment')) {
+        setLockMessage(error.response.data.message);
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to load assignment');
+      }
     } finally {
       setLoading(false);
     }
@@ -476,6 +486,34 @@ export default function AssignmentDetailPage() {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neon-cyan"></div>
+      </div>
+    );
+  }
+
+  // Handle Sequential Lock State
+  if (lockMessage && !assignment) {
+    return (
+      <div className="min-h-screen bg-background pt-32 pb-12 px-4 sm:px-6 lg:px-8 flex items-start justify-center">
+        <div className="max-w-md w-full glass-card p-8 border-neon-rose/30 text-center relative overflow-hidden group shadow-2xl">
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-neon-rose/10 rounded-full blur-[40px] pointer-events-none group-hover:bg-neon-rose/20 transition-colors duration-500"></div>
+
+          <div className="w-16 h-16 bg-neon-rose/10 text-neon-rose rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_15px_rgba(255,0,102,0.3)]">
+            <AlertCircle className="h-8 w-8 relative z-10" />
+          </div>
+
+          <h2 className="text-xl font-bold text-foreground mb-4 font-space uppercase tracking-widest text-neon-rose">Assignment Locked</h2>
+          <p className="text-muted-foreground mb-8 text-sm leading-relaxed relative z-10 mono-font">
+            {lockMessage}
+          </p>
+
+          <Button
+            onClick={() => router.push('/dashboard')}
+            className="w-full bg-neon-cyan text-black hover:bg-neon-cyan/90 mono-font text-xs tracking-wider relative z-10 shadow-[0_0_15px_rgba(0,255,255,0.3)]"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            RETURN TO DASHBOARD
+          </Button>
+        </div>
       </div>
     );
   }

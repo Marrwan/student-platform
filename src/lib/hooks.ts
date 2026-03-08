@@ -58,7 +58,7 @@ export function useProjects(params?: {
   status?: string;
 }) {
   const cacheKey = params ? `projects:${JSON.stringify(params)}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getProjects(params),
@@ -173,7 +173,7 @@ export function useLeaderboard(params?: {
   projectId?: string;
 }) {
   const cacheKey = params ? `leaderboard:${JSON.stringify(params)}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getLeaderboard(params),
@@ -208,6 +208,19 @@ export function useLeaderboardStats() {
   );
 }
 
+export function useUserBadges(userId?: string) {
+  const cacheKey = userId ? `user-badges:${userId}` : null;
+
+  return useApiData(
+    cacheKey,
+    () => api.getUserBadges(userId!),
+    {
+      refreshInterval: 5 * 60 * 1000,
+      revalidateOnFocus: false,
+    }
+  );
+}
+
 // Optimized classes hook
 export function useClasses(params?: {
   page?: number;
@@ -215,7 +228,7 @@ export function useClasses(params?: {
   status?: string;
 }) {
   const cacheKey = params ? `classes:${JSON.stringify(params)}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getClasses(params),
@@ -234,7 +247,7 @@ export function useAssignments(params?: {
   classId?: string;
 }) {
   const cacheKey = params ? `assignments:${JSON.stringify(params)}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getAssignments(params),
@@ -252,7 +265,7 @@ export function useChallenges(params?: {
   status?: string;
 }) {
   const cacheKey = params ? `challenges:${JSON.stringify(params)}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getChallenges(params),
@@ -270,7 +283,7 @@ export function usePayments(params?: {
   status?: string;
 }) {
   const cacheKey = params ? `payments:${JSON.stringify(params)}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getPayments(params),
@@ -289,7 +302,7 @@ export function useAdminUsers(params?: {
   status?: string;
 }) {
   const cacheKey = params ? `admin-users:${JSON.stringify(params)}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getAdminUsers(params),
@@ -308,7 +321,7 @@ export function useAdminPayments(params?: {
   type?: string;
 }) {
   const cacheKey = params ? `admin-payments:${JSON.stringify(params)}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getAdminPayments(params),
@@ -361,7 +374,7 @@ export function usePaymentHistory(params?: {
   limit?: number;
 }) {
   const cacheKey = params ? `payment-history:${JSON.stringify(params)}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getPaymentHistory(params),
@@ -379,7 +392,7 @@ export function useMySubmissions(params?: {
   status?: string;
 }) {
   const cacheKey = params ? `my-submissions:${JSON.stringify(params)}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getMySubmissions(params),
@@ -393,7 +406,7 @@ export function useMySubmissions(params?: {
 // Optimized project hook
 export function useProject(id: string) {
   const cacheKey = id ? `project:${id}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getProject(id),
@@ -407,7 +420,7 @@ export function useProject(id: string) {
 // Optimized submission hook
 export function useSubmission(id: string) {
   const cacheKey = id ? `submission:${id}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getSubmission(id),
@@ -421,7 +434,7 @@ export function useSubmission(id: string) {
 // Optimized class hook
 export function useClass(id: string) {
   const cacheKey = id ? `class:${id}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getClass(id),
@@ -435,7 +448,7 @@ export function useClass(id: string) {
 // Optimized assignment hook
 export function useAssignment(id: string) {
   const cacheKey = id ? `assignment:${id}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getAssignment(id),
@@ -449,7 +462,7 @@ export function useAssignment(id: string) {
 // Optimized challenge hook
 export function useChallenge(id: string) {
   const cacheKey = id ? `challenge:${id}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getChallenge(id),
@@ -463,7 +476,7 @@ export function useChallenge(id: string) {
 // Optimized payment hook
 export function usePayment(id: string) {
   const cacheKey = id ? `payment:${id}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getPayment(id),
@@ -477,7 +490,7 @@ export function usePayment(id: string) {
 // Optimized user details hook
 export function useUserDetails(id: string) {
   const cacheKey = id ? `user-details:${id}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getUserDetails(id),
@@ -491,7 +504,7 @@ export function useUserDetails(id: string) {
 // Optimized admin project hook
 export function useAdminProject(id: string) {
   const cacheKey = id ? `admin-project:${id}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getAdminProject(id),
@@ -505,7 +518,7 @@ export function useAdminProject(id: string) {
 // Optimized admin class students hook
 export function useAdminClassStudents(classId: string) {
   const cacheKey = classId ? `admin-class-students:${classId}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getAdminClassStudents(classId),
@@ -523,7 +536,7 @@ export function useClassAssignments(classId: string, params?: {
   status?: string;
 }) {
   const cacheKey = classId ? `class-assignments:${classId}:${JSON.stringify(params)}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getClassAssignments(classId, params),
@@ -541,7 +554,7 @@ export function useAssignmentSubmissions(assignmentId: string, params?: {
   status?: string;
 }) {
   const cacheKey = assignmentId ? `assignment-submissions:${assignmentId}:${JSON.stringify(params)}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getAssignmentSubmissions(assignmentId, params),
@@ -559,7 +572,7 @@ export function useChallengeLeaderboard(challengeId: string, params?: {
   filter?: string;
 }) {
   const cacheKey = challengeId ? `challenge-leaderboard:${challengeId}:${JSON.stringify(params)}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getChallengeLeaderboard(challengeId, params),
@@ -576,7 +589,7 @@ export function useProjectLeaderboard(projectId: string, params?: {
   limit?: number;
 }) {
   const cacheKey = projectId ? `project-leaderboard:${projectId}:${JSON.stringify(params)}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getProjectLeaderboard(projectId, params),
@@ -593,7 +606,7 @@ export function useStreakLeaderboard(params?: {
   limit?: number;
 }) {
   const cacheKey = params ? `streak-leaderboard:${JSON.stringify(params)}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getStreakLeaderboard(params),
@@ -607,7 +620,7 @@ export function useStreakLeaderboard(params?: {
 // Optimized progress hook
 export function useProgress(userId: string) {
   const cacheKey = userId ? `progress:${userId}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getProgress(userId),
@@ -621,7 +634,7 @@ export function useProgress(userId: string) {
 // Optimized project stats hook
 export function useProjectStats(id: string) {
   const cacheKey = id ? `project-stats:${id}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getProjectStats(id),
@@ -641,7 +654,7 @@ export function useAllSubmissions(params?: {
   userId?: string;
 }) {
   const cacheKey = params ? `all-submissions:${JSON.stringify(params)}` : null;
-  
+
   return useApiData(
     cacheKey,
     () => api.getAllSubmissions(params),
@@ -760,7 +773,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     try {
       const valueToStore = value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
-      
+
       if (typeof window !== 'undefined') {
         window.localStorage.setItem(key, JSON.stringify(valueToStore));
       }
@@ -792,7 +805,7 @@ export function useSessionStorage<T>(key: string, initialValue: T) {
     try {
       const valueToStore = value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
-      
+
       if (typeof window !== 'undefined') {
         window.sessionStorage.setItem(key, JSON.stringify(valueToStore));
       }
@@ -816,7 +829,7 @@ export function useMediaQuery(query: string): boolean {
 
     const listener = () => setMatches(media.matches);
     media.addEventListener('change', listener);
-    
+
     return () => media.removeEventListener('change', listener);
   }, [matches, query]);
 

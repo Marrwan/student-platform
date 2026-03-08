@@ -40,35 +40,37 @@ export default function RecognitionForm({ users, onSuccess }: RecognitionFormPro
     };
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Give a Shoutout 📢</h3>
+        <div className="glass-card p-6 sm:p-8 rounded-xl border border-white/5 relative overflow-hidden group">
+            <h3 className="text-lg font-medium tracking-tight mb-4 text-foreground flex items-center gap-2">
+                Give a Shoutout 📢
+            </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Who do you want to recognize?</label>
+                    <label className="block text-sm font-medium text-muted-foreground">Who do you want to recognize?</label>
                     <select
                         value={toUserId}
                         onChange={(e) => setToUserId(e.target.value)}
                         required
-                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base bg-background/50 border border-white/10 text-foreground focus:outline-none focus:ring-1 focus:ring-neon-cyan focus:border-neon-cyan sm:text-sm rounded-md"
                     >
-                        <option value="">Select a peer...</option>
+                        <option value="" className="bg-background text-foreground">Select a peer...</option>
                         {users.map(u => (
-                            <option key={u.id} value={u.id}>{u.firstName} {u.lastName}</option>
+                            <option key={u.id} value={u.id} className="bg-background text-foreground">{u.firstName} {u.lastName}</option>
                         ))}
                     </select>
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Category</label>
+                    <label className="block text-sm font-medium text-muted-foreground">Category</label>
                     <div className="mt-2 flex gap-2">
                         {['helpful', 'innovative', 'teamwork', 'leadership'].map(cat => (
                             <button
                                 key={cat}
                                 type="button"
                                 onClick={() => setCategory(cat)}
-                                className={`px-3 py-1.5 rounded-full text-xs font-medium capitalize border ${category === cat
-                                        ? 'bg-indigo-100 text-indigo-800 border-indigo-200'
-                                        : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                                className={`px-3 py-1.5 rounded-full text-xs font-medium capitalize border transition-colors ${category === cat
+                                    ? 'bg-neon-cyan/10 text-neon-cyan border-neon-cyan/20'
+                                    : 'bg-background/50 text-muted-foreground border-white/10 hover:bg-white/5'
                                     }`}
                             >
                                 {cat}
@@ -78,22 +80,22 @@ export default function RecognitionForm({ users, onSuccess }: RecognitionFormPro
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Message</label>
+                    <label className="block text-sm font-medium text-muted-foreground">Message</label>
                     <textarea
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         required
                         rows={3}
                         placeholder="Why are you recognizing them?"
-                        className="mt-1 block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md"
+                        className="mt-1 block w-full bg-background/50 border border-white/10 text-foreground shadow-sm focus:ring-1 focus:ring-neon-cyan focus:border-neon-cyan sm:text-sm rounded-md placeholder-muted-foreground"
                     />
                 </div>
 
-                <div className="flex justify-end">
+                <div className="flex justify-end pt-2">
                     <button
                         type="submit"
                         disabled={loading}
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                        className="inline-flex items-center px-4 py-2 border border-neon-cyan/50 text-sm font-medium rounded-md shadow-[0_0_15px_rgba(0,255,255,0.3)] text-neon-cyan bg-neon-cyan/10 hover:bg-neon-cyan/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-neon-cyan disabled:opacity-50 transition-all duration-300"
                     >
                         {loading ? 'Sending...' : 'Send Shoutout'}
                     </button>

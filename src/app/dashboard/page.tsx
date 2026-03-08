@@ -20,7 +20,9 @@ import {
   useRecentSubmissions,
   useProgressStats,
   useNotifications,
-  usePaymentHistory
+  usePaymentHistory,
+  useLeaderboard,
+  useUserBadges
 } from '@/lib/hooks';
 
 interface TodayProject {
@@ -115,6 +117,8 @@ function StudentDashboard() {
   const { data: progressStatsData, isLoading: statsLoading } = useProgressStats();
   const { data: notificationsData } = useNotifications();
   const { data: paymentsData } = usePaymentHistory({ limit: 3 });
+  const { data: leaderboardData } = useLeaderboard({ limit: 3 });
+  const { data: badgesData } = useUserBadges(user?.id);
 
   const todayProject = useMemo(() => (todayProjectData as TodayProjectResponse)?.project || null, [todayProjectData]);
   const recentSubmissions = useMemo(() => recentSubmissionsData?.submissions || [], [recentSubmissionsData]);
@@ -131,6 +135,8 @@ function StudentDashboard() {
   }, [progressStatsData]);
   const recentNotifications = useMemo(() => notificationsData?.notifications?.slice(0, 5) || [], [notificationsData]);
   const recentPayments = useMemo(() => paymentsData?.data?.slice(0, 3) || [], [paymentsData]);
+  const topStudents = useMemo(() => leaderboardData?.data || [], [leaderboardData]);
+  const myBadges = useMemo(() => badgesData || [], [badgesData]);
 
   const completionRate = useMemo(() => {
     return progressStats.totalProjects > 0
@@ -500,6 +506,61 @@ function StudentDashboard() {
                     <Info className="h-4 w-4 mr-3" />
                     Student Handbook
                   </Button>
+                </div>
+              </div>
+
+              {/* Earned Badges */}
+              <div className="glass-card p-6 border-neon-cyan/20 hover-glow-cyan transition-all duration-500 relative overflow-hidden group">
+                <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-neon-cyan/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-neon-cyan/10 transition-colors duration-500"></div>
+                <h2 className="text-sm tracking-widest uppercase font-bold mb-5 text-neon-cyan mono-font flex items-center gap-2 relative z-10">
+                  <Award className="h-4 w-4" />
+                  Earned Badges
+                </h2>
+                <div className="flex flex-wrap gap-3 relative z-10">
+                  {myBadges.length === 0 ? (
+                    <p className="text-sm text-muted-foreground italic px-2">No badges earned yet. Keep coding!</p>
+                  ) : (
+                    myBadges.map((userBadge: any) => (
+                      <div key={userBadge.id} className="group relative">
+                        <div className="w-12 h-12 flex items-center justify-center rounded-full bg-neon-cyan/10 border border-neon-cyan/20 text-2xl hover:scale-110 transition-transform cursor-help">
+                          {userBadge.badge?.icon || '🏅'}
+                        </div>
+                        <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-[150px] opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 text-white text-[10px] sm:text-xs p-2 rounded border border-white/10 text-center z-50 shadow-xl">
+                          <strong className="block text-neon-cyan mb-1">{userBadge.badge?.name || 'Badge'}</strong>
+                          <span className="text-muted-foreground">{userBadge.badge?.description || 'Achievement unlocked'}</span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Top 3 Leaderboard */}
+              <div className="glass-card p-6 border-neon-amber/20 hover-glow-amber transition-all duration-500 relative overflow-hidden group">
+                <div className="absolute -top-10 -right-10 w-32 h-32 bg-neon-amber/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-neon-amber/10 transition-colors duration-500"></div>
+                <h2 className="text-sm tracking-widest uppercase font-bold mb-5 text-neon-amber mono-font flex items-center gap-2 relative z-10">
+                  <Trophy className="h-4 w-4" />
+                  Top Scholars
+                </h2>
+                <div className="space-y-3 relative z-10">
+                  {topStudents.length === 0 ? (
+                    <p className="text-sm text-muted-foreground italic px-2">No rankings available yet.</p>
+                  ) : (
+                    topStudents.map((student: any, i: number) => (
+                      <div key={student.id} className={`flex items-center justify-between p-3 rounded-lg border ${student.isCurrentUser ? 'bg-neon-amber/10 border-neon-amber/30' : 'bg-background/50 border-white/5'} transition-colors`}>
+                        <div className="flex items-center gap-3">
+                          <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${i === 0 ? 'bg-yellow-500/20 text-yellow-500' : i === 1 ? 'bg-gray-300/20 text-gray-300' : 'bg-amber-700/20 text-amber-600'}`}>
+                            {i + 1}
+                          </span>
+                          <span className={`text-sm font-medium ${student.isCurrentUser ? 'text-neon-amber' : 'text-foreground'}`}>
+                            {student.firstName} {student.lastName}
+                            {student.isCurrentUser && <span className="ml-2 text-xs opacity-70">(You)</span>}
+                          </span>
+                        </div>
+                        <span className="text-xs font-mono text-neon-cyan">{student.totalScore} pts</span>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
 
