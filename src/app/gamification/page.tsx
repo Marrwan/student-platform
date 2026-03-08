@@ -10,9 +10,9 @@ import { useAuth } from '@/components/providers/auth-provider';
 
 export default function GamificationPage() {
     const { user } = useAuth();
-    const [badges, setBadges] = useState([]);
-    const [recognitions, setRecognitions] = useState([]);
-    const [leaderboard, setLeaderboard] = useState([]);
+    const [badges, setBadges] = useState<any[]>([]);
+    const [recognitions, setRecognitions] = useState<any[]>([]);
+    const [leaderboard, setLeaderboard] = useState<any[]>([]);
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -26,10 +26,12 @@ export default function GamificationPage() {
                     // Assuming we have a way to get users for the form
                     api.getUsers().catch(() => [])
                 ]);
-                setBadges(badgesData);
-                setRecognitions(recognitionsData);
-                setLeaderboard(leaderboardData);
-                setUsers(teamData);
+
+                // Defensive parsing for all arrays
+                setBadges(Array.isArray(badgesData) ? badgesData : []);
+                setRecognitions(Array.isArray(recognitionsData) ? recognitionsData : []);
+                setLeaderboard(Array.isArray(leaderboardData) ? leaderboardData : []);
+                setUsers(Array.isArray(teamData) ? teamData : []);
             }
         } catch (error) {
             console.error('Error fetching gamification data:', error);

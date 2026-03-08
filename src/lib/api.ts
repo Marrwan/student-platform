@@ -210,8 +210,12 @@ class ApiClient {
     return this.cachedRequest(
       'users',
       async () => {
-        const response: AxiosResponse<User[]> = await this.client.get('/users');
-        return response.data;
+        const response: AxiosResponse<any> = await this.client.get('/users');
+        // Handle both raw array and paginated object { users: [], total: ... }
+        if (Array.isArray(response.data)) {
+          return response.data;
+        }
+        return response.data?.users || [];
       },
       5 * 60 * 1000 // 5 minutes cache
     );
