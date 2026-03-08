@@ -184,7 +184,8 @@ export default function LeaderboardPage() {
   const loadClasses = async () => {
     try {
       const response = await api.getClasses();
-      setClasses(response.classes.filter((c: Class) => c.isActive));
+      const classesArray = Array.isArray(response) ? response : ((response as any)?.classes || response?.data || []);
+      setClasses(classesArray.filter((c: Class) => c?.isActive));
     } catch (error) {
       console.error('Error loading classes:', error);
     }
@@ -193,7 +194,8 @@ export default function LeaderboardPage() {
   const loadProjects = async () => {
     try {
       const response = await api.getProjects();
-      setProjects(response.data.filter((p: Project) => p.isUnlocked));
+      const projectsArray = Array.isArray(response) ? response : (response?.data || (response as any)?.projects || []);
+      setProjects(projectsArray.filter((p: Project) => p?.isUnlocked));
     } catch (error) {
       console.error('Error loading projects:', error);
     }
@@ -402,7 +404,7 @@ export default function LeaderboardPage() {
                 </SelectTrigger>
                 <SelectContent className="bg-card/90 backdrop-blur-2xl border-white/10 rounded-xl">
                   <SelectItem value="all" className="mono-font text-[10px] uppercase">GLOBAL_VIEW</SelectItem>
-                  {projects.map((project) => (
+                  {projects?.map((project) => (
                     <SelectItem key={project.id} value={project.id} className="mono-font text-[10px] uppercase">
                       0X{project.day}: {project.title}
                     </SelectItem>
@@ -420,7 +422,7 @@ export default function LeaderboardPage() {
               </CardHeader>
               <CardContent className="p-8">
                 <div className="space-y-4">
-                  {leaderboardData.map((entry) => (
+                  {leaderboardData?.map((entry) => (
                     <div
                       key={entry.id}
                       className={`group flex items-center justify-between p-6 rounded-2xl border transition-all hover:bg-white/5 ${entry.isCurrentUser
@@ -494,7 +496,7 @@ export default function LeaderboardPage() {
                 </SelectTrigger>
                 <SelectContent className="bg-card/90 backdrop-blur-2xl border-white/10 rounded-xl">
                   <SelectItem value="all" className="mono-font text-[10px] uppercase">SELECTION_PENDING</SelectItem>
-                  {classes.map((classItem) => (
+                  {classes?.map((classItem) => (
                     <SelectItem key={classItem.id} value={classItem.id} className="mono-font text-[10px] uppercase italic">
                       {classItem.name.toUpperCase()}
                     </SelectItem>
@@ -523,7 +525,7 @@ export default function LeaderboardPage() {
                 </CardHeader>
                 <CardContent className="p-8">
                   <div className="space-y-4">
-                    {classLeaderboardData.map((entry) => (
+                    {classLeaderboardData?.map((entry) => (
                       <div
                         key={entry.id}
                         className={`group flex items-center justify-between p-6 rounded-2xl border transition-all hover:bg-white/5 ${entry.isCurrentUser
@@ -584,7 +586,7 @@ export default function LeaderboardPage() {
                 </SelectTrigger>
                 <SelectContent className="bg-card/90 backdrop-blur-2xl border-white/10 rounded-xl">
                   <SelectItem value="all" className="mono-font text-[10px] uppercase">PROJECT_BUFFER_NULL</SelectItem>
-                  {projects.map((project) => (
+                  {projects?.map((project) => (
                     <SelectItem key={project.id} value={project.id} className="mono-font text-[10px] uppercase italic">
                       0X{project.day}: {project.title.toUpperCase()}
                     </SelectItem>
@@ -613,7 +615,7 @@ export default function LeaderboardPage() {
                 </CardHeader>
                 <CardContent className="p-8">
                   <div className="space-y-4">
-                    {projectLeaderboardData.map((entry) => (
+                    {projectLeaderboardData?.map((entry) => (
                       <div
                         key={entry.id}
                         className={`group flex items-center justify-between p-6 rounded-2xl border transition-all hover:bg-white/5 ${entry.isCurrentUser
