@@ -164,7 +164,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     api.clearCache();
     setUser(null);
     toast.success('Logged out successfully');
-    router.push('/');
+    window.location.href = '/';
   };
 
   const updateUser = (userData: User) => {

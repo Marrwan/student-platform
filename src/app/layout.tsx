@@ -8,6 +8,7 @@ import ErrorBoundaryClient from '@/components/ErrorBoundaryClient';
 import { PerformanceMonitor } from '@/components/performance/performance-monitor';
 import ConditionalHeader from '@/components/layout/conditional-header';
 import Script from 'next/script';
+import NextTopLoader from 'nextjs-toploader';
 
 // Optimize font loading
 const inter = Inter({
@@ -180,8 +181,19 @@ export default function RootLayout({
         <ErrorBoundaryClient>
           <AuthProvider>
             <div className="min-h-screen flex flex-col">
+              <NextTopLoader
+                color="#00f3ff"
+                initialPosition={0.08}
+                crawlSpeed={200}
+                height={3}
+                crawl={true}
+                showSpinner={false}
+                easing="ease"
+                speed={200}
+                shadow="0 0 10px #00f3ff,0 0 5px #00f3ff"
+              />
               <ConditionalHeader />
-              <main className="flex-1">
+              <main className="flex-1 w-full mx-auto max-w-7xl pt-16">
                 {children}
               </main>
             </div>
