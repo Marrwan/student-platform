@@ -6,8 +6,8 @@ interface LeaderboardEntry {
     id: string;
     firstName: string;
     lastName: string;
-    profilePicture?: string;
-    badgeCount: number;
+    avatar?: string;
+    badge_count: number;
 }
 
 interface LeaderboardProps {
@@ -30,14 +30,14 @@ export default function Leaderboard({ entries }: LeaderboardProps) {
                 {entries.map((user, index) => (
                     <li key={user.id} className="px-6 py-3 flex items-center hover:bg-gray-50">
                         <div className={`flex-shrink-0 w-8 text-center font-bold text-lg ${index === 0 ? 'text-yellow-500' :
-                                index === 1 ? 'text-gray-400' :
-                                    index === 2 ? 'text-orange-400' : 'text-gray-500'
+                            index === 1 ? 'text-gray-400' :
+                                index === 2 ? 'text-orange-400' : 'text-gray-500'
                             }`}>
                             #{index + 1}
                         </div>
                         <div className="ml-4 flex-shrink-0">
-                            {user.profilePicture ? (
-                                <img className="h-10 w-10 rounded-full object-cover border-2 border-white shadow-sm" src={user.profilePicture} alt="" />
+                            {user.avatar ? (
+                                <img className="h-10 w-10 rounded-full object-cover border-2 border-white shadow-sm" src={user.avatar} alt="" />
                             ) : (
                                 <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-500 font-bold border-2 border-white shadow-sm">
                                     {user.firstName[0]}
@@ -51,7 +51,7 @@ export default function Leaderboard({ entries }: LeaderboardProps) {
                         </div>
                         <div className="text-right">
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                                {user.badgeCount} Badges
+                                {user.badge_count} Badges
                             </span>
                         </div>
                     </li>
