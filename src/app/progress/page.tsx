@@ -62,7 +62,7 @@ export default function ProgressPage() {
   const fetchProgressData = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch progress statistics
       const statsResponse = await api.getProgressStats();
       setProgressData(statsResponse.stats || {
@@ -85,15 +85,15 @@ export default function ProgressPage() {
           id: assignment.id,
           title: assignment.title,
           deadline: assignment.deadline,
-          status: assignment.submissionStatus === 'accepted' ? 'completed' : 
-                  assignment.submissionStatus === 'pending' ? 'pending' :
-                  assignment.isOverdue ? 'missed' : 'not_started',
+          status: assignment.submissionStatus === 'accepted' ? 'completed' :
+            assignment.submissionStatus === 'pending' ? 'pending' :
+              assignment.isOverdue ? 'missed' : 'not_started',
           score: assignment.submissionScore,
           maxScore: assignment.maxScore,
           submittedAt: assignment.submittedAt,
           isLate: assignment.isLate
         }));
-        
+
         setAssignments(formattedAssignments);
       } catch (assignmentError) {
         console.error('Error fetching assignments:', assignmentError);
@@ -126,12 +126,12 @@ export default function ProgressPage() {
     const days = eachDayOfInterval({ start, end });
 
     const calendarDays = days.map(date => {
-      const dayAssignments = assignments.filter(assignment => 
+      const dayAssignments = assignments.filter(assignment =>
         isSameDay(new Date(assignment.deadline), date)
       );
 
       let status: 'completed' | 'pending' | 'missed' | 'empty' = 'empty';
-      
+
       if (dayAssignments.length > 0) {
         const hasCompleted = dayAssignments.some(a => a.status === 'completed');
         const hasPending = dayAssignments.some(a => a.status === 'pending');
@@ -154,10 +154,10 @@ export default function ProgressPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800 border-green-200';
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'missed': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'completed': return 'bg-neon-emerald/10 text-neon-emerald border-neon-emerald/20';
+      case 'pending': return 'bg-neon-amber/10 text-neon-amber border-neon-amber/20';
+      case 'missed': return 'bg-neon-rose/10 text-neon-rose border-neon-rose/20';
+      default: return 'bg-white/5 text-muted-foreground border-white/10';
     }
   };
 
@@ -172,7 +172,7 @@ export default function ProgressPage() {
 
   const getCompletionRate = () => {
     if (!progressData) return 0;
-    return progressData.totalAssignments > 0 
+    return progressData.totalAssignments > 0
       ? Math.round((progressData.completedAssignments / progressData.totalAssignments) * 100)
       : 0;
   };
@@ -311,11 +311,10 @@ export default function ProgressPage() {
             {calendarDays.map((day, index) => (
               <div
                 key={index}
-                className={`min-h-[80px] p-2 border rounded-lg ${
-                  isToday(day.date) ? 'ring-2 ring-blue-500' : ''
-                } ${getStatusColor(day.status)}`}
+                className={`min-h-[80px] p-2 border rounded-lg bg-card/40 backdrop-blur-xl ${isToday(day.date) ? 'ring-2 ring-neon-cyan shadow-[0_0_15px_rgba(0,255,255,0.2)]' : 'border-white/10'
+                  } ${getStatusColor(day.status)}`}
               >
-                <div className="text-sm font-medium mb-1">
+                <div className="text-sm font-medium mb-1 text-foreground/80">
                   {format(day.date, 'd')}
                 </div>
                 {day.assignments.length > 0 && (
@@ -337,18 +336,18 @@ export default function ProgressPage() {
           </div>
 
           {/* Legend */}
-          <div className="flex items-center gap-4 text-sm">
+          <div className="flex items-center gap-4 text-sm mt-6 p-4 bg-card/40 backdrop-blur-xl border border-white/5 rounded-xl block max-w-fit">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-green-100 border border-green-200 rounded"></div>
-              <span>Completed</span>
+              <div className="w-4 h-4 bg-neon-emerald/10 border border-neon-emerald/20 rounded"></div>
+              <span className="text-muted-foreground mr-2">Completed</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-yellow-100 border border-yellow-200 rounded"></div>
-              <span>Pending</span>
+              <div className="w-4 h-4 bg-neon-amber/10 border border-neon-amber/20 rounded"></div>
+              <span className="text-muted-foreground mr-2">Pending</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-red-100 border border-red-200 rounded"></div>
-              <span>Missed</span>
+              <div className="w-4 h-4 bg-neon-rose/10 border border-neon-rose/20 rounded"></div>
+              <span className="text-muted-foreground">Missed</span>
             </div>
           </div>
         </TabsContent>

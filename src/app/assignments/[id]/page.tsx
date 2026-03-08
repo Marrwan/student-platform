@@ -34,6 +34,7 @@ import { api } from '@/lib/api';
 import { User } from '@/types';
 import { DeleteAssignmentModal } from '@/components/assignments/delete-assignment-modal';
 import { DeleteSubmissionAlertDialog } from '@/components/assignments/delete-submission-alert-dialog';
+import { ResponsivePreview } from '@/components/ui/responsive-preview';
 
 interface Assignment {
   id: string;
@@ -673,22 +674,14 @@ export default function AssignmentDetailPage() {
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <ExternalLink className="w-5 h-5 text-neon-cyan" />
-                    Sample Output
+                    Sample Preview
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-2 mb-4 text-muted-foreground">
-                    <span className="font-medium">URL:</span>
-                  </div>
-                  <a
-                    href={assignment.sampleOutputUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-neon-cyan hover:text-neon-cyan/80 hover:underline break-all text-sm sm:text-base inline-flex items-center gap-2 bg-card/40 backdrop-blur-xl/5 p-3 rounded-lg border border-white/10 w-full transition-colors"
-                  >
-                    {assignment.sampleOutputUrl}
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
+                <CardContent className="p-0 sm:p-6 sm:pt-0">
+                  <ResponsivePreview
+                    url={assignment.sampleOutputUrl}
+                    title="Sample Output Preview"
+                  />
                 </CardContent>
               </Card>
             ) : assignment.sampleOutputCode && (
@@ -703,29 +696,13 @@ export default function AssignmentDetailPage() {
                     Sample Preview
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="bg-card/40 backdrop-blur-xl/5 rounded-xl p-2 sm:p-4 min-h-[300px] sm:min-h-[400px] border border-white/10 relative group">
-                    <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Badge variant="outline" className="bg-black/50 backdrop-blur text-white border-white/10">HTML/CSS/JS</Badge>
-                    </div>
-                    <iframe
-                      srcDoc={`
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                          <meta name="viewport" content="width=device-width, initial-scale=1">
-                          <style>${assignment.sampleOutputCode.css || ''}</style>
-                        </head>
-                        <body>
-                          ${assignment.sampleOutputCode.html || ''}
-                          <script>${assignment.sampleOutputCode.javascript || ''}</script>
-                        </body>
-                        </html>
-                      `}
-                      className="w-full h-full min-h-[250px] sm:min-h-[350px] border-0 rounded bg-card/40 backdrop-blur-xl"
-                      title="Sample Output Preview"
-                    />
-                  </div>
+                <CardContent className="p-0 sm:p-6 sm:pt-0">
+                  <ResponsivePreview
+                    html={assignment.sampleOutputCode.html}
+                    css={assignment.sampleOutputCode.css}
+                    javascript={assignment.sampleOutputCode.javascript}
+                    title="Sample Output Preview"
+                  />
                 </CardContent>
               </Card>
             ) : (
@@ -801,25 +778,11 @@ export default function AssignmentDetailPage() {
                         </span>
                       </div>
                       <div className="bg-card/40 backdrop-blur-xl p-0 relative">
-                        <iframe
-                          key={`submission-preview-${submission.id}`}
-                          srcDoc={`
-                            <!DOCTYPE html>
-                            <html>
-                              <head>
-                                <meta charset="utf-8">
-                                <meta name="viewport" content="width=device-width, initial-scale=1">
-                                <style>${submission.codeSubmission.css || ''}</style>
-                              </head>
-                              <body>
-                                ${submission.codeSubmission.html || ''}
-                                <script>${submission.codeSubmission.javascript || ''}</script>
-                              </body>
-                            </html>
-                          `}
-                          className="w-full h-64 border-0 rounded-b-xl"
+                        <ResponsivePreview
+                          html={submission.codeSubmission.html}
+                          css={submission.codeSubmission.css}
+                          javascript={submission.codeSubmission.javascript}
                           title="Submission Preview"
-                          sandbox="allow-scripts allow-same-origin"
                         />
                       </div>
                     </div>
@@ -832,12 +795,9 @@ export default function AssignmentDetailPage() {
                         <span className="text-sm font-medium text-foreground">Deployed Site Preview</span>
                       </div>
                       <div className="bg-card/40 backdrop-blur-xl p-0">
-                        <iframe
-                          key={`submission-link-${submission.id}`}
-                          src={submission.submissionLink}
-                          className="w-full h-64 border-0 rounded-b-xl"
+                        <ResponsivePreview
+                          url={submission.submissionLink}
                           title="Link Preview"
-                          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
                         />
                       </div>
                     </div>
@@ -1060,25 +1020,11 @@ export default function AssignmentDetailPage() {
                               </Label>
                             </div>
                             <div className="bg-card/40 backdrop-blur-xl relative">
-                              <iframe
-                                key={`preview-${previewKey}`}
-                                srcDoc={`
-                                  <!DOCTYPE html>
-                                  <html>
-                                    <head>
-                                      <meta charset="utf-8">
-                                      <meta name="viewport" content="width=device-width, initial-scale=1">
-                                      <style>${submissionData.codeSubmission.css}</style>
-                                    </head>
-                                    <body>
-                                      ${submissionData.codeSubmission.html}
-                                      <script>${submissionData.codeSubmission.javascript}</script>
-                                    </body>
-                                  </html>
-                                `}
-                                className="w-full h-64 border-0 rounded-b-xl"
+                              <ResponsivePreview
+                                html={submissionData.codeSubmission.html}
+                                css={submissionData.codeSubmission.css}
+                                javascript={submissionData.codeSubmission.javascript}
                                 title="Code Preview"
-                                sandbox="allow-scripts allow-same-origin"
                               />
                             </div>
                           </div>
@@ -1111,12 +1057,9 @@ export default function AssignmentDetailPage() {
                                 <Label className="text-sm font-medium text-foreground m-0">URL Preview</Label>
                               </div>
                               <div className="bg-card/40 backdrop-blur-xl relative">
-                                <iframe
-                                  key={`link-preview-${submissionData.submissionLink}`}
-                                  src={submissionData.submissionLink}
-                                  className="w-full h-64 border-0 rounded-b-xl"
+                                <ResponsivePreview
+                                  url={submissionData.submissionLink}
                                   title="Link Preview"
-                                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
                                 />
                               </div>
                             </div>

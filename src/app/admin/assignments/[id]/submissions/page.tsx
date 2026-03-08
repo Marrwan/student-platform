@@ -31,6 +31,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { api } from '@/lib/api';
+import { ResponsivePreview } from '@/components/ui/responsive-preview';
 
 interface Submission {
   id: string;
@@ -661,21 +662,11 @@ export default function AssignmentSubmissionsPage() {
                           Copy Full Code
                         </Button>
                       </div>
-                      <div className="border rounded-lg overflow-hidden">
-                        <iframe
-                          srcDoc={`
-                            <!DOCTYPE html>
-                            <html>
-                            <head>
-                              <style>${selectedSubmission.codeSubmission?.css || ''}</style>
-                            </head>
-                            <body>
-                              ${selectedSubmission.codeSubmission?.html || ''}
-                              <script>${selectedSubmission.codeSubmission?.javascript || ''}</script>
-                            </body>
-                            </html>
-                          `}
-                          className="w-full h-96 border-0"
+                      <div className="border rounded-lg overflow-hidden relative bg-black/5">
+                        <ResponsivePreview
+                          html={selectedSubmission.codeSubmission?.html}
+                          css={selectedSubmission.codeSubmission?.css}
+                          javascript={selectedSubmission.codeSubmission?.javascript}
                           title="Code Preview"
                         />
                       </div>
@@ -685,10 +676,9 @@ export default function AssignmentSubmissionsPage() {
                   {selectedSubmission.submissionType === 'link' && selectedSubmission.submissionLink && (
                     <div className="space-y-4">
                       <Label className="text-sm font-medium">Website Preview</Label>
-                      <div className="border rounded-lg overflow-hidden">
-                        <iframe
-                          src={selectedSubmission.submissionLink}
-                          className="w-full h-96 border-0"
+                      <div className="border rounded-lg overflow-hidden relative bg-black/5">
+                        <ResponsivePreview
+                          url={selectedSubmission.submissionLink}
                           title="Website Preview"
                         />
                       </div>
