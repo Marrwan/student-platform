@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Trophy,
   Medal,
@@ -162,13 +163,13 @@ export default function LeaderboardPage() {
     try {
       if (activeTab === 'overall') {
         const response = await api.getLeaderboard({ filter: timeFilter, projectId: selectedProject });
-        setLeaderboardData(response.data);
+        setLeaderboardData((Array.isArray(response) ? response : response.data) || []);
       } else if (activeTab === 'class' && selectedClass !== 'all') {
         const response = await api.getClassLeaderboard(selectedClass);
-        setClassLeaderboardData(response.data);
+        setClassLeaderboardData((Array.isArray(response) ? response : response.data) || []);
       } else if (activeTab === 'project' && selectedProject !== 'all') {
         const response = await api.getProjectLeaderboard(selectedProject);
-        setProjectLeaderboardData(response.data);
+        setProjectLeaderboardData((Array.isArray(response) ? response : response.data) || []);
       }
 
       const statsResponse = await api.getLeaderboardStats();
@@ -246,8 +247,31 @@ export default function LeaderboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
+      <div className="container mx-auto px-4 py-8 max-w-7xl relative z-10 animate-in fade-in duration-500">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div>
+            <Skeleton className="h-10 w-64 bg-white/10" />
+            <Skeleton className="h-4 w-48 mt-2 bg-white/5" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i} className="bg-card/40 backdrop-blur-xl border-white/10">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <Skeleton className="h-4 w-24 bg-white/10" />
+                <Skeleton className="h-4 w-4 rounded-full bg-white/10" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-16 mb-2 bg-white/10" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <div className="space-y-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} className="h-24 w-full bg-card/40 backdrop-blur-xl rounded-xl border border-white/10" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -400,8 +424,8 @@ export default function LeaderboardPage() {
                     <div
                       key={entry.id}
                       className={`group flex items-center justify-between p-6 rounded-2xl border transition-all hover:bg-white/5 ${entry.isCurrentUser
-                          ? 'bg-neon-cyan/5 border-neon-cyan/30 shadow-glow-cyan/5'
-                          : 'border-white/5 bg-black/20'
+                        ? 'bg-neon-cyan/5 border-neon-cyan/30 shadow-glow-cyan/5'
+                        : 'border-white/5 bg-black/20'
                         }`}
                     >
                       <div className="flex items-center space-x-6">
@@ -503,8 +527,8 @@ export default function LeaderboardPage() {
                       <div
                         key={entry.id}
                         className={`group flex items-center justify-between p-6 rounded-2xl border transition-all hover:bg-white/5 ${entry.isCurrentUser
-                            ? 'bg-neon-violet/5 border-neon-violet/30 shadow-glow-violet/5'
-                            : 'border-white/5 bg-black/20'
+                          ? 'bg-neon-violet/5 border-neon-violet/30 shadow-glow-violet/5'
+                          : 'border-white/5 bg-black/20'
                           }`}
                       >
                         <div className="flex items-center space-x-6">
@@ -593,8 +617,8 @@ export default function LeaderboardPage() {
                       <div
                         key={entry.id}
                         className={`group flex items-center justify-between p-6 rounded-2xl border transition-all hover:bg-white/5 ${entry.isCurrentUser
-                            ? 'bg-neon-pink/5 border-neon-pink/30 shadow-glow-pink/5'
-                            : 'border-white/5 bg-black/20'
+                          ? 'bg-neon-pink/5 border-neon-pink/30 shadow-glow-pink/5'
+                          : 'border-white/5 bg-black/20'
                           }`}
                       >
                         <div className="flex items-center space-x-6">
