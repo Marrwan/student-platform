@@ -22,7 +22,8 @@ import {
   useNotifications,
   usePaymentHistory,
   useLeaderboard,
-  useUserBadges
+  useUserBadges,
+  usePendingAssignments
 } from '@/lib/hooks';
 
 interface TodayProject {
@@ -119,6 +120,7 @@ function StudentDashboard() {
   const { data: paymentsData } = usePaymentHistory({ limit: 3 });
   const { data: leaderboardData } = useLeaderboard({ limit: 3 });
   const { data: badgesData } = useUserBadges(user?.id);
+  const { data: pendingAssignmentsData } = usePendingAssignments();
 
   const todayProject = useMemo(() => (todayProjectData as TodayProjectResponse)?.project || null, [todayProjectData]);
   const recentSubmissions = useMemo(() => recentSubmissionsData?.submissions || [], [recentSubmissionsData]);
@@ -137,6 +139,7 @@ function StudentDashboard() {
   const recentPayments = useMemo(() => paymentsData?.data?.slice(0, 3) || [], [paymentsData]);
   const topStudents = useMemo(() => leaderboardData?.data || [], [leaderboardData]);
   const myBadges = useMemo(() => badgesData || [], [badgesData]);
+  const pendingAssignments = useMemo(() => (pendingAssignmentsData as any)?.assignments || [], [pendingAssignmentsData]);
 
   const completionRate = useMemo(() => {
     return progressStats.totalProjects > 0
@@ -324,7 +327,7 @@ function StudentDashboard() {
             {/* Main Center Column */}
             <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6 sm:space-y-8">
 
-              {/* Current Assignment Callout */}
+              {/* Active Assignments — all pending (unsubmitted) */}
               <div className="glass-card p-6 sm:p-8 hover-glow-cyan transition-colors duration-500 relative overflow-hidden group">
                 <div className="absolute top-0 -right-20 w-80 h-80 bg-neon-cyan/5 rounded-full blur-[80px] pointer-events-none group-hover:bg-neon-cyan/15 transition-colors duration-700"></div>
                 <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-neon-violet/5 rounded-full blur-[80px] pointer-events-none group-hover:bg-neon-violet/10 transition-colors duration-700"></div>
@@ -333,81 +336,87 @@ function StudentDashboard() {
                   <div>
                     <h2 className="text-sm tracking-widest uppercase font-bold text-neon-cyan mb-2 flex items-center gap-2 mono-font">
                       <Zap className="h-4 w-4" />
-                      Active Assignment Output
+                      Active Assignments
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                      {todayProject ? 'Execute your current instructions.' : 'No active instructions assigned.'}
+                      {pendingAssignments.length > 0
+                        ? `${pendingAssignments.length} assignment${pendingAssignments.length > 1 ? 's' : ''} pending submission`
+                        : 'All caught up — no pending assignments.'}
                     </p>
                   </div>
-                  {todayProject && (
-                    <Badge variant="outline" className={`${getDifficultyColor(todayProject.difficulty)} mono-font text-xs tracking-wider border-opacity-50`}>
-                      {todayProject.difficulty}
-                    </Badge>
+                  {pendingAssignments.length > 0 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => router.push('/assignments')}
+                      className="border-white/10 hover:bg-white/5 text-muted-foreground hover:text-foreground mono-font text-xs tracking-wider shrink-0"
+                    >
+                      View All
+                      <ArrowRight className="h-3 w-3 ml-1.5" />
+                    </Button>
                   )}
                 </div>
 
-                {todayProject ? (
-                  <div className="bg-background/40 backdrop-blur-md p-6 rounded-xl border border-white/5 relative z-10">
-                    <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-neon-cyan to-neon-violet rounded-l-xl opacity-50"></div>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3 pl-2">
-                      <h3 className="text-2xl font-bold tracking-tight">{todayProject.title}</h3>
-                      {todayProject.class && (
-                        <Badge variant="secondary" className="bg-white/5 text-foreground border-white/10 text-xs shadow-none mono-font tracking-wider">
-                          {todayProject.class}
-                        </Badge>
-                      )}
-                    </div>
-
-                    <p className="text-muted-foreground mb-6 text-sm sm:text-base leading-relaxed pl-2">
-                      {todayProject.description}
-                    </p>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 relative">
-                      {/* Flowchart connecting line for desktop view */}
-                      <div className="hidden sm:block absolute top-1/2 left-1/2 right-0 h-[1px] bg-white/10 -z-10 w-full transform -translate-y-1/2"></div>
-
-                      <div className="flex items-center gap-4 bg-black/40 p-4 rounded-lg border border-white/[0.05] group-hover:border-neon-cyan/20 transition-colors duration-300">
-                        <div className="p-3 bg-neon-cyan/10 rounded-md border border-neon-cyan/20">
-                          <Clock className="h-5 w-5 text-neon-cyan" />
-                        </div>
-                        <div>
-                          <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mono-font mb-1">Time Remaining</div>
-                          <div className={`text-sm font-bold mono-font tracking-wider ${todayProject.isOverdue ? 'text-neon-rose' : 'text-foreground'}`}>
-                            {todayProject.timeRemaining}
+                {pendingAssignments.length > 0 ? (
+                  <div className="space-y-3 relative z-10">
+                    {pendingAssignments.map((assignment: any) => (
+                      <div
+                        key={assignment.id}
+                        className={`bg-background/40 backdrop-blur-md p-4 rounded-xl border transition-colors cursor-pointer group/item ${
+                          assignment.isOverdue
+                            ? 'border-neon-rose/30 hover:border-neon-rose/60'
+                            : 'border-white/5 hover:border-neon-cyan/30'
+                        }`}
+                        onClick={() => router.push(`/assignments/${assignment.id}`)}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <h3 className="font-semibold text-foreground group-hover/item:text-neon-cyan transition-colors text-sm truncate">
+                                {assignment.title}
+                              </h3>
+                              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-white/5 border border-white/10 rounded text-muted-foreground mono-font shrink-0">
+                                {assignment.class}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-4 text-xs mono-font">
+                              <span className={`flex items-center gap-1 font-medium ${assignment.isOverdue ? 'text-neon-rose' : 'text-neon-cyan'}`}>
+                                <Clock className="h-3 w-3" />
+                                {assignment.timeRemaining}
+                              </span>
+                              <span className="text-muted-foreground">
+                                Max: {assignment.maxScore} pts
+                              </span>
+                              {assignment.paymentRequired && assignment.isOverdue && (
+                                <span className="text-neon-amber flex items-center gap-1">
+                                  <AlertCircle className="h-3 w-3" />
+                                  Fee required
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            {assignment.isOverdue ? (
+                              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-1 bg-neon-rose/10 border border-neon-rose/30 rounded text-neon-rose mono-font">
+                                Overdue
+                              </span>
+                            ) : (
+                              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-1 bg-neon-emerald/10 border border-neon-emerald/30 rounded text-neon-emerald mono-font">
+                                Active
+                              </span>
+                            )}
+                            <ArrowRight className="h-4 w-4 text-muted-foreground group-hover/item:text-neon-cyan transition-colors" />
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4 bg-black/40 p-4 rounded-lg border border-white/[0.05] group-hover:border-neon-emerald/20 transition-colors duration-300">
-                        <div className="p-3 bg-neon-emerald/10 rounded-md border border-neon-emerald/20">
-                          <Target className="h-5 w-5 text-neon-emerald" />
-                        </div>
-                        <div>
-                          <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mono-font mb-1">Requirements</div>
-                          <div className="text-sm font-bold text-foreground mono-font tracking-wider">
-                            {todayProject.requirements.length} CHECKS
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row gap-4 mt-8 pl-2">
-                      <Button onClick={() => router.push(`/assignments/${todayProject.id}`)} className="bg-neon-cyan text-black hover:bg-neon-cyan/90 w-full sm:w-auto shadow-[0_0_20px_rgba(0,255,255,0.3)] mono-font text-xs tracking-wider">
-                        INITIALIZE_WORKSPACE
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </Button>
-                      <Button variant="outline" onClick={() => router.push(`/assignments/${todayProject.id}`)} className="border-white/10 hover:bg-white/10 text-foreground w-full sm:w-auto mono-font text-xs tracking-wider">
-                        <Upload className="h-4 w-4 mr-2" />
-                        SUBMIT_PAYLOAD
-                      </Button>
-                    </div>
+                    ))}
                   </div>
-
                 ) : (
-                  <div className="text-center py-10 bg-secondary/10 rounded-xl border border-white/5">
-                    <BookOpen className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-foreground mb-2">No active assignments</h3>
+                  <div className="text-center py-10 bg-secondary/10 rounded-xl border border-white/5 relative z-10">
+                    <CheckCircle className="h-10 w-10 text-neon-emerald mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">All caught up!</h3>
                     <p className="text-muted-foreground text-sm mb-6 max-w-sm mx-auto">
-                      {(todayProjectData as TodayProjectResponse)?.message || 'Join a class to get regular assignments and code reviews.'}
+                      {(todayProjectData as TodayProjectResponse)?.message || 'No pending assignments. Join a class to get started.'}
                     </p>
                     <Button onClick={() => router.push('/classes')} variant="outline" className="border-white/10 hover:bg-white/5 text-foreground">
                       Browse Classes
@@ -462,7 +471,12 @@ function StudentDashboard() {
                                 </Badge>
                               )}
                             </div>
-                            <Button size="icon" variant="outline" className="h-8 w-8 rounded-full border-white/10 hover:border-neon-cyan hover:text-neon-cyan group-hover/row:border-neon-cyan/50 group-hover/row:text-neon-cyan transition-colors bg-background">
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              className="h-8 w-8 rounded-full border-white/10 hover:border-neon-cyan hover:text-neon-cyan group-hover/row:border-neon-cyan/50 group-hover/row:text-neon-cyan transition-colors bg-background"
+                              onClick={() => router.push(`/assignments/${submission.id}`)}
+                            >
                               <Eye className="h-4 w-4" />
                             </Button>
                           </div>

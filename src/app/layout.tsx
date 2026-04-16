@@ -8,6 +8,7 @@ import ErrorBoundaryClient from '@/components/ErrorBoundaryClient';
 import { PerformanceMonitor } from '@/components/performance/performance-monitor';
 import ConditionalHeader from '@/components/layout/conditional-header';
 import { ImpersonationBanner } from '@/components/auth/impersonation-banner';
+import { CorrectionBanner } from '@/components/assignments/correction-banner';
 import Script from 'next/script';
 import NextTopLoader from 'nextjs-toploader';
 
@@ -212,6 +213,7 @@ export default function RootLayout({
             <SonnerToaster position="top-right" />
             <PerformanceMonitor />
             <ImpersonationBanner />
+            <CorrectionBanner />
           </AuthProvider>
         </ErrorBoundaryClient>
 

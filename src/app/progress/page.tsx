@@ -50,6 +50,7 @@ export default function ProgressPage() {
   const [loading, setLoading] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedView, setSelectedView] = useState<'calendar' | 'list' | 'stats'>('calendar');
+  const [listStatusFilter, setListStatusFilter] = useState('all');
 
   useEffect(() => {
     fetchProgressData();
@@ -356,7 +357,7 @@ export default function ProgressPage() {
         <TabsContent value="list" className="space-y-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Assignment History</h2>
-            <Select defaultValue="all">
+            <Select value={listStatusFilter} onValueChange={setListStatusFilter}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
@@ -370,50 +371,52 @@ export default function ProgressPage() {
           </div>
 
           <div className="space-y-4">
-            {assignments.map(assignment => (
-              <Card key={assignment.id}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {getStatusIcon(assignment.status)}
+            {assignments
+              .filter(a => listStatusFilter === 'all' || a.status === listStatusFilter)
+              .map(assignment => (
+                <Card key={assignment.id}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {getStatusIcon(assignment.status)}
+                        <div>
+                          <CardTitle className="text-lg">{assignment.title}</CardTitle>
+                          <CardDescription>
+                            Due: {format(new Date(assignment.deadline), 'PPP')}
+                          </CardDescription>
+                        </div>
+                      </div>
+                      <Badge className={getStatusColor(assignment.status)}>
+                        {assignment.status}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
-                        <CardTitle className="text-lg">{assignment.title}</CardTitle>
-                        <CardDescription>
-                          Due: {format(new Date(assignment.deadline), 'PPP')}
-                        </CardDescription>
+                        <span className="font-medium">Score:</span>
+                        <span className="ml-2">
+                          {assignment.score !== undefined ? `${assignment.score}/${assignment.maxScore}` : 'Not graded'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="font-medium">Submitted:</span>
+                        <span className="ml-2">
+                          {assignment.submittedAt ? format(new Date(assignment.submittedAt), 'PP') : 'Not submitted'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="font-medium">Status:</span>
+                        <span className="ml-2 capitalize">{assignment.status}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium">Late:</span>
+                        <span className="ml-2">{assignment.isLate ? 'Yes' : 'No'}</span>
                       </div>
                     </div>
-                    <Badge className={getStatusColor(assignment.status)}>
-                      {assignment.status}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium">Score:</span>
-                      <span className="ml-2">
-                        {assignment.score !== undefined ? `${assignment.score}/${assignment.maxScore}` : 'Not graded'}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="font-medium">Submitted:</span>
-                      <span className="ml-2">
-                        {assignment.submittedAt ? format(new Date(assignment.submittedAt), 'PP') : 'Not submitted'}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="font-medium">Status:</span>
-                      <span className="ml-2 capitalize">{assignment.status}</span>
-                    </div>
-                    <div>
-                      <span className="font-medium">Late:</span>
-                      <span className="ml-2">{assignment.isLate ? 'Yes' : 'No'}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
           </div>
         </TabsContent>
 

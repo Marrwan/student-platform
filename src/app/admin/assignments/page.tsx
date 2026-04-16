@@ -85,6 +85,12 @@ function AssignmentsManagement() {
   const [deletingAssignment, setDeletingAssignment] = useState<string | null>(null);
   const [resendingNotification, setResendingNotification] = useState<string | null>(null);
 
+  // Filter state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [difficultyFilter, setDifficultyFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+
   // Form states
   const [formData, setFormData] = useState({
     title: '',
@@ -277,6 +283,20 @@ function AssignmentsManagement() {
     return <div className="min-h-screen flex flex-col items-center justify-center bg-red-50 text-red-800"><h1 className="text-2xl font-bold mb-4">Assignments Error</h1><p>{error}</p><button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded" onClick={loadAssignments}>Retry</button></div>;
   }
 
+  const filteredAssignments = assignments.filter(a => {
+    const matchesSearch = !searchTerm ||
+      a.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      a.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      a.className?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = typeFilter === 'all' || a.type === typeFilter;
+    const matchesDifficulty = difficultyFilter === 'all' || a.difficulty === difficultyFilter;
+    const matchesStatus = statusFilter === 'all' ||
+      (statusFilter === 'active' && a.isActive && !a.isLocked) ||
+      (statusFilter === 'locked' && a.isLocked) ||
+      (statusFilter === 'completed' && !a.isActive);
+    return matchesSearch && matchesType && matchesDifficulty && matchesStatus;
+  });
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
@@ -311,8 +331,13 @@ function AssignmentsManagement() {
           <TabsContent value="assignments" className="space-y-6">
             {/* Search and Filters */}
             <div className="flex gap-4">
-              <Input placeholder="Search assignments..." className="flex-1" />
-              <Select>
+              <Input
+                placeholder="Search assignments..."
+                className="flex-1"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="Type" />
                 </SelectTrigger>
@@ -324,7 +349,7 @@ function AssignmentsManagement() {
                   <SelectItem value="full-stack">Full Stack</SelectItem>
                 </SelectContent>
               </Select>
-              <Select>
+              <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="Difficulty" />
                 </SelectTrigger>
@@ -335,7 +360,7 @@ function AssignmentsManagement() {
                   <SelectItem value="advanced">Advanced</SelectItem>
                 </SelectContent>
               </Select>
-              <Select>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
@@ -350,7 +375,7 @@ function AssignmentsManagement() {
 
             {/* Assignments Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {assignments.map((assignment) => (
+              {filteredAssignments.map((assignment) => (
                 <Card key={assignment.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex justify-between items-start">

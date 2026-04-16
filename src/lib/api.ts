@@ -1256,6 +1256,28 @@ class ApiClient {
     );
   }
 
+  async getPendingAssignments(): Promise<{ assignments: any[] }> {
+    return this.cachedRequest(
+      'pending-assignments',
+      async () => {
+        const response: AxiosResponse<{ assignments: any[] }> = await this.client.get('/dashboard/pending-assignments');
+        return response.data;
+      },
+      1 * 60 * 1000 // 1 minute cache
+    );
+  }
+
+  async getCorrectionsNeeded(): Promise<{ corrections: any[] }> {
+    return this.cachedRequest(
+      'corrections-needed',
+      async () => {
+        const response: AxiosResponse<{ corrections: any[] }> = await this.client.get('/dashboard/corrections-needed');
+        return response.data;
+      },
+      1 * 60 * 1000 // 1 minute cache
+    );
+  }
+
   // Leaderboard endpoints
   async getLeaderboard(params?: {
     page?: number;

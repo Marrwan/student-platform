@@ -150,36 +150,102 @@ export default function LeaderboardPage() {
   const [selectedClass, setSelectedClass] = useState('all');
   const [selectedProject, setSelectedProject] = useState('all');
   const [timeFilter, setTimeFilter] = useState('all-time');
+  const [searchTerm, setSearchTerm] = useState('');
 
+  // Load data only when tab or the relevant selector for that tab changes
+  // NOT on every filter change — client-side search is instant
   useEffect(() => {
     loadLeaderboardData();
     loadClasses();
     loadProjects();
-  }, [activeTab, selectedClass, selectedProject, timeFilter]);
+  }, [activeTab]);
+
+  // Reload class leaderboard only when the selected class changes
+  useEffect(() => {
+    if (activeTab === 'class' && selectedClass !== 'all') {
+      loadClassLeaderboard();
+    }
+  }, [selectedClass]);
+
+  // Reload project leaderboard only when the selected project changes
+  useEffect(() => {
+    if (activeTab === 'project' && selectedProject !== 'all') {
+      loadProjectLeaderboard();
+    }
+  }, [selectedProject]);
+
+  // Reload overall leaderboard when time filter changes
+  useEffect(() => {
+    if (activeTab === 'overall') {
+      loadOverallLeaderboard();
+    }
+  }, [timeFilter]);
+
+  const loadOverallLeaderboard = async () => {
+    try {
+      const response = await api.getLeaderboard({ filter: timeFilter });
+      setLeaderboardData((Array.isArray(response) ? response : response.data) || []);
+    } catch (err) {
+      console.error('Failed to load overall leaderboard:', err);
+    }
+  };
+
+  const loadClassLeaderboard = async () => {
+    try {
+      const response = await api.getClassLeaderboard(selectedClass);
+      setClassLeaderboardData((Array.isArray(response) ? response : (response as any).leaderboard || response.data) || []);
+    } catch (err) {
+      console.error('Failed to load class leaderboard:', err);
+    }
+  };
+
+  const loadProjectLeaderboard = async () => {
+    try {
+      const response = await api.getProjectLeaderboard(selectedProject);
+      setProjectLeaderboardData((Array.isArray(response) ? response : response.data) || []);
+    } catch (err) {
+      console.error('Failed to load project leaderboard:', err);
+    }
+  };
 
   const loadLeaderboardData = async () => {
     setLoading(true);
     setError(null);
     try {
-      if (activeTab === 'overall') {
-        const response = await api.getLeaderboard({ filter: timeFilter, projectId: selectedProject });
-        setLeaderboardData((Array.isArray(response) ? response : response.data) || []);
-      } else if (activeTab === 'class' && selectedClass !== 'all') {
-        const response = await api.getClassLeaderboard(selectedClass);
-        setClassLeaderboardData((Array.isArray(response) ? response : response.data) || []);
-      } else if (activeTab === 'project' && selectedProject !== 'all') {
-        const response = await api.getProjectLeaderboard(selectedProject);
-        setProjectLeaderboardData((Array.isArray(response) ? response : response.data) || []);
-      }
+      const [leaderboardRes, statsRes] = await Promise.all([
+        activeTab === 'overall' ? api.getLeaderboard({ filter: timeFilter }) : Promise.resolve({ data: [] }),
+        api.getLeaderboardStats()
+      ]);
 
-      const statsResponse = await api.getLeaderboardStats();
-      setStats(statsResponse.stats);
+      if (activeTab === 'overall') {
+        setLeaderboardData((Array.isArray(leaderboardRes) ? leaderboardRes : leaderboardRes.data) || []);
+      }
+      setStats(statsRes.stats);
     } catch (err: any) {
       setError(err.message || 'Failed to load leaderboard');
     } finally {
       setLoading(false);
     }
   };
+
+  // Client-side filtered data — instant, no API call
+  const filteredLeaderboard = leaderboardData.filter(e =>
+    !searchTerm ||
+    `${e.firstName} ${e.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    e.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredClassLeaderboard = classLeaderboardData.filter(e =>
+    !searchTerm ||
+    `${e.firstName} ${e.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    e.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredProjectLeaderboard = projectLeaderboardData.filter(e =>
+    !searchTerm ||
+    `${e.firstName} ${e.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    e.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const loadClasses = async () => {
     try {
@@ -383,6 +449,20 @@ export default function LeaderboardPage() {
             <TabsTrigger value="streaks" className="rounded-xl data-[state=active]:bg-neon-emerald data-[state=active]:text-white text-[10px] font-black uppercase tracking-widest mono-font transition-all">MOMENTUM</TabsTrigger>
           </TabsList>
 
+          {/* Search bar — client-side instant filtering, no API call */}
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search by name or email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-11 pr-4 py-3 bg-black/40 border border-white/10 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-neon-cyan/50 mono-font"
+            />
+          </div>
+            <TabsTrigger value="streaks" className="rounded-xl data-[state=active]:bg-neon-emerald data-[state=active]:text-white text-[10px] font-black uppercase tracking-widest mono-font transition-all">MOMENTUM</TabsTrigger>
+          </TabsList>
+
           {/* Overall Leaderboard */}
           <TabsContent value="overall" className="space-y-8">
             <div className="flex gap-6">
@@ -422,7 +502,7 @@ export default function LeaderboardPage() {
               </CardHeader>
               <CardContent className="p-8">
                 <div className="space-y-4">
-                  {leaderboardData?.map((entry) => (
+                  {filteredLeaderboard?.map((entry) => (
                     <div
                       key={entry.id}
                       className={`group flex items-center justify-between p-6 rounded-2xl border transition-all hover:bg-white/5 ${entry.isCurrentUser
@@ -525,7 +605,7 @@ export default function LeaderboardPage() {
                 </CardHeader>
                 <CardContent className="p-8">
                   <div className="space-y-4">
-                    {classLeaderboardData?.map((entry) => (
+                    {filteredClassLeaderboard?.map((entry) => (
                       <div
                         key={entry.id}
                         className={`group flex items-center justify-between p-6 rounded-2xl border transition-all hover:bg-white/5 ${entry.isCurrentUser

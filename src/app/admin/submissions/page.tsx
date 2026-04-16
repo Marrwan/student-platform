@@ -92,6 +92,7 @@ function SubmissionsReview() {
   const [activeTab, setActiveTab] = useState('pending');
   const [classes, setClasses] = useState<any[]>([]);
   const [selectedClassId, setSelectedClassId] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Review form state
   const [reviewData, setReviewData] = useState({
@@ -213,7 +214,11 @@ function SubmissionsReview() {
   const filteredSubmissions = submissions.filter(sub => {
     const matchesTab = activeTab === 'all' || sub.status === activeTab;
     const matchesClass = selectedClassId === 'all' || sub.className === classes.find(c => c.id === selectedClassId)?.name;
-    return matchesTab && matchesClass;
+    const matchesSearch = !searchTerm ||
+      sub.studentName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sub.projectTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sub.studentEmail?.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesTab && matchesClass && matchesSearch;
   });
 
   if (loading) {
@@ -262,7 +267,11 @@ function SubmissionsReview() {
               <CardContent>
                 {/* Filters */}
                 <div className="space-y-4 mb-6">
-                  <Input placeholder="Search submissions..." />
+                  <Input
+                    placeholder="Search by name, title, email..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
                   <Select value={selectedClassId} onValueChange={setSelectedClassId}>
                     <SelectTrigger>
                       <SelectValue placeholder="Filter by class" />

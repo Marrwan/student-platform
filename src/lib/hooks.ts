@@ -105,6 +105,30 @@ export function useTodayProject() {
   );
 }
 
+// All pending (unsubmitted) assignments for the student
+export function usePendingAssignments() {
+  return useApiData(
+    'pending-assignments',
+    () => api.getPendingAssignments(),
+    {
+      refreshInterval: 1 * 60 * 1000,
+      revalidateOnFocus: true,
+    }
+  );
+}
+
+// Assignments where the student's submission needs correction
+export function useCorrectionsNeeded() {
+  return useApiData(
+    'corrections-needed',
+    () => api.getCorrectionsNeeded(),
+    {
+      refreshInterval: 2 * 60 * 1000,
+      revalidateOnFocus: true,
+    }
+  );
+}
+
 // Optimized recent submissions hook
 export function useRecentSubmissions() {
   return useApiData(
