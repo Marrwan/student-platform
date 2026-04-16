@@ -55,7 +55,7 @@ export default function Header() {
                 <Code className="h-5 w-5 text-black" />
               </div>
               <span className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70 tracking-tight">
-                Nexus
+                Strangedev
               </span>
             </Link>
           </div>

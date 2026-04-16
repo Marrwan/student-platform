@@ -58,7 +58,7 @@ export default function HomePage() {
                 <Code className="h-5 w-5 text-black" />
               </div>
               <span className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70 tracking-tight">
-                Nexus
+                Strangedev
               </span>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
@@ -193,10 +193,10 @@ export default function HomePage() {
             <div className="w-6 h-6 rounded bg-gradient-to-br from-neon-cyan to-neon-violet flex items-center justify-center">
               <Code className="h-3 w-3 text-black" />
             </div>
-            <span className="font-semibold tracking-tight text-foreground">Nexus Learning</span>
+            <span className="font-semibold tracking-tight text-foreground">Strangedev Learning</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Nexus Learning. All rights reserved.
+            &copy; {new Date().getFullYear()} Strangedev Learning. All rights reserved.
           </p>
         </div>
       </footer>

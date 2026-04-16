@@ -62,7 +62,7 @@ export default function StudentGuidePage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Star className="h-5 w-5 text-yellow-500" />
-                  Welcome to Nexus
+                  Welcome to Strangedev
                 </CardTitle>
                 <CardDescription>
                   Your journey to becoming a better programmer starts here

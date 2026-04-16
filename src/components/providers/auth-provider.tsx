@@ -48,6 +48,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error.response?.status === 401) {
         Cookies.remove('token');
         Cookies.remove('user_role');
+        // Also clean up any stale impersonation cookies
+        Cookies.remove('restore_token');
+        Cookies.remove('impersonation_meta');
         api.clearCache();
       }
     } finally {
@@ -161,6 +164,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     Cookies.remove('token');
     Cookies.remove('user_role');
+    Cookies.remove('restore_token');
+    Cookies.remove('impersonation_meta');
     api.clearCache();
     setUser(null);
     toast.success('Logged out successfully');

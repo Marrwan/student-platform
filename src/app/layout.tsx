@@ -26,10 +26,10 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Nexus',
-  description: 'A comprehensive Nexus Systems for structured programming education with assignments, progress tracking, and expert feedback',
+  title: 'Strangedev',
+  description: 'A comprehensive Strangedev Systems for structured programming education with assignments, progress tracking, and expert feedback',
   keywords: ['Programming', 'Learning', 'Education', 'Assignments', 'Progress Tracking', 'Web Development'],
-  authors: [{ name: 'Nexus Team' }],
+  authors: [{ name: 'Abdulbasit Damilola Alabi' }],
   icons: {
     icon: '/logo.jpeg',
     shortcut: '/logo.jpeg',
@@ -52,15 +52,15 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://learning-platform.com',
-    title: 'Nexus',
-    description: 'A comprehensive Nexus Systems for structured programming education',
-    siteName: 'Nexus',
+    title: 'Strangedev',
+    description: 'A comprehensive Strangedev Systems for structured programming education',
+    siteName: 'Strangedev',
   },
   // Twitter
   twitter: {
     card: 'summary_large_image',
-    title: 'Nexus',
-    description: 'A comprehensive Nexus Systems for structured programming education',
+    title: 'Strangedev',
+    description: 'A comprehensive Strangedev Systems for structured programming education',
   },
   // Performance hints
   other: {
@@ -120,7 +120,7 @@ export default function RootLayout({
               (function() {
                 try {
                   var VERSION_ID = "v1_${Date.now()}"; // Unique build ID
-                  var STORED_VERSION = localStorage.getItem('NEXUS_UI_VERSION');
+                  var STORED_VERSION = localStorage.getItem('STRANGEDEV_UI_VERSION');
                   
                   // 1. Version Parity Check (Force Refresh on New Build)
                   if (STORED_VERSION && STORED_VERSION !== VERSION_ID) {
@@ -135,10 +135,10 @@ export default function RootLayout({
                         for (var i = 0; i < keys.length; i++) caches.delete(keys[i]);
                       });
                     }
-                    localStorage.setItem('NEXUS_UI_VERSION', VERSION_ID);
+                    localStorage.setItem('STRANGEDEV_UI_VERSION', VERSION_ID);
                     window.location.reload(true);
                   } else {
-                    localStorage.setItem('NEXUS_UI_VERSION', VERSION_ID);
+                    localStorage.setItem('STRANGEDEV_UI_VERSION', VERSION_ID);
                   }
 
                   // 2. Continuous Chunk Error Recovery

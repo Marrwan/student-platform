@@ -98,7 +98,7 @@ function RegisterPageContent() {
             <span className="w-1 h-1 rounded-full bg-neon-cyan animate-pulse"></span>
             PROVISION_ACCOUNT_VSEC
           </div>
-          <h1 className="text-4xl font-black tracking-tighter text-foreground mb-2 uppercase">Nexus <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-violet">Systems</span></h1>
+          <h1 className="text-4xl font-black tracking-tighter text-foreground mb-2 uppercase">Strangedev <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-violet">Systems</span></h1>
           <p className="text-[10px] text-muted-foreground uppercase tracking-widest mono-font">Initiate developer registration sequence</p>
         </div>
 
