@@ -460,8 +460,6 @@ export default function LeaderboardPage() {
               className="w-full pl-11 pr-4 py-3 bg-black/40 border border-white/10 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-neon-cyan/50 mono-font"
             />
           </div>
-            <TabsTrigger value="streaks" className="rounded-xl data-[state=active]:bg-neon-emerald data-[state=active]:text-white text-[10px] font-black uppercase tracking-widest mono-font transition-all">MOMENTUM</TabsTrigger>
-          </TabsList>
 
           {/* Overall Leaderboard */}
           <TabsContent value="overall" className="space-y-8">
