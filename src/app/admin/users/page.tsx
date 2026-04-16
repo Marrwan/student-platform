@@ -28,11 +28,13 @@ import {
   User,
   Plus,
   Download,
-  Upload
+  Upload,
+  UserCog
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import { User as UserType } from '@/types';
+import Cookies from 'js-cookie';
 
 interface UserStats {
   totalUsers: number;
@@ -151,6 +153,50 @@ export default function AdminUsersPage() {
       loadUsers(); // Reload to get updated data
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to verify user');
+    }
+  };
+
+  // Handle impersonation — admin logs in as another user seamlessly
+  const handleImpersonate = async (targetUser: UserType) => {
+    try {
+      const result = await api.impersonateUser(targetUser.id);
+
+      // Persist restore token and impersonation metadata in cookies
+      Cookies.set('restore_token', result.restoreToken, {
+        expires: 1 / 12, // 2 hours
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      });
+      Cookies.set('impersonation_meta', JSON.stringify(result.impersonatedBy), {
+        expires: 1 / 12,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      });
+
+      // Switch active session to the impersonation token
+      Cookies.set('token', result.token, {
+        expires: 1 / 12,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      });
+      Cookies.set('user_role', result.user.role, {
+        expires: 1 / 12,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      });
+
+      api.clearCache();
+      toast.success(`Now impersonating ${targetUser.firstName} ${targetUser.lastName}`);
+
+      // Redirect to the correct dashboard for the impersonated role
+      const roleRedirects: Record<string, string> = {
+        student: '/dashboard',
+        instructor: '/hrms/dashboard',
+        staff: '/hrms/dashboard',
+      };
+      window.location.href = roleRedirects[result.user.role] || '/dashboard';
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to impersonate user');
     }
   };
 
@@ -455,6 +501,7 @@ export default function AdminUsersPage() {
                             size="sm"
                             variant="outline"
                             onClick={() => openDetailsModal(user)}
+                            title="View Details"
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
@@ -462,13 +509,27 @@ export default function AdminUsersPage() {
                             size="sm"
                             variant="outline"
                             onClick={() => openEditModal(user)}
+                            title="Edit User"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
+                          {/* Impersonate — only for non-admin users */}
+                          {user.role !== 'admin' && user.isActive && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-neon-cyan/40 text-neon-cyan hover:bg-neon-cyan/10"
+                              onClick={() => handleImpersonate(user)}
+                              title={`Login as ${user.firstName} ${user.lastName}`}
+                            >
+                              <UserCog className="h-4 w-4" />
+                            </Button>
+                          )}
                           <Button
                             size="sm"
                             variant={user.isActive ? "destructive" : "default"}
                             onClick={() => handleToggleUserStatus(user.id, !user.isActive)}
+                            title={user.isActive ? 'Deactivate' : 'Activate'}
                           >
                             {user.isActive ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
                           </Button>
@@ -487,6 +548,7 @@ export default function AdminUsersPage() {
                             size="sm"
                             variant="destructive"
                             onClick={() => openDeleteModal(user)}
+                            title="Delete User"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -736,6 +798,19 @@ export default function AdminUsersPage() {
                   {selectedUser.isActive ? <UserX className="h-4 w-4 mr-2" /> : <UserCheck className="h-4 w-4 mr-2" />}
                   {selectedUser.isActive ? 'Deactivate' : 'Activate'}
                 </Button>
+                {selectedUser.role !== 'admin' && selectedUser.isActive && (
+                  <Button
+                    variant="outline"
+                    className="border-neon-cyan/40 text-neon-cyan hover:bg-neon-cyan/10"
+                    onClick={() => {
+                      setShowDetailsModal(false);
+                      handleImpersonate(selectedUser);
+                    }}
+                  >
+                    <UserCog className="h-4 w-4 mr-2" />
+                    Login as User
+                  </Button>
+                )}
               </div>
             </div>
           </DialogContent>

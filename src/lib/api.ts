@@ -247,6 +247,16 @@ class ApiClient {
     return response.data;
   }
 
+  async impersonateUser(userId: string): Promise<{ token: string; restoreToken: string; user: User; impersonatedBy: any }> {
+    const response: AxiosResponse<any> = await this.client.post(`/auth/impersonate/${userId}`);
+    return response.data;
+  }
+
+  async stopImpersonation(restoreToken: string): Promise<{ token: string; user: User }> {
+    const response: AxiosResponse<any> = await this.client.post('/auth/impersonate/stop', { restoreToken });
+    return response.data;
+  }
+
   async updateProfile(data: Partial<User>): Promise<{ message: string; user: User }> {
     const response: AxiosResponse<{ message: string; user: User }> = await this.client.put('/auth/profile', data);
     // Clear profile cache after update

@@ -7,6 +7,7 @@ import { AuthProvider } from '@/components/providers/auth-provider'
 import ErrorBoundaryClient from '@/components/ErrorBoundaryClient';
 import { PerformanceMonitor } from '@/components/performance/performance-monitor';
 import ConditionalHeader from '@/components/layout/conditional-header';
+import { ImpersonationBanner } from '@/components/auth/impersonation-banner';
 import Script from 'next/script';
 import NextTopLoader from 'nextjs-toploader';
 
@@ -210,6 +211,7 @@ export default function RootLayout({
             />
             <SonnerToaster position="top-right" />
             <PerformanceMonitor />
+            <ImpersonationBanner />
           </AuthProvider>
         </ErrorBoundaryClient>
 

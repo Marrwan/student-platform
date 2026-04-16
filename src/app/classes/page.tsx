@@ -306,9 +306,19 @@ export default function ClassesPage() {
               <p className="text-muted-foreground text-center max-w-md">
                 {isAdmin
                   ? 'Create your first class to get started'
-                  : 'Join a class using an enrollment code or wait for an invitation'
+                  : "You haven't been enrolled in any classes yet. Ask your instructor for an enrollment code or wait for an invitation."
                 }
               </p>
+              {isStudent && (
+                <Button
+                  onClick={() => setShowJoinDialog(true)}
+                  variant="outline"
+                  className="mt-4"
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Join with Enrollment Code
+                </Button>
+              )}
             </CardContent>
           </Card>
         ) : (

@@ -118,6 +118,7 @@ export default function AssignmentDetailPage() {
 
   // Sequential block state
   const [lockMessage, setLockMessage] = useState<string | null>(null);
+  const [lockType, setLockType] = useState<'sequential_lock' | 'payment_required' | null>(null);
 
   // Submission form data
   const [submissionData, setSubmissionData] = useState({
@@ -174,7 +175,6 @@ export default function AssignmentDetailPage() {
   const loadAssignment = async () => {
     try {
       const data = await api.getAssignment(assignmentId);
-      console.log('Assignment data:', data); // Debug log
       setAssignment(data);
 
       // Load submission count for admin
@@ -184,11 +184,18 @@ export default function AssignmentDetailPage() {
     } catch (error: any) {
       console.error('Error loading assignment:', error);
 
-      // Check if it's our specific sequential lock ValidationError (400)
-      if (error.response?.status === 400 && error.response?.data?.message?.includes('must submit the previous assignment')) {
-        setLockMessage(error.response.data.message);
+      const status = error.response?.status;
+      const msg = error.response?.data?.message;
+      const type = error.response?.data?.type;
+
+      if (status === 400 && type === 'payment_required') {
+        setLockMessage(msg);
+        setLockType('payment_required');
+      } else if (status === 400 && (type === 'sequential_lock' || msg?.includes('must submit'))) {
+        setLockMessage(msg);
+        setLockType('sequential_lock');
       } else {
-        toast.error(error.response?.data?.message || 'Failed to load assignment');
+        toast.error(msg || 'Failed to load assignment');
       }
     } finally {
       setLoading(false);
@@ -392,11 +399,17 @@ export default function AssignmentDetailPage() {
       await loadSubmission();
     } catch (error: any) {
       console.error('Submission error:', error);
-      console.error('Error response:', error.response);
-      console.error('Error message:', error.message);
 
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to submit assignment';
-      toast.error(errorMessage);
+      const msg = error.response?.data?.message || error.message || 'Failed to submit assignment';
+      const type = error.response?.data?.type;
+
+      if (type === 'payment_required') {
+        toast.error(msg, { duration: 6000 });
+        // Switch to details tab so they can see the payment info
+        setActiveTab('details');
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -491,29 +504,45 @@ export default function AssignmentDetailPage() {
     );
   }
 
-  // Handle Sequential Lock State
+  // Handle Sequential Lock / Payment Required State
   if (lockMessage && !assignment) {
+    const isPaymentLock = lockType === 'payment_required';
     return (
       <div className="min-h-screen bg-background pt-32 pb-12 px-4 sm:px-6 lg:px-8 flex items-start justify-center">
-        <div className="max-w-md w-full glass-card p-8 border-neon-rose/30 text-center relative overflow-hidden group shadow-2xl">
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-neon-rose/10 rounded-full blur-[40px] pointer-events-none group-hover:bg-neon-rose/20 transition-colors duration-500"></div>
+        <div className={`max-w-md w-full glass-card p-8 text-center relative overflow-hidden group shadow-2xl ${isPaymentLock ? 'border-neon-amber/30' : 'border-neon-rose/30'}`}>
+          <div className={`absolute -top-10 -right-10 w-32 h-32 rounded-full blur-[40px] pointer-events-none transition-colors duration-500 ${isPaymentLock ? 'bg-neon-amber/10 group-hover:bg-neon-amber/20' : 'bg-neon-rose/10 group-hover:bg-neon-rose/20'}`}></div>
 
-          <div className="w-16 h-16 bg-neon-rose/10 text-neon-rose rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_15px_rgba(255,0,102,0.3)]">
-            <AlertCircle className="h-8 w-8 relative z-10" />
+          <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${isPaymentLock ? 'bg-neon-amber/10 text-neon-amber shadow-[0_0_15px_rgba(255,170,0,0.3)]' : 'bg-neon-rose/10 text-neon-rose shadow-[0_0_15px_rgba(255,0,102,0.3)]'}`}>
+            {isPaymentLock ? <DollarSign className="h-8 w-8 relative z-10" /> : <AlertCircle className="h-8 w-8 relative z-10" />}
           </div>
 
-          <h2 className="text-xl font-bold text-foreground mb-4 font-space uppercase tracking-widest text-neon-rose">Assignment Locked</h2>
+          <h2 className={`text-xl font-bold mb-3 font-space uppercase tracking-widest ${isPaymentLock ? 'text-neon-amber' : 'text-neon-rose'}`}>
+            {isPaymentLock ? 'Payment Required' : 'Assignment Locked'}
+          </h2>
+
           <p className="text-muted-foreground mb-8 text-sm leading-relaxed relative z-10 mono-font">
             {lockMessage}
           </p>
 
-          <Button
-            onClick={() => router.push('/dashboard')}
-            className="w-full bg-neon-cyan text-black hover:bg-neon-cyan/90 mono-font text-xs tracking-wider relative z-10 shadow-[0_0_15px_rgba(0,255,255,0.3)]"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            RETURN TO DASHBOARD
-          </Button>
+          <div className="flex flex-col gap-3 relative z-10">
+            {isPaymentLock && (
+              <Button
+                onClick={() => router.push('/payments')}
+                className="w-full bg-neon-amber text-black hover:bg-neon-amber/90 mono-font text-xs tracking-wider shadow-[0_0_15px_rgba(255,170,0,0.3)]"
+              >
+                <DollarSign className="mr-2 h-4 w-4" />
+                GO TO PAYMENTS
+              </Button>
+            )}
+            <Button
+              onClick={() => router.push('/assignments')}
+              variant="outline"
+              className="w-full border-white/10 hover:bg-white/5 mono-font text-xs tracking-wider"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              BACK TO ASSIGNMENTS
+            </Button>
+          </div>
         </div>
       </div>
     );
