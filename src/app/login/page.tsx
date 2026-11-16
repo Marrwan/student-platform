@@ -15,14 +15,14 @@ export default function LoginPage() {
   // Handle authenticated users with a side effect
   useEffect(() => {
     if (user && !loading) {
-      const roleRedirects: Record<string, string> = {
-        admin: '/admin',
-        instructor: '/hrms/dashboard',
-        staff: '/hrms/dashboard',
-        student: '/dashboard',
-      };
-      const redirectPath = roleRedirects[user.role] || '/dashboard';
-      router.push(redirectPath);
+      const userRoles = [
+        ...(user.roles || []),
+        user.role || '',
+      ].map((r) => String(r).toLowerCase().trim());
+
+      const isAdmin = userRoles.includes('admin') || userRoles.includes('super admin');
+      const redirectPath = isAdmin ? '/admin' : '/dashboard';
+      router.replace(redirectPath);
     }
   }, [user, loading, router]);
 

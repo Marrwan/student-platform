@@ -114,52 +114,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        {/* NUCLEAR CACHE RECOVERY SCRIPT */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var VERSION_ID = "v1_${Date.now()}"; // Unique build ID
-                  var STORED_VERSION = localStorage.getItem('STRANGEDEV_UI_VERSION');
-                  
-                  // 1. Version Parity Check (Force Refresh on New Build)
-                  if (STORED_VERSION && STORED_VERSION !== VERSION_ID) {
-                    console.warn('New deployment detected. Purging systematic cache...');
-                    if ('serviceWorker' in navigator) {
-                      navigator.serviceWorker.getRegistrations().then(function(regs) {
-                        for (var i = 0; i < regs.length; i++) regs[i].unregister();
-                      });
-                    }
-                    if ('caches' in window) {
-                      caches.keys().then(function(keys) {
-                        for (var i = 0; i < keys.length; i++) caches.delete(keys[i]);
-                      });
-                    }
-                    localStorage.setItem('STRANGEDEV_UI_VERSION', VERSION_ID);
-                    window.location.reload(true);
-                  } else {
-                    localStorage.setItem('STRANGEDEV_UI_VERSION', VERSION_ID);
-                  }
-
-                  // 2. Continuous Chunk Error Recovery
-                  window.addEventListener('error', function(e) {
-                    if (e && e.message && e.message.indexOf('ChunkLoadError') !== -1) {
-                      window.location.reload();
-                    }
-                  }, true);
-
-                  window.addEventListener('unhandledrejection', function(e) {
-                    var msg = e.reason && (e.reason.message || e.reason.name || '');
-                    if (msg && msg.indexOf('ChunkLoadError') !== -1) {
-                      window.location.reload();
-                    }
-                  });
-                } catch (err) {}
-              })();
-            `,
-          }}
-        />
 
         {/* Prevent Browser-Level Index Caching */}
         <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -195,7 +149,7 @@ export default function RootLayout({
                 shadow="0 0 10px #00f3ff,0 0 5px #00f3ff"
               />
               <ConditionalHeader />
-              <main className="flex-1 w-full mx-auto max-w-7xl pt-16">
+              <main className="flex-1 w-full">
                 {children}
               </main>
             </div>

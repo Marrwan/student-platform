@@ -207,24 +207,25 @@ function ProjectsList() {
 
       {/* Projects Grid */}
       <main className="container mx-auto px-6 py-12 relative z-10">
-        <div className="flex items-end justify-between mb-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-neon-cyan/5 border border-neon-cyan/10 text-[8px] uppercase tracking-[0.2em] text-neon-cyan mb-2 mono-font">
-              <span className="w-1 h-1 rounded-full bg-neon-cyan animate-pulse"></span>
-              OBJECTIVE_LIST_V0.1
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neon-cyan/10 border border-neon-cyan/20 text-[10px] font-bold uppercase tracking-[0.2em] text-neon-cyan mb-2 mono-font">
+              <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan animate-pulse"></span>
+              PERSONAL CAPSTONE HUB
             </div>
-            <h1 className="text-4xl font-black text-foreground uppercase tracking-tight mono-font">Mission <span className="text-muted-foreground">Directives</span></h1>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-[0.3em] mono-font mt-2">Browse and initialize programming sequences</p>
+            <h1 className="text-4xl font-black text-foreground uppercase tracking-tight mono-font">My <span className="text-muted-foreground">Capstone Projects</span></h1>
+            <p className="text-xs text-muted-foreground uppercase tracking-[0.2em] mono-font mt-2">Track active course capstones, deadlines, repository submissions & grading</p>
           </div>
-          {user?.role === 'admin' && (
+          <div className="flex items-center gap-3">
             <Button
-              onClick={() => router.push('/admin/projects/create')}
-              className="bg-neon-cyan text-black px-8 py-6 rounded-xl font-black text-[10px] uppercase tracking-widest mono-font shadow-glow-cyan hover:scale-105 transition-all"
+              onClick={() => router.push('/projects/showcase')}
+              variant="outline"
+              className="border-neon-cyan/40 text-neon-cyan hover:bg-neon-cyan/15 px-6 py-6 rounded-xl font-bold text-xs uppercase tracking-wider mono-font flex items-center shadow-lg shadow-neon-cyan/10"
             >
-              <Code className="h-4 w-4 mr-2" />
-              CREATE_NEW_VACT
+              <Eye className="h-4 w-4 mr-2" />
+              Public Showcase Gallery →
             </Button>
-          )}
+          </div>
         </div>
 
         {filteredProjects.length === 0 ? (

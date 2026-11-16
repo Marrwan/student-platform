@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import useSWR from 'swr';
+import Cookies from 'js-cookie';
 import { api } from './api';
 
 // Debounce hook for search inputs
@@ -29,8 +30,11 @@ export function useApiData<T>(
     revalidateOnReconnect?: boolean;
   }
 ) {
+  const hasToken = typeof window !== 'undefined' ? (!!Cookies.get('summayyah') || !!Cookies.get('token')) : false;
+  const effectiveKey = hasToken ? key : null;
+
   const { data, error, isLoading, mutate } = useSWR(
-    key,
+    effectiveKey,
     fetcher,
     {
       refreshInterval: options?.refreshInterval || 0,

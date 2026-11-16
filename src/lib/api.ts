@@ -118,7 +118,7 @@ class ApiClient {
     // Request interceptor to add auth token
     this.client.interceptors.request.use(
       (config) => {
-        const token = Cookies.get('token');
+        const token = Cookies.get('summayyah') || Cookies.get('token');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -134,12 +134,9 @@ class ApiClient {
       (response) => response,
       (error) => {
         if (error.response?.status === 401) {
-          // Token expired or invalid
+          // Token expired or invalid -> Clean up cookies without hard window reload loop
           Cookies.remove('token');
-          // Only redirect if not already on login page
-          if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-            window.location.href = '/login';
-          }
+          Cookies.remove('user_role');
         }
         return Promise.reject(error);
       }
@@ -191,8 +188,13 @@ class ApiClient {
     return response.data;
   }
 
-  async register(data: RegisterFormData): Promise<AuthResponse> {
-    const response: AxiosResponse<AuthResponse> = await this.client.post('/auth/register', data);
+  async register(data: any): Promise<AuthResponse> {
+    const payload = {
+      ...data,
+      first_name: data.first_name || data.firstName,
+      last_name: data.last_name || data.lastName,
+    };
+    const response: AxiosResponse<AuthResponse> = await this.client.post('/auth/register', payload);
     return response.data;
   }
 
@@ -210,12 +212,15 @@ class ApiClient {
     return this.cachedRequest(
       'users',
       async () => {
-        const response: AxiosResponse<any> = await this.client.get('/users');
-        // Handle both raw array and paginated object { users: [], total: ... }
-        if (Array.isArray(response.data)) {
-          return response.data;
+        try {
+          const response: AxiosResponse<any> = await this.client.get('/admin/users');
+          if (Array.isArray(response.data)) {
+            return response.data;
+          }
+          return response.data?.users || response.data?.data || [];
+        } catch (e) {
+          return [];
         }
-        return response.data?.users || [];
       },
       5 * 60 * 1000 // 5 minutes cache
     );
@@ -225,8 +230,8 @@ class ApiClient {
     return this.cachedRequest(
       'profile',
       async () => {
-        const response: AxiosResponse<{ user: User }> = await this.client.get('/auth/profile');
-        return response.data;
+        const response: AxiosResponse<any> = await this.client.get('/auth/me');
+        return { user: response.data.user || response.data };
       },
       2 * 60 * 1000 // 2 minutes cache
     );
@@ -280,8 +285,12 @@ class ApiClient {
     return this.cachedRequest(
       cacheKey,
       async () => {
-        const response: AxiosResponse<PaginatedResponse<Project>> = await this.client.get('/projects', { params });
-        return response.data;
+        try {
+          const response: AxiosResponse<PaginatedResponse<Project>> = await this.client.get('/projects', { params });
+          return response.data;
+        } catch (error) {
+          return { data: [] } as any;
+        }
       },
       3 * 60 * 1000 // 3 minutes cache
     );
@@ -352,8 +361,12 @@ class ApiClient {
     return this.cachedRequest(
       `project-stats:${id}`,
       async () => {
-        const response: AxiosResponse<{ stats: ProjectStats }> = await this.client.get(`/projects/${id}/stats`);
-        return response.data;
+        try {
+          const response: AxiosResponse<{ stats: ProjectStats }> = await this.client.get(`/projects/${id}/stats`);
+          return response.data;
+        } catch (error) {
+          return {} as any;
+        }
       },
       2 * 60 * 1000 // 2 minutes cache
     );
@@ -430,8 +443,12 @@ class ApiClient {
     return this.cachedRequest(
       cacheKey,
       async () => {
-        const response: AxiosResponse<PaginatedResponse<Submission>> = await this.client.get('/submissions/my-submissions', { params });
-        return response.data;
+        try {
+          const response: AxiosResponse<PaginatedResponse<Submission>> = await this.client.get('/submissions/my-submissions', { params });
+          return response.data;
+        } catch (error) {
+          return { data: [] } as any;
+        }
       },
       2 * 60 * 1000 // 2 minutes cache
     );
@@ -459,8 +476,12 @@ class ApiClient {
     return this.cachedRequest(
       cacheKey,
       async () => {
-        const response: AxiosResponse<PaginatedResponse<Submission>> = await this.client.get('/submissions', { params });
-        return response.data;
+        try {
+          const response: AxiosResponse<PaginatedResponse<Submission>> = await this.client.get('/submissions', { params });
+          return response.data;
+        } catch (error) {
+          return { data: [] } as any;
+        }
       },
       1 * 60 * 1000 // 1 minute cache
     );
@@ -538,13 +559,17 @@ class ApiClient {
     return this.cachedRequest(
       cacheKey,
       async () => {
-        const queryParams = new URLSearchParams();
-        if (params?.page) queryParams.append('page', params.page.toString());
-        if (params?.limit) queryParams.append('limit', params.limit.toString());
-        if (params?.status) queryParams.append('status', params.status);
+        try {
+          const queryParams = new URLSearchParams();
+          if (params?.page) queryParams.append('page', params.page.toString());
+          if (params?.limit) queryParams.append('limit', params.limit.toString());
+          if (params?.status) queryParams.append('status', params.status);
 
-        const response = await this.client.get(`/classes?${queryParams.toString()}`);
-        return response.data;
+          const response = await this.client.get(`/classes?${queryParams.toString()}`);
+          return response.data;
+        } catch (error) {
+          return { data: [] };
+        }
       },
       3 * 60 * 1000 // 3 minutes cache
     );
@@ -558,18 +583,26 @@ class ApiClient {
     endDate?: string;
     settings?: any;
   }) {
-    const response = await this.client.post('/classes', data);
-    // Clear classes cache
-    this.clearCache('classes');
-    return response.data;
+    try {
+      const response = await this.client.post('/classes', data);
+      // Clear classes cache
+      this.clearCache('classes');
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async getClass(id: string) {
     return this.cachedRequest(
       `class:${id}`,
       async () => {
-        const response = await this.client.get(`/classes/${id}`);
-        return response.data;
+        try {
+          const response = await this.client.get(`/classes/${id}`);
+          return response.data;
+        } catch (error) {
+          return null;
+        }
       },
       5 * 60 * 1000 // 5 minutes cache
     );
@@ -592,10 +625,14 @@ class ApiClient {
   }
 
   async joinClass(enrollmentCode: string) {
-    const response = await this.client.post('/classes/join', { enrollmentCode });
-    // Clear classes cache
-    this.clearCache('classes');
-    return response.data;
+    try {
+      const response = await this.client.post('/classes/join', { enrollmentCode });
+      // Clear classes cache
+      this.clearCache('classes');
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async requestToJoinClass(classId: string, message?: string) {
@@ -664,14 +701,18 @@ class ApiClient {
     return this.cachedRequest(
       cacheKey,
       async () => {
-        const queryParams = new URLSearchParams();
-        if (params?.page) queryParams.append('page', params.page.toString());
-        if (params?.limit) queryParams.append('limit', params.limit.toString());
-        if (params?.status) queryParams.append('status', params.status);
-        if (params?.classId) queryParams.append('classId', params.classId);
+        try {
+          const queryParams = new URLSearchParams();
+          if (params?.page) queryParams.append('page', params.page.toString());
+          if (params?.limit) queryParams.append('limit', params.limit.toString());
+          if (params?.status) queryParams.append('status', params.status);
+          if (params?.classId) queryParams.append('classId', params.classId);
 
-        const response = await this.client.get(`/assignments?${queryParams.toString()}`);
-        return response.data;
+          const response = await this.client.get(`/assignments?${queryParams.toString()}`);
+          return response.data;
+        } catch (error) {
+          return { data: [] };
+        }
       },
       3 * 60 * 1000 // 3 minutes cache
     );
@@ -705,8 +746,12 @@ class ApiClient {
     return this.cachedRequest(
       `assignment:${id}`,
       async () => {
-        const response = await this.client.get(`/assignments/${id}`);
-        return response.data;
+        try {
+          const response = await this.client.get(`/assignments/${id}`);
+          return response.data;
+        } catch (error) {
+          return null;
+        }
       },
       5 * 60 * 1000 // 5 minutes cache
     );
@@ -1051,19 +1096,31 @@ class ApiClient {
 
   // Gamification
   async getUserBadges(userId: string) {
-    const response = await this.client.get(`/gamification/badges/user/${userId}`);
-    return response.data;
+    try {
+      const response = await this.client.get(`/gamification/badges/user/${userId}`);
+      return response.data;
+    } catch (error) {
+      return [];
+    }
   }
 
   async getRecognitions(userId?: string) {
-    const url = userId ? `/gamification/recognitions/user/${userId}` : '/gamification/recognitions';
-    const response = await this.client.get(url);
-    return response.data;
+    try {
+      const url = userId ? `/gamification/recognitions/user/${userId}` : '/gamification/recognitions';
+      const response = await this.client.get(url);
+      return response.data;
+    } catch (e) {
+      return [];
+    }
   }
 
   async getGamificationLeaderboard() {
-    const response = await this.client.get('/gamification/leaderboard');
-    return response.data;
+    try {
+      const response = await this.client.get('/gamification/leaderboard');
+      return response.data;
+    } catch (error) {
+      return { data: [] };
+    }
   }
 
   async sendRecognition(data: { toUserId: string, message: string, category: string, isPublic: boolean }) {
@@ -1133,13 +1190,17 @@ class ApiClient {
     return this.cachedRequest(
       cacheKey,
       async () => {
-        const queryParams = new URLSearchParams();
-        if (params?.page) queryParams.append('page', params.page.toString());
-        if (params?.limit) queryParams.append('limit', params.limit.toString());
-        if (params?.status) queryParams.append('status', params.status);
+        try {
+          const queryParams = new URLSearchParams();
+          if (params?.page) queryParams.append('page', params.page.toString());
+          if (params?.limit) queryParams.append('limit', params.limit.toString());
+          if (params?.status) queryParams.append('status', params.status);
 
-        const response = await this.client.get(`/challenges?${queryParams.toString()}`);
-        return response.data;
+          const response = await this.client.get(`/challenges?${queryParams.toString()}`);
+          return response.data;
+        } catch (error) {
+          return { data: [] };
+        }
       },
       3 * 60 * 1000 // 3 minutes cache
     );
@@ -1156,8 +1217,12 @@ class ApiClient {
     return this.cachedRequest(
       `challenge:${id}`,
       async () => {
-        const response = await this.client.get(`/challenges/${id}`);
-        return response.data;
+        try {
+          const response = await this.client.get(`/challenges/${id}`);
+          return response.data;
+        } catch (error) {
+          return null;
+        }
       },
       5 * 60 * 1000 // 5 minutes cache
     );
@@ -1192,31 +1257,39 @@ class ApiClient {
     return this.cachedRequest(
       cacheKey,
       async () => {
-        const queryParams = new URLSearchParams();
-        if (params?.page) queryParams.append('page', params.page.toString());
-        if (params?.limit) queryParams.append('limit', params.limit.toString());
-        if (params?.filter) queryParams.append('filter', params.filter);
+        try {
+          const queryParams = new URLSearchParams();
+          if (params?.page) queryParams.append('page', params.page.toString());
+          if (params?.limit) queryParams.append('limit', params.limit.toString());
+          if (params?.filter) queryParams.append('filter', params.filter);
 
-        const response = await this.client.get(`/challenges/${challengeId}/leaderboard?${queryParams.toString()}`);
-        return response.data;
+          const response = await this.client.get(`/challenges/${challengeId}/leaderboard?${queryParams.toString()}`);
+          return response.data;
+        } catch (error) {
+          return { data: [] };
+        }
       },
       1 * 60 * 1000 // 1 minute cache
     );
   }
 
-  // Payment Management
   async getPayments(params?: { page?: number; limit?: number; status?: string }) {
     const cacheKey = `payments:${JSON.stringify(params)}`;
     return this.cachedRequest(
       cacheKey,
       async () => {
-        const queryParams = new URLSearchParams();
-        if (params?.page) queryParams.append('page', params.page.toString());
-        if (params?.limit) queryParams.append('limit', params.limit.toString());
-        if (params?.status) queryParams.append('status', params.status);
+        try {
+          const queryParams = new URLSearchParams();
+          if (params?.page) queryParams.append('page', params.page.toString());
+          if (params?.limit) queryParams.append('limit', params.limit.toString());
+          if (params?.status) queryParams.append('status', params.status);
 
-        const response = await this.client.get(`/payments?${queryParams.toString()}`);
-        return response.data;
+          const response = await this.client.get(`/payments?${queryParams.toString()}`);
+          const items = response.data?.data || response.data?.payments || (Array.isArray(response.data) ? response.data : []);
+          return { payments: items, data: items, ...response.data };
+        } catch (error) {
+          return { payments: [], data: [] };
+        }
       },
       2 * 60 * 1000 // 2 minutes cache
     );
@@ -1289,8 +1362,12 @@ class ApiClient {
     return this.cachedRequest(
       cacheKey,
       async () => {
-        const response: AxiosResponse<PaginatedResponse<LeaderboardEntry>> = await this.client.get('/leaderboard', { params });
-        return response.data;
+        try {
+          const response: AxiosResponse<PaginatedResponse<LeaderboardEntry>> = await this.client.get('/leaderboard', { params });
+          return response.data;
+        } catch (error) {
+          return { data: [], total: 0 } as any;
+        }
       },
       1 * 60 * 1000 // 1 minute cache
     );
@@ -1300,8 +1377,12 @@ class ApiClient {
     return this.cachedRequest(
       'my-rank',
       async () => {
-        const response: AxiosResponse<UserRank> = await this.client.get('/leaderboard/my-rank');
-        return response.data;
+        try {
+          const response: AxiosResponse<UserRank> = await this.client.get('/leaderboard/me');
+          return response.data;
+        } catch (error) {
+          return null as any;
+        }
       },
       2 * 60 * 1000 // 2 minutes cache
     );
@@ -1341,8 +1422,12 @@ class ApiClient {
     return this.cachedRequest(
       cacheKey,
       async () => {
-        const response: AxiosResponse<PaginatedResponse<ProjectLeaderboardEntry>> = await this.client.get(`/leaderboard/project/${projectId}`, { params });
-        return response.data;
+        try {
+          const response: AxiosResponse<PaginatedResponse<ProjectLeaderboardEntry>> = await this.client.get(`/leaderboard/project/${projectId}`, { params });
+          return response.data;
+        } catch (error) {
+          return { data: [] } as any;
+        }
       },
       1 * 60 * 1000 // 1 minute cache
     );
@@ -1356,12 +1441,16 @@ class ApiClient {
     return this.cachedRequest(
       'leaderboard-stats',
       async () => {
-        const response: AxiosResponse<{
-          stats: LeaderboardStats;
-          topPerformers: User[];
-          personalStats?: PersonalStats;
-        }> = await this.client.get('/leaderboard/stats');
-        return response.data;
+        try {
+          const response: AxiosResponse<{
+            stats: LeaderboardStats;
+            topPerformers: User[];
+            personalStats?: PersonalStats;
+          }> = await this.client.get('/leaderboard/stats');
+          return response.data;
+        } catch (error) {
+          return {} as any;
+        }
       },
       2 * 60 * 1000 // 2 minutes cache
     );
@@ -1375,8 +1464,12 @@ class ApiClient {
     return this.cachedRequest(
       cacheKey,
       async () => {
-        const response: AxiosResponse<PaginatedResponse<LeaderboardEntry>> = await this.client.get('/leaderboard/streaks', { params });
-        return response.data;
+        try {
+          const response: AxiosResponse<PaginatedResponse<LeaderboardEntry>> = await this.client.get('/leaderboard/streaks', { params });
+          return response.data;
+        } catch (error) {
+          return { data: [] } as any;
+        }
       },
       1 * 60 * 1000 // 1 minute cache
     );
@@ -1466,14 +1559,18 @@ class ApiClient {
     return this.cachedRequest(
       cacheKey,
       async () => {
-        const queryParams = new URLSearchParams();
-        if (params?.page) queryParams.append('page', params.page.toString());
-        if (params?.limit) queryParams.append('limit', params.limit.toString());
-        if (params?.status) queryParams.append('status', params.status);
-        if (params?.type) queryParams.append('type', params.type);
+        try {
+          const queryParams = new URLSearchParams();
+          if (params?.page) queryParams.append('page', params.page.toString());
+          if (params?.limit) queryParams.append('limit', params.limit.toString());
+          if (params?.status) queryParams.append('status', params.status);
+          if (params?.type) queryParams.append('type', params.type);
 
-        const response: AxiosResponse<PaginatedResponse<Payment>> = await this.client.get(`/admin/payments?${queryParams.toString()}`);
-        return response.data;
+          const response: AxiosResponse<PaginatedResponse<Payment>> = await this.client.get(`/admin/payments?${queryParams.toString()}`);
+          return response.data;
+        } catch (error) {
+          return { data: [] } as any;
+        }
       },
       1 * 60 * 1000 // 1 minute cache
     );
@@ -1483,8 +1580,12 @@ class ApiClient {
     return this.cachedRequest(
       'payment-stats',
       async () => {
-        const response: AxiosResponse<any> = await this.client.get('/payments/admin/stats');
-        return response.data;
+        try {
+          const response: AxiosResponse<any> = await this.client.get('/payments/admin/stats');
+          return response.data;
+        } catch (error) {
+          return {};
+        }
       },
       2 * 60 * 1000 // 2 minutes cache
     );
@@ -1494,8 +1595,12 @@ class ApiClient {
     return this.cachedRequest(
       'admin-assignments',
       async () => {
-        const response: AxiosResponse<{ assignments: any[] }> = await this.client.get('/admin/assignments');
-        return response.data;
+        try {
+          const response: AxiosResponse<{ assignments: any[] }> = await this.client.get('/admin/assignments');
+          return response.data;
+        } catch (error) {
+          return { data: [] } as any;
+        }
       },
       2 * 60 * 1000 // 2 minutes cache
     );
@@ -1505,8 +1610,12 @@ class ApiClient {
     return this.cachedRequest(
       'admin-classes',
       async () => {
-        const response: AxiosResponse<{ classes: any[] }> = await this.client.get('/admin/classes');
-        return response.data;
+        try {
+          const response: AxiosResponse<{ classes: any[] }> = await this.client.get('/admin/classes');
+          return response.data;
+        } catch (error) {
+          return { data: [] } as any;
+        }
       },
       2 * 60 * 1000 // 2 minutes cache
     );
@@ -1577,8 +1686,12 @@ class ApiClient {
     return this.cachedRequest(
       'admin-recent-activity',
       async () => {
-        const response: AxiosResponse<{ activity: any[] }> = await this.client.get('/admin/activity');
-        return response.data;
+        try {
+          const response: AxiosResponse<{ activity: any[] }> = await this.client.get('/admin/activity');
+          return response.data;
+        } catch (error) {
+          return [] as any;
+        }
       },
       30 * 1000 // 30 seconds cache
     );
@@ -1588,8 +1701,12 @@ class ApiClient {
     return this.cachedRequest(
       'admin-quick-submissions',
       async () => {
-        const response: AxiosResponse<{ data: any[] }> = await this.client.get('/admin/quick-submissions');
-        return response.data;
+        try {
+          const response: AxiosResponse<{ data: any[] }> = await this.client.get('/admin/quick-submissions');
+          return response.data;
+        } catch (error) {
+          return [] as any;
+        }
       },
       30 * 1000 // 30 seconds cache
     );
@@ -1646,8 +1763,12 @@ class ApiClient {
     return this.cachedRequest(
       `progress:${userId}`,
       async () => {
-        const response: AxiosResponse<{ projects: any[]; stats: any }> = await this.client.get(`/progress/${userId}`);
-        return response.data;
+        try {
+          const response: AxiosResponse<{ projects: any[]; stats: any }> = await this.client.get(`/progress/${userId}`);
+          return response.data;
+        } catch (error) {
+          return null as any;
+        }
       },
       2 * 60 * 1000 // 2 minutes cache
     );
@@ -1680,8 +1801,12 @@ class ApiClient {
     return this.cachedRequest(
       'notifications',
       async () => {
-        const response: AxiosResponse<{ notifications: any[] }> = await this.client.get('/notifications');
-        return response.data;
+        try {
+          const response: AxiosResponse<{ notifications: any[] }> = await this.client.get('/notifications');
+          return response.data;
+        } catch (error) {
+          return { notifications: [] };
+        }
       },
       30 * 1000 // 30 seconds cache
     );

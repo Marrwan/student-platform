@@ -38,7 +38,7 @@ export function ImpersonationBanner() {
       const result = await api.stopImpersonation(restoreToken);
 
       // Restore admin session
-      Cookies.set('token', result.token, { expires: 7, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' });
+      Cookies.set('summayyah', result.token, { expires: 7, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' });
       Cookies.set('user_role', result.user.role, { expires: 7, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' });
       Cookies.remove('restore_token');
       Cookies.remove('impersonation_meta');

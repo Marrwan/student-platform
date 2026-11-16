@@ -124,4 +124,44 @@ export function sleep(ms: number): Promise<void> {
 
 export function generateId(): string {
   return Math.random().toString(36).substr(2, 9);
-} 
+}
+
+/**
+ * Transforms any standard video URL (YouTube, Vimeo, Loom, etc.) into an embeddable iframe URL.
+ * Solves X-Frame-Options: sameorigin issues.
+ */
+export function getEmbedUrl(url?: string | null): string | null {
+  if (!url || typeof url !== 'string') return null;
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+
+  try {
+    // 1. YouTube standard watch: https://www.youtube.com/watch?v=VIDEO_ID or youtu.be/VIDEO_ID
+    const ytWatchMatch = trimmed.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
+    if (ytWatchMatch && ytWatchMatch[1]) {
+      return `https://www.youtube-nocookie.com/embed/${ytWatchMatch[1]}?rel=0&modestbranding=1`;
+    }
+
+    // 2. YouTube shorts: https://www.youtube.com/shorts/VIDEO_ID
+    const ytShortsMatch = trimmed.match(/youtube\.com\/shorts\/([^"&?\/\s]{11})/i);
+    if (ytShortsMatch && ytShortsMatch[1]) {
+      return `https://www.youtube-nocookie.com/embed/${ytShortsMatch[1]}?rel=0&modestbranding=1`;
+    }
+
+    // 3. Vimeo: https://vimeo.com/VIDEO_ID or https://player.vimeo.com/video/VIDEO_ID
+    const vimeoMatch = trimmed.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/i);
+    if (vimeoMatch && vimeoMatch[1]) {
+      return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+    }
+
+    // 4. Loom: https://www.loom.com/share/ID -> https://www.loom.com/embed/ID
+    const loomMatch = trimmed.match(/loom\.com\/(?:share|embed)\/([a-zA-Z0-9]+)/i);
+    if (loomMatch && loomMatch[1]) {
+      return `https://www.loom.com/embed/${loomMatch[1]}`;
+    }
+
+    return trimmed;
+  } catch (e) {
+    return trimmed;
+  }
+}

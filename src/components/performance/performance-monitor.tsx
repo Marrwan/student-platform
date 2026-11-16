@@ -305,9 +305,13 @@ export function setupPerformanceObserver() {
   });
 
   try {
-    observer.observe({ 
-      entryTypes: ['first-contentful-paint', 'largest-contentful-paint', 'first-input', 'layout-shift'] 
-    });
+    const supported = (typeof PerformanceObserver !== 'undefined' && (PerformanceObserver as any).supportedEntryTypes) || [];
+    const entryTypes = ['paint', 'largest-contentful-paint', 'first-input', 'layout-shift'].filter(
+      type => supported.length === 0 || supported.includes(type)
+    );
+    if (entryTypes.length > 0) {
+      observer.observe({ entryTypes, buffered: true });
+    }
   } catch (error) {
     console.warn('PerformanceObserver not supported:', error);
   }

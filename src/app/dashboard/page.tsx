@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useAuth } from '@/components/providers/auth-provider';
+import { usePermissions } from '@/lib/permissions';
 import { ProtectedRoute } from '@/components/auth/protected-route';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -15,14 +16,12 @@ import {
   Sparkles, ArrowRight, Zap
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { lmsApi } from '@/lib/lms-api-client';
+import { Course } from '@/types/lms';
 import {
   useTodayProject,
   useRecentSubmissions,
   useProgressStats,
-  useNotifications,
-  usePaymentHistory,
-  useLeaderboard,
-  useUserBadges,
   usePendingAssignments
 } from '@/lib/hooks';
 
@@ -67,10 +66,30 @@ interface ProgressStats {
 }
 
 export default function DashboardPage() {
-  const { user, loading } = useAuth();
+  const { user, loading, rehydrated } = useAuth();
+  const { hasRole, isSuperAdmin } = usePermissions();
   const router = useRouter();
+  const [redirecting, setRedirecting] = useState(false);
 
-  if (loading) {
+  // Permission-based redirect: admin-level users go to /admin, instructors go elsewhere
+  useEffect(() => {
+    if (!user || loading || !rehydrated) return;
+
+    // Check if user has admin-level permissions → redirect to admin dashboard
+    if (isSuperAdmin || hasRole('admin') || hasRole('super admin')) {
+      setRedirecting(true);
+      router.replace('/admin');
+      return;
+    }
+
+    // Instructors/staff could have their own dashboard in the future
+    if (hasRole('instructor') || hasRole('staff')) {
+      // For now, stay on student dashboard (instructors can also be learners)
+      // When instructor dashboard is built, redirect there
+    }
+  }, [user, loading, rehydrated, isSuperAdmin, hasRole, router]);
+
+  if (loading || !rehydrated || redirecting) {
     return (
       <div className="min-h-screen p-6 sm:p-8 pt-24 bg-background">
         <div className="container mx-auto max-w-7xl">
@@ -82,44 +101,34 @@ export default function DashboardPage() {
 
   if (!user) {
     router.push('/login');
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
-  if (user.role === 'admin') {
-    router.replace('/admin');
-    return null;
-  }
-
-  if (user.role === 'staff' || user.role === 'instructor' || user.role === 'partial_admin') {
-    router.replace('/hrms/dashboard');
-    return null;
-  }
-
-  // Final check: if user is logged in but has no valid role for student dashboard, redirect to login or error
-  if (user.role !== 'student' && user.role !== 'admin' && user.role !== 'staff' && user.role !== 'instructor') {
-    console.error('Invalid user role detected:', user.role);
-    router.replace('/login');
-    return null;
-  }
-
-  return (
-    <ProtectedRoute requiredRole="student">
-      <StudentDashboard />
-    </ProtectedRoute>
-  );
+  return <StudentDashboard />;
 }
 
 function StudentDashboard() {
   const { user } = useAuth();
   const router = useRouter();
 
+  // Only use hooks that map to real backend endpoints:
+  // - useTodayProject → GET /dashboard/today-project ✅
+  // - useRecentSubmissions → GET /dashboard/recent-submissions ✅
+  // - useProgressStats → GET /dashboard/progress-stats ✅
+  // - usePendingAssignments → GET /dashboard/pending-assignments ✅
+  // 
+  // REMOVED (no backend endpoint):
+  // - useNotifications → GET /notifications ❌ 404
+  // - useLeaderboard → GET /leaderboard?limit=N ❌ wrong format
+  // - useUserBadges → GET /gamification/badges/user/{id} ❌ 404
+  // - usePaymentHistory → stays removed (not relevant for dashboard)
   const { data: todayProjectData, isLoading: todayProjectLoading } = useTodayProject();
   const { data: recentSubmissionsData, isLoading: submissionsLoading } = useRecentSubmissions();
   const { data: progressStatsData, isLoading: statsLoading } = useProgressStats();
-  const { data: notificationsData } = useNotifications();
-  const { data: paymentsData } = usePaymentHistory({ limit: 3 });
-  const { data: leaderboardData } = useLeaderboard({ limit: 3 });
-  const { data: badgesData } = useUserBadges(user?.id);
   const { data: pendingAssignmentsData } = usePendingAssignments();
 
   const todayProject = useMemo(() => (todayProjectData as TodayProjectResponse)?.project || null, [todayProjectData]);
@@ -135,11 +144,26 @@ function StudentDashboard() {
     rank: 0,
     totalStudents: 0
   }, [progressStatsData]);
-  const recentNotifications = useMemo(() => notificationsData?.notifications?.slice(0, 5) || [], [notificationsData]);
-  const recentPayments = useMemo(() => paymentsData?.data?.slice(0, 3) || [], [paymentsData]);
-  const topStudents = useMemo(() => leaderboardData?.data || [], [leaderboardData]);
-  const myBadges = useMemo(() => badgesData || [], [badgesData]);
   const pendingAssignments = useMemo(() => (pendingAssignmentsData as any)?.assignments || [], [pendingAssignmentsData]);
+
+  const [enrolledCourses, setEnrolledCourses] = useState<Course[]>([]);
+  const [loadingCourses, setLoadingCourses] = useState(false);
+
+  useEffect(() => {
+    const fetchEnrolledCourses = async () => {
+      try {
+        setLoadingCourses(true);
+        const res = await lmsApi.getCourses();
+        const enrolled = (res.data || []).filter((c: any) => c.is_enrolled);
+        setEnrolledCourses(enrolled);
+      } catch (e) {
+        console.error('Failed to load courses on dashboard', e);
+      } finally {
+        setLoadingCourses(false);
+      }
+    };
+    fetchEnrolledCourses();
+  }, []);
 
   const completionRate = useMemo(() => {
     return progressStats.totalProjects > 0
@@ -162,19 +186,6 @@ function StudentDashboard() {
       case 'accepted':
         return 'bg-neon-emerald/10 text-neon-emerald border-neon-emerald/20';
       case 'rejected':
-        return 'bg-neon-rose/10 text-neon-rose border-neon-rose/20';
-      default:
-        return 'bg-white/5 text-gray-300 border-white/10';
-    }
-  }, []);
-
-  const getDifficultyColor = useCallback((difficulty: string) => {
-    switch (difficulty) {
-      case 'beginner':
-        return 'bg-neon-emerald/10 text-neon-emerald border-neon-emerald/20';
-      case 'intermediate':
-        return 'bg-neon-amber/10 text-neon-amber border-neon-amber/20';
-      case 'advanced':
         return 'bg-neon-rose/10 text-neon-rose border-neon-rose/20';
       default:
         return 'bg-white/5 text-gray-300 border-white/10';
@@ -231,7 +242,7 @@ function StudentDashboard() {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-neon-cyan mb-4 backdrop-blur-md">
                 <Code className="h-3 w-3" />
-                <span>Student Portal</span>
+                <span>Learning Portal</span>
               </div>
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-2">
                 Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-violet">{user?.firstName}</span>!
@@ -241,13 +252,13 @@ function StudentDashboard() {
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Button variant="outline" onClick={() => router.push('/classes')} className="glass-card hover:bg-white/5 border-white/10 text-muted-foreground hover:text-foreground">
+              <Button variant="outline" onClick={() => router.push('/courses')} className="glass-card hover:bg-white/5 border-white/10 text-muted-foreground hover:text-foreground">
                 <BookOpen className="h-4 w-4 mr-2 text-neon-emerald" />
-                Classes
+                Courses
               </Button>
-              <Button variant="outline" className="glass-card hover:bg-white/5 border-white/10 text-muted-foreground hover:text-foreground">
-                <Bell className="h-4 w-4 mr-2 text-neon-amber" />
-                Alerts
+              <Button variant="outline" onClick={() => router.push('/leaderboard')} className="glass-card hover:bg-white/5 border-white/10 text-muted-foreground hover:text-foreground">
+                <Trophy className="h-4 w-4 mr-2 text-neon-amber" />
+                Leaderboard
               </Button>
             </div>
           </div>
@@ -300,7 +311,7 @@ function StudentDashboard() {
               <div className="relative z-10">
                 <div className="text-4xl font-bold mb-1 mono-font bg-clip-text text-transparent bg-gradient-to-r from-neon-emerald to-white">{completionRate}%</div>
                 <p className="text-xs text-muted-foreground mono-font">
-                  {progressStats.completedProjects} / {progressStats.totalProjects} PRJs
+                  {progressStats.completedProjects} / {progressStats.totalProjects} COMPLETED
                 </p>
               </div>
             </div>
@@ -321,13 +332,73 @@ function StudentDashboard() {
               </div>
             </div>
           </motion.div>
+          {/* Enrolled Courses & Progress Section (freeCodeCamp style) */}
+          {enrolledCourses.length > 0 && (
+            <motion.div variants={itemVariants} className="mb-8 sm:mb-12">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="h-5 w-5 text-neon-cyan" />
+                  <h2 className="text-xl font-bold text-white tracking-tight">Your Enrolled Courses</h2>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => router.push('/courses')} className="text-xs text-neon-cyan hover:text-white">
+                  Browse All Courses &rarr;
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {enrolledCourses.map((c) => (
+                  <div
+                    key={c.id}
+                    onClick={() => router.push(`/courses/${c.slug || c.id}`)}
+                    className="glass-card p-6 rounded-2xl border border-white/10 hover:border-neon-cyan/40 transition-all cursor-pointer group relative overflow-hidden flex flex-col justify-between space-y-4"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <Badge variant="outline" className="border-neon-cyan/30 text-neon-cyan text-[10px] font-mono mb-2">
+                          {c.difficulty || 'Beginner'}
+                        </Badge>
+                        <h3 className="text-lg font-bold text-white group-hover:text-neon-cyan transition-colors">
+                          {c.title}
+                        </h3>
+                        <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                          {c.description}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 pt-2 border-t border-white/5">
+                      <div className="flex items-center justify-between text-xs font-mono">
+                        <span className="text-slate-400">Progress</span>
+                        <span className="font-bold text-neon-emerald">
+                          {c.progress_percentage ?? 0}% ({c.completed_topics_count ?? 0}/{c.total_topics_count ?? 0} Lessons)
+                        </span>
+                      </div>
+                      <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden border border-white/10">
+                        <div
+                          className="h-full bg-gradient-to-r from-neon-cyan to-neon-emerald rounded-full transition-all duration-500"
+                          style={{ width: `${Math.max(c.progress_percentage ?? 0, 3)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end">
+                      <span className="text-xs font-bold text-neon-cyan flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                        <span>Continue Learning</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-12">
 
             {/* Main Center Column */}
             <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6 sm:space-y-8">
 
-              {/* Active Assignments — all pending (unsubmitted) */}
+              {/* Active Tasks — pending items */}
               <div className="glass-card p-6 sm:p-8 hover-glow-cyan transition-colors duration-500 relative overflow-hidden group">
                 <div className="absolute top-0 -right-20 w-80 h-80 bg-neon-cyan/5 rounded-full blur-[80px] pointer-events-none group-hover:bg-neon-cyan/15 transition-colors duration-700"></div>
                 <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-neon-violet/5 rounded-full blur-[80px] pointer-events-none group-hover:bg-neon-violet/10 transition-colors duration-700"></div>
@@ -336,22 +407,22 @@ function StudentDashboard() {
                   <div>
                     <h2 className="text-sm tracking-widest uppercase font-bold text-neon-cyan mb-2 flex items-center gap-2 mono-font">
                       <Zap className="h-4 w-4" />
-                      Active Assignments
+                      Active Tasks
                     </h2>
                     <p className="text-sm text-muted-foreground">
                       {pendingAssignments.length > 0
-                        ? `${pendingAssignments.length} assignment${pendingAssignments.length > 1 ? 's' : ''} pending submission`
-                        : 'All caught up — no pending assignments.'}
+                        ? `${pendingAssignments.length} task${pendingAssignments.length > 1 ? 's' : ''} pending completion`
+                        : 'All caught up — no pending tasks.'}
                     </p>
                   </div>
                   {pendingAssignments.length > 0 && (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => router.push('/assignments')}
+                      onClick={() => router.push('/courses')}
                       className="border-white/10 hover:bg-white/5 text-muted-foreground hover:text-foreground mono-font text-xs tracking-wider shrink-0"
                     >
-                      View All
+                      View Courses
                       <ArrowRight className="h-3 w-3 ml-1.5" />
                     </Button>
                   )}
@@ -367,7 +438,7 @@ function StudentDashboard() {
                             ? 'border-neon-rose/30 hover:border-neon-rose/60'
                             : 'border-white/5 hover:border-neon-cyan/30'
                         }`}
-                        onClick={() => router.push(`/assignments/${assignment.id}`)}
+                        onClick={() => router.push(`/courses`)}
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1 min-w-0">
@@ -375,9 +446,6 @@ function StudentDashboard() {
                               <h3 className="font-semibold text-foreground group-hover/item:text-neon-cyan transition-colors text-sm truncate">
                                 {assignment.title}
                               </h3>
-                              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-white/5 border border-white/10 rounded text-muted-foreground mono-font shrink-0">
-                                {assignment.class}
-                              </span>
                             </div>
                             <div className="flex items-center gap-4 text-xs mono-font">
                               <span className={`flex items-center gap-1 font-medium ${assignment.isOverdue ? 'text-neon-rose' : 'text-neon-cyan'}`}>
@@ -387,12 +455,6 @@ function StudentDashboard() {
                               <span className="text-muted-foreground">
                                 Max: {assignment.maxScore} pts
                               </span>
-                              {assignment.paymentRequired && assignment.isOverdue && (
-                                <span className="text-neon-amber flex items-center gap-1">
-                                  <AlertCircle className="h-3 w-3" />
-                                  Fee required
-                                </span>
-                              )}
                             </div>
                           </div>
                           <div className="flex items-center gap-2 shrink-0">
@@ -416,10 +478,10 @@ function StudentDashboard() {
                     <CheckCircle className="h-10 w-10 text-neon-emerald mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-foreground mb-2">All caught up!</h3>
                     <p className="text-muted-foreground text-sm mb-6 max-w-sm mx-auto">
-                      {(todayProjectData as TodayProjectResponse)?.message || 'No pending assignments. Join a class to get started.'}
+                      {(todayProjectData as TodayProjectResponse)?.message || 'No pending tasks. Browse courses to get started.'}
                     </p>
-                    <Button onClick={() => router.push('/classes')} variant="outline" className="border-white/10 hover:bg-white/5 text-foreground">
-                      Browse Classes
+                    <Button onClick={() => router.push('/courses')} variant="outline" className="border-white/10 hover:bg-white/5 text-foreground">
+                      Browse Courses
                     </Button>
                   </div>
                 )}
@@ -431,7 +493,7 @@ function StudentDashboard() {
                 <div className="p-6 border-b border-white/5 relative z-10">
                   <h2 className="text-sm tracking-widest uppercase font-bold text-neon-violet flex items-center gap-2 mono-font">
                     <FileText className="h-4 w-4" />
-                    Transmission Logs
+                    Recent Submissions
                   </h2>
                 </div>
 
@@ -443,11 +505,6 @@ function StudentDashboard() {
                           <div className="flex-1">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
                               <h4 className="font-semibold text-foreground group-hover/row:text-neon-cyan transition-colors">{submission.projectTitle}</h4>
-                              {submission.class && (
-                                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-white/5 border border-white/10 rounded text-muted-foreground mono-font">
-                                  {submission.class}
-                                </span>
-                              )}
                             </div>
                             <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2 mono-font flex items-center gap-2">
                               <span className="w-1.5 h-1.5 rounded-full bg-neon-violet/50"></span>
@@ -471,14 +528,6 @@ function StudentDashboard() {
                                 </Badge>
                               )}
                             </div>
-                            <Button
-                              size="icon"
-                              variant="outline"
-                              className="h-8 w-8 rounded-full border-white/10 hover:border-neon-cyan hover:text-neon-cyan group-hover/row:border-neon-cyan/50 group-hover/row:text-neon-cyan transition-colors bg-background"
-                              onClick={() => router.push(`/assignments/${submission.id}`)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
                           </div>
                         </div>
                       ))}
@@ -486,7 +535,7 @@ function StudentDashboard() {
                   ) : (
                     <div className="text-center py-10">
                       <Code className="h-10 w-10 text-muted-foreground/50 mx-auto mb-3" />
-                      <p className="text-muted-foreground text-sm">No recent code submissions.</p>
+                      <p className="text-muted-foreground text-sm">No recent submissions.</p>
                     </div>
                   )}
                 </div>
@@ -501,12 +550,12 @@ function StudentDashboard() {
                 <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-neon-amber/5 rounded-full blur-[50px] pointer-events-none group-hover:bg-neon-amber/10 transition-colors duration-500"></div>
                 <h2 className="text-sm tracking-widest uppercase font-bold mb-4 text-neon-amber flex items-center gap-2 mono-font relative z-10">
                   <Activity className="h-4 w-4" />
-                  System Navigation
+                  Quick Navigation
                 </h2>
                 <div className="flex flex-col gap-2">
-                  <Button variant="ghost" className="justify-start hover:bg-white/5 text-muted-foreground hover:text-foreground font-normal" onClick={() => router.push('/projects')}>
-                    <Code className="h-4 w-4 mr-3 text-neon-cyan" />
-                    Project Library
+                  <Button variant="ghost" className="justify-start hover:bg-white/5 text-muted-foreground hover:text-foreground font-normal" onClick={() => router.push('/courses')}>
+                    <BookOpen className="h-4 w-4 mr-3 text-neon-cyan" />
+                    Browse Courses
                   </Button>
                   <Button variant="ghost" className="justify-start hover:bg-white/5 text-muted-foreground hover:text-foreground font-normal" onClick={() => router.push('/leaderboard')}>
                     <Trophy className="h-4 w-4 mr-3 text-neon-amber" />
@@ -516,65 +565,14 @@ function StudentDashboard() {
                     <TrendingUp className="h-4 w-4 mr-3 text-neon-emerald" />
                     Track Full Progress
                   </Button>
-                  <Button variant="ghost" className="justify-start hover:bg-neon-cyan/10 hover:text-neon-cyan text-muted-foreground font-normal transition-colors" onClick={() => router.push('/student-guide')}>
-                    <Info className="h-4 w-4 mr-3" />
-                    Student Handbook
+                  <Button variant="ghost" className="justify-start hover:bg-white/5 text-muted-foreground hover:text-foreground font-normal" onClick={() => router.push('/certificates')}>
+                    <Award className="h-4 w-4 mr-3 text-neon-violet" />
+                    My Certificates
                   </Button>
-                </div>
-              </div>
-
-              {/* Earned Badges */}
-              <div className="glass-card p-6 border-neon-cyan/20 hover-glow-cyan transition-all duration-500 relative overflow-hidden group">
-                <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-neon-cyan/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-neon-cyan/10 transition-colors duration-500"></div>
-                <h2 className="text-sm tracking-widest uppercase font-bold mb-5 text-neon-cyan mono-font flex items-center gap-2 relative z-10">
-                  <Award className="h-4 w-4" />
-                  Earned Badges
-                </h2>
-                <div className="flex flex-wrap gap-3 relative z-10">
-                  {myBadges.length === 0 ? (
-                    <p className="text-sm text-muted-foreground italic px-2">No badges earned yet. Keep coding!</p>
-                  ) : (
-                    myBadges.map((userBadge: any) => (
-                      <div key={userBadge.id} className="group relative">
-                        <div className="w-12 h-12 flex items-center justify-center rounded-full bg-neon-cyan/10 border border-neon-cyan/20 text-2xl hover:scale-110 transition-transform cursor-help">
-                          {userBadge.badge?.icon || '🏅'}
-                        </div>
-                        <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-[150px] opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 text-white text-[10px] sm:text-xs p-2 rounded border border-white/10 text-center z-50 shadow-xl">
-                          <strong className="block text-neon-cyan mb-1">{userBadge.badge?.name || 'Badge'}</strong>
-                          <span className="text-muted-foreground">{userBadge.badge?.description || 'Achievement unlocked'}</span>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              {/* Top 3 Leaderboard */}
-              <div className="glass-card p-6 border-neon-amber/20 hover-glow-amber transition-all duration-500 relative overflow-hidden group">
-                <div className="absolute -top-10 -right-10 w-32 h-32 bg-neon-amber/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-neon-amber/10 transition-colors duration-500"></div>
-                <h2 className="text-sm tracking-widest uppercase font-bold mb-5 text-neon-amber mono-font flex items-center gap-2 relative z-10">
-                  <Trophy className="h-4 w-4" />
-                  Top Scholars
-                </h2>
-                <div className="space-y-3 relative z-10">
-                  {topStudents.length === 0 ? (
-                    <p className="text-sm text-muted-foreground italic px-2">No rankings available yet.</p>
-                  ) : (
-                    topStudents.map((student: any, i: number) => (
-                      <div key={student.id} className={`flex items-center justify-between p-3 rounded-lg border ${student.isCurrentUser ? 'bg-neon-amber/10 border-neon-amber/30' : 'bg-background/50 border-white/5'} transition-colors`}>
-                        <div className="flex items-center gap-3">
-                          <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${i === 0 ? 'bg-yellow-500/20 text-yellow-500' : i === 1 ? 'bg-gray-300/20 text-gray-300' : 'bg-amber-700/20 text-amber-600'}`}>
-                            {i + 1}
-                          </span>
-                          <span className={`text-sm font-medium ${student.isCurrentUser ? 'text-neon-amber' : 'text-foreground'}`}>
-                            {student.firstName} {student.lastName}
-                            {student.isCurrentUser && <span className="ml-2 text-xs opacity-70">(You)</span>}
-                          </span>
-                        </div>
-                        <span className="text-xs font-mono text-neon-cyan">{student.totalScore} pts</span>
-                      </div>
-                    ))
-                  )}
+                  <Button variant="ghost" className="justify-start hover:bg-neon-cyan/10 hover:text-neon-cyan text-muted-foreground font-normal transition-colors" onClick={() => router.push('/rules')}>
+                    <Info className="h-4 w-4 mr-3" />
+                    Platform Rules
+                  </Button>
                 </div>
               </div>
 
@@ -583,12 +581,12 @@ function StudentDashboard() {
                 <div className="absolute -top-10 -right-10 w-32 h-32 bg-neon-emerald/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-neon-emerald/10 transition-colors duration-500"></div>
                 <h2 className="text-sm tracking-widest uppercase font-bold mb-5 text-neon-emerald mono-font flex items-center gap-2 relative z-10">
                   <Target className="h-4 w-4" />
-                  Diagnostics
+                  Progress
                 </h2>
                 <div className="space-y-6 relative z-10">
                   <div>
                     <div className="flex justify-between text-xs tracking-wider uppercase mb-2 mono-font">
-                      <span className="text-muted-foreground font-medium">Curriculum Path</span>
+                      <span className="text-muted-foreground font-medium">Completion</span>
                       <span className="font-bold text-neon-emerald">{completionRate}%</span>
                     </div>
                     <Progress value={overallProgress} className="h-2 bg-white/5" indicatorClassName="bg-neon-emerald" />
@@ -608,24 +606,6 @@ function StudentDashboard() {
                       <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Miss</span>
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* Notifications */}
-              <div className="glass-card p-6 hover-glow-violet transition-all duration-500 group relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-neon-violet/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-neon-violet/10 transition-colors duration-500"></div>
-                <h2 className="text-sm tracking-widest uppercase font-bold mb-4 text-neon-violet flex items-center gap-2 mono-font relative z-10">
-                  <Bell className="h-4 w-4" />
-                  System Alerts
-                </h2>
-                <div className="flex flex-col gap-3 relative z-10">
-                  {recentNotifications.length === 0 && <p className="text-sm text-muted-foreground italic px-2">No active alerts.</p>}
-                  {recentNotifications.map(n => (
-                    <div key={n.id} className="relative pl-4 border-l-2 border-white/10 py-1 hover:border-neon-violet transition-colors">
-                      <div className="font-medium text-xs tracking-wider text-foreground mono-font uppercase">{n.title}</div>
-                      <div className="text-[11px] text-muted-foreground mt-1 line-clamp-2 leading-relaxed">{n.content}</div>
-                    </div>
-                  ))}
                 </div>
               </div>
 

@@ -11,6 +11,9 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   rehydrated: boolean;
+  activeRole: string;
+  availableRoles: string[];
+  switchRole: (newRole: string) => void;
   login: (email: string, password: string, verificationOtp?: string) => Promise<void>;
   register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
   verifyEmail: (token: string) => Promise<void>;
@@ -31,28 +34,98 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth();
   }, []);
 
+  const normalizeUser = (rawUser: any): User | null => {
+    if (!rawUser) return null;
+    const rawRoles = Array.isArray(rawUser.roles)
+      ? rawUser.roles.map((r: any) => (typeof r === 'string' ? r.toLowerCase() : String(r).toLowerCase()))
+      : [];
+
+    const hasAdmin = rawRoles.includes('admin') || rawRoles.includes('super admin') || String(rawUser.role).toLowerCase() === 'admin' || String(rawUser.role).toLowerCase() === 'super admin';
+    const fallbackRole = hasAdmin ? 'admin' : (rawUser.role ? String(rawUser.role).toLowerCase() : (rawRoles[0] || 'student'));
+
+    const savedRole = Cookies.get('active_role') || Cookies.get('user_role');
+    const activeRole = (savedRole && (rawRoles.includes(savedRole.toLowerCase()) || savedRole.toLowerCase() === fallbackRole))
+      ? savedRole.toLowerCase()
+      : fallbackRole;
+
+    const cleanRolesList = Array.from(
+      new Set(
+        [...rawRoles, fallbackRole, activeRole].map((r) => {
+          if (r === 'super admin' || r === 'partial_admin') return 'admin';
+          return r;
+        })
+      )
+    );
+
+    const primaryRole = cleanRolesList.includes('admin') ? 'admin' : activeRole;
+
+    return {
+      ...rawUser,
+      role: primaryRole as any,
+      roles: cleanRolesList,
+    };
+  };
+
+  const switchRole = (newRole: string) => {
+    if (!user) return;
+    const targetRole = newRole.toLowerCase();
+    const rolesList = user.roles || [user.role];
+    if (!rolesList.map(r => r.toLowerCase()).includes(targetRole)) {
+      toast.error(`You do not have permission for ${newRole} view.`);
+      return;
+    }
+
+    const updatedUser = { ...user, role: targetRole as any };
+    setUser(updatedUser);
+    Cookies.set('user_role', targetRole, { expires: 7, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' });
+    Cookies.set('active_role', targetRole, { expires: 7, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' });
+
+    toast.success(`Switched to ${targetRole.toUpperCase()} view`);
+
+    const roleRedirects: Record<string, string> = {
+      admin: '/admin',
+      instructor: '/hrms/dashboard',
+      staff: '/hrms/dashboard',
+      student: '/dashboard',
+    };
+    const redirectPath = roleRedirects[targetRole] || '/dashboard';
+    window.location.href = redirectPath;
+  };
+
   const checkAuth = async () => {
     try {
-      const token = Cookies.get('token');
+      const token = Cookies.get('summayyah') || Cookies.get('token');
 
       if (token) {
+        // Sync both cookie names
+        Cookies.set('summayyah', token, { expires: 7, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' });
+        Cookies.set('token', token, { expires: 7, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' });
+
         const { user } = await api.getProfile();
-        setUser(user);
-        Cookies.set('user_role', user.role, {
-          expires: 7,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax'
-        });
+        const normalized = normalizeUser(user);
+        setUser(normalized);
+        if (normalized?.role) {
+          Cookies.set('user_role', normalized.role, {
+            expires: 7,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax'
+          });
+          Cookies.set('active_role', normalized.role, {
+            expires: 7,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax'
+          });
+        }
       }
     } catch (error: any) {
-      if (error.response?.status === 401) {
-        Cookies.remove('token');
-        Cookies.remove('user_role');
-        // Also clean up any stale impersonation cookies
-        Cookies.remove('restore_token');
-        Cookies.remove('impersonation_meta');
-        api.clearCache();
-      }
+      Cookies.remove('summayyah', { path: '/' });
+      Cookies.remove('token', { path: '/' });
+      Cookies.remove('user_role', { path: '/' });
+      Cookies.remove('active_role', { path: '/' });
+      Cookies.remove('restore_token', { path: '/' });
+      Cookies.remove('impersonation_meta', { path: '/' });
+      api.clearCache();
+      setUser(null);
     } finally {
       setLoading(false);
       setRehydrated(true);
@@ -67,19 +140,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const response = await api.login(loginData);
+      const normalized = normalizeUser(response.user)!;
 
+      Cookies.set('summayyah', response.token, {
+        expires: 7,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      });
       Cookies.set('token', response.token, {
         expires: 7,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax'
       });
-      Cookies.set('user_role', response.user.role, {
+      Cookies.set('user_role', normalized.role, {
+        expires: 7,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      });
+      Cookies.set('active_role', normalized.role, {
         expires: 7,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax'
       });
 
-      setUser(response.user);
+      setUser(normalized);
       toast.success('Login successful!');
 
       // Role-based redirect using centralized mapping
@@ -89,7 +173,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         staff: '/hrms/dashboard',
         student: '/dashboard',
       };
-      const redirectPath = roleRedirects[response.user.role] || '/dashboard';
+      const redirectPath = roleRedirects[normalized.role] || '/dashboard';
 
       // Use window.location for a full page reload to ensure middleware runs
       window.location.href = redirectPath;
@@ -118,19 +202,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const verifyEmail = async (token: string) => {
     try {
       const response = await api.verifyEmail(token);
+      const normalized = normalizeUser(response.user)!;
 
-      // Store token securely
+      // Store token securely in both keys
+      Cookies.set('summayyah', response.token, {
+        expires: 7,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      });
       Cookies.set('token', response.token, {
         expires: 7,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax' // lax so cookie is sent when user returns from external redirect (e.g. Paystack checkout)
+        sameSite: 'lax'
       });
 
-      setUser(response.user);
-      Cookies.set('user_role', response.user.role, {
+      setUser(normalized);
+      Cookies.set('user_role', normalized.role, {
         expires: 7,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax' // lax so cookie is sent when user returns from external redirect (e.g. Paystack checkout)
+        sameSite: 'lax'
+      });
+      Cookies.set('active_role', normalized.role, {
+        expires: 7,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
       });
 
       toast.success('Email verified successfully!');
@@ -142,7 +237,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         staff: '/hrms/dashboard',
         student: '/dashboard',
       };
-      const redirectPath = roleRedirects[response.user.role] || '/dashboard';
+      const redirectPath = roleRedirects[normalized.role] || '/dashboard';
       router.push(redirectPath);
 
     } catch (error: any) {
@@ -162,29 +257,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
-    Cookies.remove('token');
-    Cookies.remove('user_role');
-    Cookies.remove('restore_token');
-    Cookies.remove('impersonation_meta');
+    Cookies.remove('summayyah', { path: '/' });
+    Cookies.remove('token', { path: '/' });
+    Cookies.remove('user_role', { path: '/' });
+    Cookies.remove('active_role', { path: '/' });
+    Cookies.remove('restore_token', { path: '/' });
+    Cookies.remove('impersonation_meta', { path: '/' });
     api.clearCache();
     setUser(null);
     toast.success('Logged out successfully');
-    window.location.href = '/';
+    window.location.replace('/');
   };
 
   const updateUser = (userData: User) => {
-    setUser(userData);
-    Cookies.set('user_role', userData.role, {
-      expires: 7,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax' // lax so cookie is sent when user returns from external redirect (e.g. Paystack checkout)
-    });
+    const normalized = normalizeUser(userData);
+    setUser(normalized);
+    if (normalized?.role) {
+      Cookies.set('user_role', normalized.role, {
+        expires: 7,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      });
+    }
   };
+
+  const activeRole = user?.role || 'student';
+  const availableRoles = user?.roles && user.roles.length > 0 ? user.roles : [activeRole];
 
   const value = {
     user,
     loading,
     rehydrated,
+    activeRole,
+    availableRoles,
+    switchRole,
     login,
     register,
     verifyEmail,

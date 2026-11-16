@@ -5,8 +5,8 @@ const sanitize = (value: string | undefined | null, fallback: string = ''): stri
 };
 
 const env = {
-    API_URL: sanitize(process.env.NEXT_PUBLIC_API_URL, 'http://localhost:5001/api'),
-    PAYSTACK_PUBLIC_KEY: sanitize(process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY, 'pk_live_d45a5efed923cd64dbdd5f3f637311bdd8b1cc41'),
+    API_URL: sanitize(process.env.NEXT_PUBLIC_API_URL, 'http://localhost:8000/api/v1'),
+    PAYSTACK_PUBLIC_KEY: sanitize(process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY, 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxx'),
     TINYMCE_API_KEY: sanitize(process.env.NEXT_PUBLIC_TINYMCE_API_KEY),
 } as const;
 

@@ -4,14 +4,17 @@ import type { NextRequest } from 'next/server';
 // Centralized role → default redirect mapping
 const ROLE_REDIRECTS: Record<string, string> = {
     admin: '/admin',
+    'super admin': '/admin',
+    'super-admin': '/admin',
     instructor: '/hrms/dashboard',
     staff: '/hrms/dashboard',
     student: '/dashboard',
 };
 
 export function middleware(request: NextRequest) {
-    const token = request.cookies.get('token')?.value;
-    const userRole = request.cookies.get('user_role')?.value;
+    const token = request.cookies.get('token')?.value || request.cookies.get('summayyah')?.value;
+    const rawRole = request.cookies.get('user_role')?.value || request.cookies.get('active_role')?.value || '';
+    const userRole = rawRole.toLowerCase().trim();
     const { pathname } = request.nextUrl;
 
     // Paths that require authentication
@@ -38,7 +41,8 @@ export function middleware(request: NextRequest) {
 
     // Role-based protection: Admin only routes
     if (pathname.startsWith('/admin')) {
-        if (userRole !== 'admin') {
+        const isAdmin = ['admin', 'super admin', 'super-admin'].includes(userRole);
+        if (!isAdmin) {
             const redirectPath = (userRole && ROLE_REDIRECTS[userRole]) || '/dashboard';
             return NextResponse.redirect(new URL(redirectPath, request.url));
         }
@@ -46,7 +50,7 @@ export function middleware(request: NextRequest) {
 
     // Role-based protection: HRMS routes (staff, instructor, admin)
     if (pathname.startsWith('/hrms')) {
-        if (!userRole || !['staff', 'instructor', 'admin'].includes(userRole)) {
+        if (!userRole || !['staff', 'instructor', 'admin', 'super admin', 'super-admin'].includes(userRole)) {
             return NextResponse.redirect(new URL('/dashboard', request.url));
         }
     }
